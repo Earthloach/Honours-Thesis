@@ -1,0 +1,70 @@
+
+% define your own macros here
+\newcommand{\tlam}[2]{\lambda#1.\,#2}
+\newcommand{\tLam}[2]{\Lambda#1.\,#2}
+\newcommand{\hastype}[3]{#1 \vdash #2 : #3}
+\newcommand{\vrel}[1]{\llbracket #1 \rrbracket_{\mathcal{V}}}
+\newcommand{\erel}[1]{\llbracket #1 \rrbracket_{\mathcal{E}}}
+\newcommand{\clk}{\mathsf{clk}}
+\newcommand{\tmonad}[2]{\mathbb{M}\,{#1}\, #2}
+\newcommand{\tick}[1]{\uparrow^{#1}}
+\newcommand{\tstr}[1]{\mathsf{Str^g}\,#1}
+\newcommand{\ttree}[1]{\mathsf{Tree^g}\,#1}
+\newcommand{\tint}{\mathsf{Int}}
+\newcommand{\head}{\mathsf{hd^g}\,}
+\newcommand{\tail}{\mathsf{tl^g}\,}
+\newcommand{\troot}{\mathsf{root^g}\,}
+\newcommand{\tleft}{\mathsf{left^g}\,}
+\newcommand{\tright}{\mathsf{right^g}\,}
+\newcommand{\fix}{\mathsf{fix}\,}
+\newcommand{\delay}{\mathsf{next}\,}
+\newcommand{\fold}{\mathsf{fold}\,}
+\newcommand{\unfold}{\mathsf{unfold}\,}
+\newcommand{\ret}{\mathsf{ret}\,}
+\newcommand{\case}[5]{\mathsf{case}\,#1\,\mathsf{of}\;
+  \mathsf{inl}\,#2\mapsto #3\mid\mathsf{inr}\,#4\mapsto #5}
+\newcommand{\store}{\mathsf{store}\,}
+\newcommand{\bind}[3]{\mathsf{bind}\, #1= #2 \, \mathsf{in}\, #3}
+\newcommand{\release}[3]{\mathsf{release}\, #1 = #2 \, \mathsf{in}\, #3}
+\newcommand{\pull}{\mathsf{pull}\,}
+\newcommand{\lete}[3]{\text{let }#1 = #2 \text{ in } #3}
+\newcommand{\tuple}[2]{\langle #1, #2\rangle}
+\newcommand{\ttuple}[2]{\langle\!\langle #1, #2\rangle\!\rangle}
+\newcommand{\lmatch}[5]{\mathsf{match}\,#1\,\mathsf{with}
+  \mid nil\mapsto #2\mid#3::#4\mapsto #5}
+\newcommand{\isval}[2]{#1\;\mathsf{val}_{#2}}
+
+\newcommand{\Eff} {\ensuremath{\mathit{eff}}}  % example command without arguments
+\newcommand{\Pre} {\ensuremath{\mathit{pre}}}  % (again)
+
+% Note that you can easily specify arguments:
+% \newcommand{\someMacro}[2] {Argument 1: #1, Argument 2: #2} % example command with two arguments
+% you use it via \someMacro{Hello}{World!}
+
+
+% the following commands are being provided by the amsthm package
+% the first parameter states the new environmet's name that can be
+% used (due to this definition here) and the second the name that
+% will appear in the PDF document
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}   % well, a formal definition!
+\theoremstyle{plain}
+\newtheorem{prop}{Proposition} % like a theorem, but less important or evolved
+\newtheorem{lem}{Lemma}        % used within a proof of a theorem
+\newtheorem{thm}{Theorem}      % well, a theorem! :) important and evolved
+\newtheorem{cor}{Corollary}    % basically either a proposition or theorem,
+                               %  but one that follows from another theorem.
+% There's a lot you can configure about the appearance. If interested,
+% open the manual of amsthm or google for tutorials etc. on that package
+
+% the following add a symbol to the definition environment to make it more
+% clear when a definition ends (as there is no difference in fonts!). From:
+% https://tex.stackexchange.com/questions/226334/change-a-amsthm-theorem-ending
+\newcommand{\xqed}[1]{%
+    \leavevmode\unskip\penalty9999 \hbox{}\nobreak\hfill
+    \quad\hbox{\ensuremath{#1}}}
+\newcommand{\Endofdef}{\xqed{\blacksquare}}
+\newenvironment{defn}[1]{%
+    \begin{definition}#1}{%
+    \Endofdef\end{definition}%
+}

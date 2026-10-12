@@ -1,0 +1,104 @@
+\chapter{A Calculus for Worst-Case Cost Analysis}
+
+This Chapter presents $\lambda^g_{\mathsf{worst}}$, a calculus for worst-case cost analysis of guarded recursive programs.
+The language's type system consists of the later modality for guarded recursion and a cost monad for cost analysis.
+Specifically, the language adapts fragments from the guarded lambda calculus of \cite{cloustonGuardedLambdaCalculusProgramming2017a}
+and $\lambda$-amor of \cite{rajaniUnifyingTypetheoryHigherorder2021a}.
+
+Firstly, in Section \ref{sec:cost-foundation} we look at the interaction between gradeds and the later modality, 
+which results in the notion of \emph{time-dependent cost}, as a foundation of cost analysis in $\lambda^g_{\mathsf{worst}}$. 
+We then describe and detail the type system, syntax and semantics of the calculus in Section \ref{sec:worst-case-formalisation}.
+Finally, we demonstrate the expresiveness of the language and its type system through program examples.
+
+\section{Quantative foundations of $\lambda^g_{\mathsf{worst}}$}
+\label{sec:cost-foundation}
+Following $\lambda$-amor, we use a graded monad to represent cost-aware computations. For example, the type $\tmonad{3}{\tau}$ 
+describes a computation whose result has type $\tau$, and the upper bound of the resulting cost is 3. 
+More generally, the grade annotation of the monad is a \emph{nonnegative} real number.
+
+Guarded recursion employs a notion of \emph{time}, represented by the later modality $\triangleright$ \citep{nakanoModalityRecursion2000}. 
+For example, data of type $\tau$ is considered available now, while data of type $\triangleright \tau$ becomes accessible after one time step. 
+In other words, an implcit time clock presents at type level, where entering the $\triangleright$ means that the clock ticks once.
+Therefore, combining with the graded monad, we can leverage this "time-aware" feature of the later modality to express costs that vary along the \emph{time}.
+
+Note that some work presents the clock explicitly \citep{atkeyProductiveCoprogrammingGuarded2013a,mogelberg14, bahrClocksAreTicking2017}, and
+multiple clocks can exist, i.e. types like $\triangleright^\alpha$ and $\triangleright^\beta$ where $\alpha, \beta$ denotes 2 different clocks,
+thus the notion of time varies between different clocks. 
+Follwing the guarded lambda calculus, we only consider a single global clock in our type system. This also ensures that all costs 
+change uniformly as time passes.
+
+
+\subsection{Time-dependent cost}
+Firstly, we use a abstract parameter $i\in\mathbb N$ to denote the current time, starting from $0$. Advancing one time step corresponds to moving from $i$ to $i+1$. 
+We aim to spcify non-uniform costs that depends on $i$. For instance, a cost of $i+2$ 
+gives costs 2, 3, 4 \dots as $i$ advances to $i+1$, $i+2$ \dots, while a constant cost like 3 remains unchanged as $i$ increments.
+
+Similar to $\lambda$-amor, we use an index expression language to express quantatitive information for different types, such as the graded monad.
+
+\begin{defn}(Index expressions)
+\label{def:index}
+$
+  \\
+  \begin{aligned}
+    I,J ::= {}
+    \kappa \mid N \mid R
+    \mid I+J \mid I-J
+    \mid \textstyle\sum_{\kappa<J} I
+    \mid \mathsf{clk}
+    \mid \mathsf S^\mathsf{n}(I)
+  \end{aligned}
+$
+\end{defn}
+
+Indices are written as $I$ and $J$, and all indices can depend on the time $i$, below we define the time interpretation of indices.
+
+\begin{defn}(Time interpretations of indices)
+\label{def:time-indices}
+  \begin{gather*}
+    \begin{alignedat}{2}
+      \clk(i) &= i
+        &\qquad N(i) &= N \\
+      R(i) &= R
+        &\qquad \kappa(i) &= \kappa \\[0.6em]
+      (I-J)(i) &= I(i) - J(i)
+        &\qquad (\mathsf{S}^n I)(i) &= I(i+n)
+    \end{alignedat}
+    \\[0.8em]
+    \begin{aligned}
+       (\textstyle\sum_{\kappa<J}I)(i)
+        &=\sum_{k=0}^{J(i)-1}I[k/\kappa](i).
+    \end{aligned}
+  \end{gather*}
+\end{defn}
+We explain the definitions and interpretations of index expressions. From Definition \ref{def:time-indices}, all index expressions can be considered as schedules, or functions from the time 
+$i$ to a \emph{nonnegative} real number. The index $\clk$ means the clock, i.e. the value of the current time $i$. As the time clock ticks, $i$ 
+increments and the interpretation $\clk$ changes.
+
+The indices $N, R$ and $\kappa$ represents constant functions on $i$. $N$ is a natural-number constant, $R$ is a \emph{nonnegative} real-number constant, 
+and $\kappa$ denotes an index variable. Consequently, their interpretation are all constants, i.e. their original value.
+The interpretations of addition and subtraction between indices are defined compositionally.
+The $\mathsf{S^n}I$ expression shifts the time forward by $n$, then the interpretation of the inner $I$ becomes $I(i+n)$, this requires a side condition enforced in Section \ref{sec:worst-case-formalisation}, that
+$n$ is a time-independent constant since it is also a index. $\mathsf{S^n}I$ allows us to express costs in the future, its usage will be demonstrated in Section \ref{sec:worst-case-formalisation}.
+
+Finally, the index expression $\textstyle\sum_{\kappa<J} I$ describes bounded summation over indices, which sums $I$ 
+from 0 to the interpretation of $(J - 1)$ inclusive, where $I$ may have free index variables inside, i.e. $I[0/\kappa] + \ldots + I[(J(i)-1)\kappa]$.
+
+\subsection{Examples}
+Now we can combine the graded monad with the later modality in the type system.
+For example, a computation of type $\tmonad{\clk}{\tau}$ produces a \emph{symbolic} cost $\clk$, and the real cost will be the value of 
+$i$. Usually we consider the time starts from 0, thus the real cost is 0. By contrast, a computation of $\triangleright\tmonad{\clk}{\tau}$ means that it
+will be executed one step later due to the later modality, and the cost will be the value of $i+1 = 1$ since time has passed when the cost is produced.
+Likewise, the cost will be $n$ for a computation of type $\triangleright^n \tmonad{\kappa}{\tau}$, where $n$ is the number of nested $\triangleright$.
+
+On the other hand, computations of types $\tmonad{3}{\tau}$ and $\triangleright^n \tmonad{3}{\tau}$ do not distinguish their costs, while only the availabilities of their result data
+differ.
+
+\section{Formalisation of $\lambda^g_{\mathsf{worst}}$}
+\label{sec:worst-case-formalisation}
+In this section, we present the full formalisation $\lambda^g_{\mathsf{worst}}$, featuring the type system, syntax and call-by-value operational semantics.
+
+\subsection{Syntax}
+\label{sec:worst-case-syntax}
+
+\subsection{Semantics}
+\label{sec:worst-case-semantics}
