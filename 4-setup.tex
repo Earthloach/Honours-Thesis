@@ -1,14 +1,15 @@
 \chapter{A Calculus for Worst-Case Cost Analysis}
+\raggedbottom
 
 This Chapter presents $\lambda^g_{\mathsf{worst}}$, a calculus for worst-case cost analysis of guarded recursive programs.
 The language's type system consists of the later modality for guarded recursion and a cost monad for cost analysis.
 Specifically, the language adapts fragments from the guarded lambda calculus of \cite{cloustonGuardedLambdaCalculusProgramming2017a}
 and $\lambda$-amor of \cite{rajaniUnifyingTypetheoryHigherorder2021a}.
 
-Firstly, in Section \ref{sec:cost-foundation} we look at the interaction between gradeds and the later modality, 
-which results in the notion of \emph{time-dependent cost}, as a foundation of cost analysis in $\lambda^g_{\mathsf{worst}}$. 
-We then describe and detail the type system, syntax and semantics of the calculus in Section \ref{sec:worst-case-formalisation}.
-Finally, we demonstrate the expresiveness of the language and its type system through program examples.
+Firstly, in Section \ref{sec:cost-foundation} we examine the interaction between gradeds and the later modality, 
+which yields the notion of \emph{time-dependent cost}, as a foundation of cost analysis in $\lambda^g_{\mathsf{worst}}$. 
+We then describe the syntax, type system, and semantics in Section \ref{sec:worst-case-syntax}, Section \ref{sec:worst-case-type-system}.
+Finally, we demonstrate the expressiveness of the calculus through program examples.
 
 \section{Quantative foundations of $\lambda^g_{\mathsf{worst}}$}
 \label{sec:cost-foundation}
@@ -16,26 +17,26 @@ Following $\lambda$-amor, we use a graded monad to represent cost-aware computat
 describes a computation whose result has type $\tau$, and the upper bound of the resulting cost is 3. 
 More generally, the grade annotation of the monad is a \emph{nonnegative} real number.
 
-Guarded recursion employs a notion of \emph{time}, represented by the later modality $\triangleright$ \citep{nakanoModalityRecursion2000}. 
+Guarded recursion employs a notion of \emph{logical time}, represented by the later modality $\triangleright$ \citep{nakanoModalityRecursion2000}. 
 For example, data of type $\tau$ is considered available now, while data of type $\triangleright \tau$ becomes accessible after one time step. 
-In other words, an implcit time clock presents at type level, where entering the $\triangleright$ means that the clock ticks once.
-Therefore, combining with the graded monad, we can leverage this "time-aware" feature of the later modality to express costs that vary along the \emph{time}.
+In other words, an implicit time clock exists at the type level, where entering $\triangleright$ means the clock ticks once.
+Therefore, combining with the graded monad, we can leverage this logical time associated with the later modality to express costs that vary each step.
 
 Note that some work presents the clock explicitly \citep{atkeyProductiveCoprogrammingGuarded2013a,mogelberg14, bahrClocksAreTicking2017}, and
 multiple clocks can exist, i.e. types like $\triangleright^\alpha$ and $\triangleright^\beta$ where $\alpha, \beta$ denotes 2 different clocks,
-thus the notion of time varies between different clocks. 
-Follwing the guarded lambda calculus, we only consider a single global clock in our type system. This also ensures that all costs 
+thus the notion of time differs between the clocks. 
+Following the guarded lambda calculus, we only consider a single global clock in our type system. This also ensures that all costs 
 change uniformly as time passes.
 
 
 \subsection{Time-dependent cost}
-Firstly, we use a abstract parameter $i\in\mathbb N$ to denote the current time, starting from $0$. Advancing one time step corresponds to moving from $i$ to $i+1$. 
-We aim to spcify non-uniform costs that depends on $i$. For instance, a cost of $i+2$ 
+Firstly, we use an abstract parameter $i\in\mathbb N$ to denote the current time, starting from $0$. Advancing one time step corresponds to moving from $i$ to $i+1$. 
+We aim to specify non-uniform costs that depend on $i$. For instance, a cost of $i+2$ 
 gives costs 2, 3, 4 \dots as $i$ advances to $i+1$, $i+2$ \dots, while a constant cost like 3 remains unchanged as $i$ increments.
 
-Similar to $\lambda$-amor, we use an index expression language to express quantatitive information for different types, such as the graded monad.
+Similar to $\lambda$-amor, we use an index language to express quantatitive information contained in different types, such as the graded monad.
 
-\begin{defn}(Index expressions)
+\begin{defn}(Index)
 \label{def:index}
 $
   \\
@@ -61,7 +62,7 @@ Indices are written as $I$ and $J$, and all indices can depend on the time $i$, 
       R(i) &= R
         &\qquad \kappa(i) &= \kappa \\[0.6em]
       (I-J)(i) &= I(i) - J(i)
-        &\qquad (\mathsf{S}^n I)(i) &= I(i+n)
+        &\qquad (\mathsf{S}^\mathsf{n} I)(i) &= I(i+\mathsf{n})
     \end{alignedat}
     \\[0.8em]
     \begin{aligned}
@@ -70,35 +71,780 @@ Indices are written as $I$ and $J$, and all indices can depend on the time $i$, 
     \end{aligned}
   \end{gather*}
 \end{defn}
-We explain the definitions and interpretations of index expressions. From Definition \ref{def:time-indices}, all index expressions can be considered as schedules, or functions from the time 
-$i$ to a \emph{nonnegative} real number. The index $\clk$ means the clock, i.e. the value of the current time $i$. As the time clock ticks, $i$ 
-increments and the interpretation $\clk$ changes.
+We explain the definitions and interpretations of indices. All indices can be considered as functions from the time 
+$i$ to a \emph{nonnegative} real number. The index $\clk$ represents the clock, i.e. the value of the current time $i$. As the clock ticks, $i$ 
+increments and the interpretation of $\clk$ changes.
 
-The indices $N, R$ and $\kappa$ represents constant functions on $i$. $N$ is a natural-number constant, $R$ is a \emph{nonnegative} real-number constant, 
+The indices $N, R$ and $\kappa$ represent constant functions on $i$. $N$ is a natural-number constant, $R$ is a \emph{nonnegative} real-number constant, 
 and $\kappa$ denotes an index variable. Consequently, their interpretation are all constants, i.e. their original value.
 The interpretations of addition and subtraction between indices are defined compositionally.
-The $\mathsf{S^n}I$ expression shifts the time forward by $n$, then the interpretation of the inner $I$ becomes $I(i+n)$, this requires a side condition enforced in Section \ref{sec:worst-case-formalisation}, that
-$n$ is a time-independent constant since it is also a index. $\mathsf{S^n}I$ allows us to express costs in the future, its usage will be demonstrated in Section \ref{sec:worst-case-formalisation}.
+The $\mathsf{S^n}I$ expression demands the cost when the time is shifted forward by $\mathsf{n}$, then the interpretation of the inner $I$ becomes $I(i+\mathsf{n})$.
+We write the shift number as $\mathsf{n}$, meaning that this index is a time-independent constant, and its value is used directly instead of writing $\mathsf{n}(i)$.
+$\mathsf{S^n}I$ allows us to express costs that take place in the future.
 
-Finally, the index expression $\textstyle\sum_{\kappa<J} I$ describes bounded summation over indices, which sums $I$ 
-from 0 to the interpretation of $(J - 1)$ inclusive, where $I$ may have free index variables inside, i.e. $I[0/\kappa] + \ldots + I[(J(i)-1)\kappa]$.
+Finally, the index $\textstyle\sum_{\kappa<J} I$ describes bounded summation over indices, which sums $I$ 
+from $0$ to up to $(J(i) - 1)$, where $I$ may have free index variables inside, i.e. $I[0/\kappa] + \ldots + I[(J(i)-1)\kappa]$.  
+, and the sum will be $0$ if $J(i)$ is zero.
 
 \subsection{Examples}
 Now we can combine the graded monad with the later modality in the type system.
 For example, a computation of type $\tmonad{\clk}{\tau}$ produces a \emph{symbolic} cost $\clk$, and the real cost will be the value of 
-$i$. Usually we consider the time starts from 0, thus the real cost is 0. By contrast, a computation of $\triangleright\tmonad{\clk}{\tau}$ means that it
-will be executed one step later due to the later modality, and the cost will be the value of $i+1 = 1$ since time has passed when the cost is produced.
+$i$. If we consider the time starts from 0, then the cost is 0. By contrast, a computation of type $\triangleright\tmonad{\clk}{\tau}$ means that it
+will be executed one step later, and the cost will be the value of $i+1 = 1$. 
 Likewise, the cost will be $n$ for a computation of type $\triangleright^n \tmonad{\kappa}{\tau}$, where $n$ is the number of nested $\triangleright$.
 
 On the other hand, computations of types $\tmonad{3}{\tau}$ and $\triangleright^n \tmonad{3}{\tau}$ do not distinguish their costs, while only the availabilities of their result data
-differ.
+differ due to the later modality.
 
-\section{Formalisation of $\lambda^g_{\mathsf{worst}}$}
-\label{sec:worst-case-formalisation}
-In this section, we present the full formalisation $\lambda^g_{\mathsf{worst}}$, featuring the type system, syntax and call-by-value operational semantics.
-
-\subsection{Syntax}
+\section{Syntax}
 \label{sec:worst-case-syntax}
 
-\subsection{Semantics}
-\label{sec:worst-case-semantics}
+\begin{figure}[H]
+  \centering
+  \begin{align*}
+    &\text{Types}
+    &\tau &::=
+      \alpha \mid \mathbf{1} \mid \mathbf{b}
+      \mid \tau_1 \to \tau_2
+      \mid \tau_1 \times \tau_2
+      \mid \tau_1 + \tau_2 \\
+    &&&\quad
+      \mid \mu\alpha.\tau
+      \mid \triangleright \tau
+      \mid \tmonad{I}{\tau}
+      \mid L^I \tau
+      \mid \forall\kappa:S.\tau
+      \\[6pt]
+    &\text{Expressions}
+    &e &::=
+      x \mid \langle\rangle \mid b
+      \mid \tlam{x}{e}
+      \mid nil \mid \Lambda.e
+      \mid e_1 e_2 \\
+    &&&\quad
+      \mid \fold e \mid \unfold e
+      \mid e_1 \circledast e_2
+      \mid \delay e \\
+    &&&\quad
+      \mid \tuple{e_1}{e_2}
+      \mid \mathsf{fst}\,e
+      \mid \mathsf{snd}\,e
+      \mid \mathsf{inl}\,e
+      \mid \mathsf{inr}\,e \\
+    &&&\quad
+      \mid e\;[\,]
+      \mid e_1::e_2
+      \mid (\case{e}{x}{e_1}{y}{e_2}) \\
+    &&&\quad
+      \mid (\lmatch{e}{e_1}{h}{t}{e_2})
+      \mid \ret e \\
+      &&&\quad
+      \mid \;\tick{I}
+      \mid \bind{x}{e_1}{e_2}
+      \mid \pull e
+      \\[6pt]
+    &\text{Indices}
+    &I,J &::=
+      \kappa \mid N \mid R \mid \clk
+      \mid I+J \mid I-J \\
+    &&&\quad
+      \mid \textstyle\sum_{\kappa<J} I
+      \mid \mathsf{S}^{n}(I)
+      \\[6pt]
+    &\text{Sorts}
+    &S &::=
+      \mathbb{N} \mid \mathbb{R}_{\ge 0}
+      \\[6pt]
+    &\text{Constraints}
+    &C &::=
+      I < J \mid I = J \mid C \land C \mid C \lor C
+  \end{align*}
+  \caption{Syntax of $\lambda^g_{\mathsf{worst}}$}
+  \label{def:worst-case-syntax}
+\end{figure}
+
+In this section, we present the full syntax of $\lambda^g_{\mathsf{worst}}$, providing a general describtion of the surface constructs included in the calculus.
+Since the calculus combines part of $\lambda$-amor and the guarded lambda calculus, the formalisation is similar.
+% We begin by discussing the syntax and type system, which extends $\lambda$-amor with guarded recursion. Next, we 
+% describe the call-by-value step-indexed operational semantics of $\lambda^g_{\mathsf{worst}}$, where terms evaluate under the later modality according to the step index,
+% which differs from semantics found in \citep{rajaniUnifyingTypetheoryHigherorder2021a, cloustonGuardedLambdaCalculusProgramming2017a}.
+
+\subsection{Indices, Sorts and Constraints}
+The index language should be familiar, as described in Section \ref{sec:cost-foundation}. 
+Sort determins the range of indices, and indices may belong to two possible sorts: natural numbers $\mathbb{N}$, and 
+nonnegative real numbers $\mathbb{R}_{\ge 0}$. Furthermore, $\lambda^g_{\mathsf{worst}}$ has constraint over indices using 
+predicates $=$, $<$. There are also conjunction $\land$ and disjunction $\lor$ between indices . 
+Since the value of indices depend on the time $i$, predicates are also intepreted by $i$, below we present the interpretation of 
+predicates.
+
+\begin{defn}[Interpretation of Predicates]
+\label{def:constraint-entailment}
+For any two indices $I$ and $J$, we define
+\[
+\begin{aligned}
+  (I < J)
+  &\quad\triangleq\quad
+  \forall i \in \mathbb{N}.\; I(i) < J(i),\\
+  (I = J)
+  &\quad\triangleq\quad
+  \forall i \in \mathbb{N}.\; I(i) = J(i).
+\end{aligned}
+\]
+\end{defn}
+
+Therefore, predicates are pointwise based on the interpretations of indices.
+We do not consider a proof system for constraints in $\lambda^g_{\mathsf{worst}}$, constraints are collected in the 
+context $\Delta$, and a constraint $C$ is checked via the context and an abstract validity relation, denoted as $\Delta \models C$.
+Thus, we assume a oracle to decide the validity of constraints.
+Practically, we can leverage backends such SMT solvers.
+
+\subsection{Types}
+$\lambda^g_{\mathsf{worst}}$ contains types in ordinary simply-typed lambda calculus:\ unit, base, function,
+product and sum types. Follwing $\lambda$-amor, it also includes types that contains quantatitive informaton.
+The list type $L^I \tau$ is refined by length. It carries an index $I$, representing the finite length of the list. Furthermore, the length index is
+restricted to be a natural number constant for correctness, and the length should be fixed 
+across the time $i$. The graded monad type $\tmonad{I}{\tau}$, as previously mentioned, denotes computations returning data of type $\tau$, producing $I$ cost alongside.
+The polymorphic type $\forall\kappa\,{:}S.\tau$ allows type to be parameterised by indices, such as a cost-polymorphic monad
+$\forall \kappa:\mathbb{N}.\;\tmonad{\kappa}{\tau}$.
+
+
+Based on the guarded lambda calculus, $\lambda^g_{\mathsf{worst}}$ also includes the modal type $\triangleright \tau$ alongside the recursive type $\mu \alpha.\tau$ to 
+express guarded recursion.
+
+
+Compared to $\lambda$-amor, we retain universal index quantification, as $\forall\kappa\,{:}S.\tau$, 
+while omitting its additional existential index quantification and quantification over types for simplicity. 
+In addition, $\lambda$-amor is a refinement type system that incorporates constraint types to ensure certain constraints holds at type level. 
+However, we find using constraints for type and subtype formations is enough for $\lambda^g_{\mathsf{worst}}$, and thus drop constraint types.
+
+\subsection{Terms}
+Expressions defined in Figure \ref{def:worst-case-syntax} covers all forms of terms, containing constructors and destructors for types.
+Most terms are common in simply-typed lambda calculus and should be familiar. 
+The applicative functor operations of the later type \citep{mcbrideP08}, which is $\delay$ and $\circledast$ in $\lambda^g_{\mathsf{worst}}$.
+The $\delay$ constructor introduces a term of the later type, and the $\circledast$ operator composes two terms of later type as function application.
+indexed lists have the constructors $nil$ and cons "$::$", with a pattern matching as the elimination form.
+We use iso-recursive types in $\lambda^g_{\mathsf{worst}}$, a recursive type and its unfolding are isomorphic.
+The $\fold$ and $\unfold$ are standard operators that map iso-recursive types and its unfoldings to each other.
+Universal index quantifiers are introduced by $\Lambda.e$ and eliminated by $e\;[\,]$.
+Follwing $\lambda$-amor, index variables do not occur in terms, thus the bound index variable in type abstraction and the instantiating index in type application
+are omitted.
+
+There are several constructors for the monadic type $\tmonad{I}{\tau}$, including the standard unit and bind operation of monads: $\ret e$ and $\bind{x}{e_1}{e_2}$.
+The tick operator ($\tick{I}$) is an atomic operation for incurring a symbolic cost of $I$.
+Additionally, the $\pull$ operator takes a delayed computation, specifically, a term of type $\triangleright \tmonad{I}{\tau}$,
+executes the future cost and returning the delayed result. The $\pull$ combinator distributes the later modality and the graded monad, and we will 
+further discuss it in the next section.
+
+\section{Type System}
+\label{sec:worst-case-type-system}
+In this section, we present the typing judgments of $\lambda^g_{\mathsf{worst}}$, Figure \ref{fig:worst-case-judgments} lists all the judgment forms that constitutes the whole type system.
+
+\begin{figure}[H]
+  \centering
+  \[
+  \begin{gathered}
+    \fbox{$\Theta;\Delta \vdash I : S$} \qquad
+    \fbox{$\Psi;\Theta;\Delta \vdash \tau$}  \qquad 
+    \fbox{$\Theta;\Delta \vdash \tau <: \tau'$} \qquad
+    \fbox{$\Theta;\Delta \vdash \Gamma <: \Gamma'$} \qquad
+    \fbox{$\hastype{\Theta;\Delta;\Gamma}{e}{\tau}$}
+  \end{gathered}
+  \]
+  \caption{judgment forms of $\lambda^g_{\mathsf{worst}}$}
+  \label{fig:worst-case-judgments}
+\end{figure}
+
+\subsection{Indices and Sorts}
+
+\begin{figure}[H]
+  \centering
+\begin{mathpar}
+    \inferrule*[right=S-Var]
+      { }
+      {\Theta,\kappa:S;\Delta\vdash \kappa:S}
+
+    \inferrule*[right=S-Nat]
+      { }
+      {\Theta;\Delta\vdash N:\mathbb{N}}
+     
+    \inferrule*[right=S-Real]
+      { }
+      {\Theta;\Delta\vdash R:\mathbb{R}_{\ge0}}
+
+    \inferrule*[right=S-Clock]
+      { }
+      {\Theta;\Delta\vdash \clk: \mathbb{N}}
+
+    \inferrule*[right=S-NatReal]
+      {\Theta;\Delta\vdash I: \mathbb{N}}
+      {\Theta;\Delta\vdash I: \mathbb{R}_{\ge0}}
+     
+    \inferrule*[right=S-Add]
+      {\Theta;\Delta\vdash I_1:S \quad \Theta;\Delta\vdash I_2:S}
+      {\Theta;\Delta\vdash I_1 + I_2:S}
+
+    \inferrule*[right=S-Sub]
+      {\Theta;\Delta\vdash I:S \quad \Theta;\Delta\vdash J:S
+       \quad\Theta;\Delta\models J\leq I}
+      {\Theta;\Delta\vdash I-J:S}
+
+    \inferrule*[right=S-Sum]
+      {\Theta;\Delta\vdash J:\mathbb{N} \quad
+       \Theta,\kappa:\mathbb{N};\Delta, \kappa < J\vdash I:S}
+      {\Theta;\Delta\vdash\textstyle{\sum}_{\kappa<J}I:S}
+     
+    \inferrule*[right=S-Shift]
+      {\Theta;\Delta\vdash I: S \quad \Theta;\Delta\vdash \mathsf{n}:\mathbb{N}
+        \quad \Theta;\Delta\models \mathsf{n} = \mathsf{S(n)}}
+      {\Theta;\Delta\vdash \mathsf{S^n}(I):S}
+  \end{mathpar} 
+  \caption{Sort typing rules for indices}
+  \label{defn:worst-case-sort-rule}
+\end{figure}
+
+The judgment for indices is in the form $\Theta;\Delta\vdash I: S$, where $S$ is the sort of the index $I$, $\Theta$ is the context that maps index variables $\kappa$ to their sorts, and 
+$\Delta$ is the context that contains constraints about indices. Constraints in $\Delta$ may refer to varibles in $\Theta$, therefore we need to couple them together.
+
+Figure \ref{defn:worst-case-sort-rule} presents the sort rules for indices. The \textsc{S-Var, S-Nat}  and \textsc{S-Real} rules are standard. 
+The $\mathsf{clk}$ expression is treated as a natural number, representing the logical time. For ordinary arithmetic operations, we require
+both arguments to have the same sort. Since indices cannot be negative according to all the sorts ($\mathbb{N}, \mathbb{R}_{\ge0}$), subtraction $I - J$ needs to
+ensure that $J \leq I$, here we write $J \leq I$ as the disjunction between $J < I$ and $J = I$. Similarly in \text{S-Sum}, we ensure the index variable to be smaller than the bound $I$ when checking 
+the body expression. The \textsc{S-NatReal} rule casts a natural number expression into a nonnegative real number, this premits us to use a natural number as the same real number. 
+Finally, the \textsc{S-Shift} rule shifts the time of the body, the shift value $\mathsf{n}$ needs to be a natural number constant. Since constraints are pointwise, 
+the predicate $\mathsf{n} = \mathsf{S(n)}$ holds for every time, i.e. $\forall i \in \mathbb{N}, \mathsf{n}(i) = \mathsf{S(n)}(i)$, ensuring that $\mathsf{n}$ does not change across the time, 
+then each shift only incrments a fixed amount of time.
+
+\subsection{Type Well-formedness}
+Figure \ref{def:worst-case-type-well-form} shows the type well-formedness rules, these rules specify how types are formed correctly in $\lambda^g_{\mathsf{worst}}$.
+
+\begin{figure}[H]
+  \centering
+  \begin{mathpar}
+    \inferrule*[right=WF-Var]
+      % {\alpha\in\Psi}
+      { }
+      {\Psi, \alpha;\Theta;\Delta\vdash\alpha}
+     
+    \inferrule*[right=WF-Unit]
+      { }
+      {\Psi;\Theta;\Delta\vdash\textbf{1}}
+     
+    \inferrule*[right=WF-Base]
+      { }
+      {\Psi;\Theta;\Delta\vdash \textbf{b}}
+     
+    \inferrule*[right=WF-Arrow]
+      {\Psi;\Theta;\Delta\vdash\tau_1 \quad \Psi;\Theta;\Delta\vdash\tau_2 }
+      {\Psi;\Theta;\Delta\vdash\tau_1\to\tau_2 }
+     
+    \inferrule*[right=WF-Prod]
+      {\Psi;\Theta;\Delta\vdash\tau_1  \quad \Psi;\Theta;\Delta\vdash\tau_2 }
+      {\Psi;\Theta;\Delta\vdash\tau_1\times\tau_2 }
+     
+    \inferrule*[right=WF-Sum]
+      {\Psi;\Theta;\Delta\vdash\tau_1  \quad \Psi;\Theta;\Delta\vdash\tau_2 }
+      {\Psi;\Theta;\Delta\vdash\tau_1+\tau_2 }
+
+    \inferrule*[right=WF-Later]
+      {\Psi;\Theta;\Delta\vdash\tau }
+      {\Psi;\Theta;\Delta\vdash\triangleright\tau }
+     
+    \inferrule*[right=WF-Monad]
+      {\Psi;\Theta;\Delta\vdash\tau \quad \Theta;\Delta\vdash I: \mathbb{R}_{\ge0}}
+      {\Psi;\Theta;\Delta\vdash\tmonad{ I}{\tau} }
+
+    \inferrule*[right=WF-List]
+      {\Psi;\Theta;\Delta\vdash\tau \quad 
+      \Theta;\Delta\vdash I:\mathbb{N}
+      \quad \Theta;\Delta\models I = \mathsf{S}(I)}
+      {\Psi;\Theta;\Delta\vdash L^I\tau}
+
+    \inferrule*[right=WF-Rec]
+      {\Psi,\alpha;\Theta;\Delta\vdash\tau 
+       \quad \alpha\text{ guarded in }\tau}
+      {\Psi;\Theta;\Delta\vdash\mu\alpha.\tau }
+     
+    \inferrule*[right=WF-Forall]
+      {\Psi;\Theta,\kappa:S;\Delta\vdash\tau}
+      {\Psi;\Theta;\Delta\vdash\forall\kappa:S.\tau}
+  \end{mathpar} 
+  \caption{Well-formedness rules for types}
+  \label{def:worst-case-type-well-form}
+\end{figure}
+
+$\Psi$ is the context that contains a set of type variables, mainly used for the variable $\alpha$ in the recursive type $\mu \alpha.\tau$.
+Most rules are straightforward and compositional, where the rules are specified by each part of a type.
+We also need the contexts $\Theta$ and $\Delta$ to check sorts and constraints since types can mention indices.
+Specifically, the \textsc{WF-Monad} rule requires the cost index to be a nonnegative real number; in the \textsc{WF-List} rule, we need to ensure that the 
+length of the list remain fixed acorss the time by the constraint $I = \mathsf{S}(I)$, which is similar to that in the \textsc{S-Shift} rule.
+
+\textsc{WF-Rec} is a crucial rule in the type system. A type variable $\alpha$ is \emph{guarded} in a type $\tau$ if each
+occurrence of it in $\tau$ is beneth of a later modality $\triangleright$. This brings guarded recursion, where all self-refrences in the recursive type need to be 
+guarded.
+
+\subsection{Subtyping}
+Subtyping is an important part of our type system, in particular, it allows a cost bound to be weakened in our type system. 
+Figure \ref{def:worst-case-subtyping} gives the subtyping rules.
+
+\begin{figure}[H]
+  \centering
+ \begin{mathpar}
+    \inferrule*[right=Sub-Refl]
+      { }
+      {\Theta;\Delta\vdash \tau <: \tau}
+
+    \inferrule*[right=Sub-Trans]
+      {\Theta;\Delta\vdash \tau_1 <: \tau_2 \quad \Theta;\Delta\vdash \tau_2 <: \tau_3}
+      {\Theta;\Delta\vdash\tau_1 <: \tau_3}
+
+    \inferrule*[right=Sub-Arrow]
+      {\Theta;\Delta\vdash \tau_1' <: \tau_1 \quad \Theta;\Delta\vdash \tau_2 <: \tau_2'}
+      {\Theta;\Delta\vdash \tau_1 \to \tau_2 <: \tau_1' \to \tau_2'}
+
+    \inferrule*[right=Sub-Product]
+      {\Theta;\Delta\vdash \tau_1 <: \tau_1' \quad \Theta;\Delta\vdash \tau_2 <: \tau_2'}
+      {\Theta;\Delta\vdash \tau_1 \times \tau_2 <:  \tau_1' \times \tau_2'}
+
+    \inferrule*[right=Sub-Sum]
+      {\Theta;\Delta\vdash \tau_1 <: \tau_1' \quad \Theta;\Delta\vdash \tau_2 <: \tau_2'}
+      {\Theta;\Delta\vdash \tau_1 + \tau_2 <:  \tau_1' + \tau_2'}
+
+    \inferrule*[right=Sub-List]
+      {\Theta;\Delta\vdash \tau <: \tau'}
+      {\Theta;\Delta\vdash L^I\tau <: L^I\tau'}
+
+    \inferrule*[right=Sub-IndexPoly]
+      {\Theta,\kappa:S;\Delta\vdash\tau<:\tau'}
+      {\Theta;\Delta\vdash
+        \forall\kappa:S.\tau<:\forall\kappa:S.\tau'}
+
+    \inferrule*[right=Sub-Later]
+      {\Theta;\Delta\vdash \tau <:  \tau'}
+      {\Theta;\Delta\vdash \triangleright \tau <: \triangleright \tau'}
+
+    \inferrule*[right=Sub-Monad]
+      {\Theta;\Delta\vdash \tau <: \tau' \quad \Theta;\Delta\models I\leq I'}
+      {\Theta;\Delta\vdash \tmonad{I}{\tau} <: \tmonad{ I'}{\tau'}}
+
+    \inferrule*[right=Sub-Rec]
+      {\Theta;\Delta\vdash \tau <: \tau'
+       \quad \alpha\text{ positive in }\tau,\tau'}
+      {\Theta;\Delta\vdash \mu\alpha.\tau <: \mu\alpha.\tau'}
+  \end{mathpar} 
+  \caption{Subtyping rules for types}
+  \label{def:worst-case-subtyping}
+\end{figure}
+The subtyping judgment is $\Theta;\Delta\vdash\tau<:\tau'$, similar to type well-formedness, it requires $\Theta$ and $\Delta$ to ensure constraints hold for certain rules. 
+We follow $\lambda$-amor and the usual treatment of subtyping: the relation $<:$ is a preorder on types, it satisfies reflexivity and transitivity. These two 
+properties are captured by the \textsc{Sub-Refl} rule and the \textsc{SubTrans} rule. The \textsc{Sub-Arrow} rule is standard, where it is contravariant in its argument type, i.e.
+the order for arguments $\tau_1' <: \tau'$ is the reverse of that for the whole type $\tau_1 \to \tau_2 <: \tau_1' \to \tau_2'$.
+
+The \textsc{Sub-Monad} rule gives the subtyping relation for the cost monad, a monad $\tmonad{I}{\tau}$ can be treated as 
+$\tmonad{I'}{\tau'}$ if $\tau <: \tau'$ and $I \leq I'$. As a result, the cost bound of a type can be increased, this is sound because costs are upper bounds, 
+we can safely execute a computation that incurs less cost than it is originallly expected.
+
+Subyping recursive types is a crucial and complicated task, and we impose a restriction on it. 
+Before describing the \textsc{Sub-Rec} rule, we first define \emph{positive} and \emph{negative} occurrences of types, based on \cite{pierce02}.
+
+\pagebreak
+
+\begin{defn}
+\label{def:polarity}
+The \emph{positive} and \emph{negative occurrences} in a type $\tau$
+are defined inductively:
+\begin{enumerate}
+  \item $\tau$ is a positive occurrence in $\tau$.
+  \item If $\tau_1 \to \tau_2$ is a positive occurrence in $\tau$, then
+        $\tau_1$ is a negative occurrence in $\tau$ and $\tau_2$ is a
+        positive occurrence in $\tau$.
+  \item If $\tau_1 \to \tau_2$ is a negative occurrence in $\tau$, then
+        $\tau_1$ is a positive occurrence in $\tau$ and $\tau_2$ is a
+        negative occurrence in $\tau$.
+  \item If any of $\tau_1 \times \tau_2$, $\tau_1 + \tau_2$,
+        $L^n\,\tau_1$, $\triangleright\tau_1$, $\mathbb{M}\,I\,\tau_1$,
+        $\forall\kappa{:}S.\,\tau_1$ or $\mu\alpha.\tau_1$ is a
+        positive occurrence in $\tau$, then each of its immediate
+        component types is a positive occurrence in $\tau$.
+  \item If any of the types in (4) is a negative occurrence in $\tau$,
+        then each of its component types is a negative occurrence
+        in $\tau$.
+\end{enumerate}
+\end{defn}
+
+We say that a type variable $\alpha$ is \emph{positive} in $\tau$ if all free occurrences of it in $\tau$ are positive, i.e. no negative occurrences of $\alpha$ in $\tau$.
+For example, the variable $\alpha$ is positive in $\textbf{1} \to \alpha$, $L^n\,\alpha \times \textbf{1}$, and negative in $\alpha \to \textbf{1}$.
+
+The subtyping relation does not always hold after unfolding two related iso-recursive types due to negative occurrences, we follow an example adaptd from \cite{zhouRevisitingIsorecursiveSubtyping2020}.
+If we ignore the postivie side condition from \textsc{S-Rec}, we can derive the following relation:
+\[\mu \alpha.(\triangleright\alpha) \to \tmonad{0}{\textbf{1}} <: \mu \alpha.(\triangleright\alpha) \to \tmonad{1}{\textbf{1}} \qquad (1)\]
+Unfold the types on each side, we get
+\[
+  \triangleright\big(\mu \alpha.(\triangleright\alpha)\to\tmonad{0}{\textbf{1}}\big)\to\tmonad{0}{\textbf{1}} 
+  <:
+  \triangleright\big(\mu \alpha.(\triangleright\alpha)\to\tmonad{1}{\textbf{1}}\big)\to\tmonad{1}{\textbf{1}} 
+\]
+However, this relation does not hold. From \textsc{Sub-Arrow}, checking the argument types requires a reverse of (1):
+\[\mu \alpha.(\triangleright\alpha) \to \tmonad{1}{\textbf{1}} <: \mu \alpha.(\triangleright\alpha) \to \tmonad{0}{\textbf{1}}\]
+This is invalid since $\tmonad{1}{\textbf{1}}$ is not a subtype of $\tmonad{0}{\textbf{1}}$.
+
+Although the preservation of subtyping is not necessary for iso-recursive types, it is a desired property needed for the metatheory of 
+$\lambda^g_{\mathsf{worst}}$ presented in the next Chapter.
+
+The major limitation of restricting negative ooccurrences in the \textsc{Sub-Rec} rule, is that it rejects all negative subtyping. However, most recursive types considered in 
+$\lambda^g_{\mathsf{worst}}$ like streams only have postive occurrences. There are also alternatives, such as the Amber rules \citep{cardelli85}, which are used commonly for
+recursive subtyping. The Amber rules are more powerful since it allows subtyping for some types that includes negative occurrences, while those types are usually not concerned in our type system, we
+choose to adopt the simple restriction approach.
+
+\subsection{Terms and Typing judgments}
+The typing judgment for terms in $\lambda^g_{\mathsf{worst}}$ is written as $\hastype{\Theta;\Delta;\Gamma}{e}{\tau}$. 
+$\Gamma$ is the context that maps term variables $e$ to their types, and we need the context $\Theta$ and $\Delta$ as usual.
+Since type variables only appear in recursive types, and type substitution is used directly for unfolding, therefore we do not need the $\Psi$ context to 
+record type variables. The typing rules are listed in Figure \ref{def:worst-case-typing-judgment}. 
+
+Most rules are standard for introduction and elimination forms of terms. 
+\textsc{T-Nil} is the rule for the term $nil$ that introduces a empty list, then the type is $L^0 \tau$.
+\textsc{T-Cons} describes the typing for the cons expression $"::"$ that pushes an new element in the front of a list, and the length index of the resulting list 
+needs to increase by one. Consequently, pattern matching on a list has two branches, where the list is either $nil$ or cons, and the list have different lengths in each case.
+Thus, the \textsc{T-Cons} rule adds corresponding constraints: length $I = 0$ and $I > 0$ for each branch.
+\textsc{T-Fold} and \textsc{T-Unfold} are the two rules that substitutes type variables bounded by the recursive type.
+Likewise, the term-level index instantiation $e\;[\,]$ requires substituting index variable as the result type $\tau [I/\kappa]$.
+
+The rules for cost analysis are more interesting. $\ret e$ lifts a pure term $e$ typed $\tau$ into a monadic computation,
+it does not modify $e$ and incur any cost, hence the type is $\tmonad{0}{\tau}$. 
+The monadic bind sequences two computations and sums their costs, as described by the \textsc{T-Bind} rule.
+\textsc{T-Tick} is the rule for the $\tick{I}$ computation, it gives a result of the unit type and produces $I$ units of cost.
+The \textsc{T-Pull} rule typechecks the $\pull e$ term, it distributes the later modality and the graded monad, pulling the 
+delayed monad out and keeps the inner result only available in the future. Since we intend to pay the future cost in advance, 
+the cost becomes $\mathsf{S}(I)$, here we write $\mathsf{S}(I)$ as $\mathsf{S}^1(I)$, meaning that it is calculated by incrementing the time clock once.
+
+Finally, \textsc{T-Sub} connects subtyping with terms.
+The \textsc{T-Weaken} rule uses the subtyping relation $<:$ between typing contexts.
+The subtyping judgment $\Theta;\Delta\vdash \Gamma <: \Gamma$ is defined inductively, the rules are listed in Figure \ref{def:worst-case-context-sub}, where
+$\cdot$ represents the empty context in the base case. Intuitively, a context $\Gamma'$ can be replaced by another context $\Gamma$ that 
+may contain extra variables or supertypes, which is analogous to record subtyping.
+
+\begin{figure}[H]
+\begin{mathpar}
+    \inferrule*[right=Sub-Base]
+    { }
+    {\Theta;\Delta\vdash\Gamma <: \cdot} 
+
+    \inferrule*[right=Sub-Ind]
+    {x:\tau \in \Gamma \quad \Theta;\Delta\vdash \tau <: \tau'
+    \quad \Theta;\Delta\vdash \Gamma/x <: \Gamma'}
+    {\Theta;\Delta\vdash\Gamma <: \Gamma', x:\tau'} 
+\end{mathpar}
+\caption{Subtyping rules for $\Gamma$}
+\label{def:worst-case-context-sub}
+\end{figure}
+
+
+\begin{figure}[H]
+  \centering
+  \begin{mathpar}
+  \inferrule*[right=T-Var]
+    { }
+    {\hastype{\Theta;\Delta;\Gamma, x:\tau}{x}{\tau}}
+
+  \inferrule*[right=T-base]
+    { }
+    {\hastype{\Theta;\Delta;\Gamma}{b}{\textbf{b}}}
+
+  \inferrule*[right=T-Unit]
+    { }
+    {\hastype{\Theta;\Delta;\Gamma}{\langle \rangle}{\textbf{1}}}
+
+  \inferrule*[right=T-Lam]
+    {\hastype{\Theta;\Delta;\Gamma, x:\tau_1}{e}{\tau_2}}
+    {\hastype{\Theta;\Delta;\Gamma}{\tlam{x}{e}}{\tau_1 \to \tau_2}}
+
+  \inferrule*[right=T-App]
+    {\hastype{\Theta;\Delta;\Gamma}{e_1}{\tau_1 \to \tau_2}
+     \quad \hastype{\Theta;\Delta;\Gamma}{e_2}{\tau_1}}
+    {\hastype{\Theta;\Delta;\Gamma}{e_1e_2}{\tau_2}}
+
+  \inferrule*[right=T-Pair]
+    {\hastype{\Theta;\Delta;\Gamma}{e_1}{\tau_1}
+     \quad \hastype{\Theta;\Delta;\Gamma}{e_2}{\tau_2}}
+    {\hastype{\Theta;\Delta;\Gamma}{\tuple{e_1}{e_2}}{\tau_1\times\tau_2}}
+  \\
+  \inferrule*[right=T-Fst]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau_1\times\tau_2}}
+    {\hastype{\Theta;\Delta;\Gamma}{\mathsf{fst}\,e}{\tau_1}}
+
+  \inferrule*[right=T-Snd]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau_1\times\tau_2}}
+    {\hastype{\Theta;\Delta;\Gamma}{\mathsf{snd}\,e}{\tau_2}}
+
+  \inferrule*[right=T-Inl]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau_1}}
+    {\hastype{\Theta;\Delta;\Gamma}{\mathsf{inl}\,e}{\tau_1+\tau_2}}
+
+  \inferrule*[right=T-Inr]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau_2}}
+    {\hastype{\Theta;\Delta;\Gamma}{\mathsf{inr}\,e}{\tau_1+\tau_2}}
+
+  \inferrule*[right=T-Case]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau_1+\tau_2}
+     \\\\ \hastype{\Theta;\Delta;\Gamma,x:\tau_1}{e_1}{\tau}
+     \quad \hastype{\Theta;\Delta;\Gamma,y:\tau_2}{e_2}{\tau}}
+    {\hastype{\Theta;\Delta;\Gamma} {\case{e}{x}{e_1}{y}{e_2}}{\tau}}
+  \\
+  \inferrule*[right=T-Nil]
+    { }
+    {\hastype{\Theta;\Delta;\Gamma}{nil}{L^0\tau}}
+
+  \inferrule*[right=T-Cons]
+    {\Theta;\Delta\vdash s:\mathbb{N}
+    \quad \hastype{\Theta;\Delta;\Gamma}{e_1}{\tau}
+     \quad \hastype{\Theta;\Delta;\Gamma}{e_2}{L^I\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}{e_1::e_2}{L^{I+1}\tau}}
+
+  \inferrule*[right=T-Match]
+    {\hastype{\Theta;\Delta,I > 0;\Gamma,h:\tau,t:L^{I-1}\tau}{e_2}{\tau'}
+     \\\\ \hastype{\Theta;\Delta;\Gamma}{e}{L^s\tau}
+     \quad \hastype{\Theta;\Delta,I=0;\Gamma}{e_1}{\tau'}}
+    {\hastype{\Theta;\Delta;\Gamma}{\lmatch{e}{e_1}{h}{t}{e_2}}{\tau'}}
+
+  \inferrule*[right=T-Iabs]
+    {\hastype{\Theta,\kappa:S;\Delta;\Gamma}{e}{\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}{\Lambda.e}{\forall\kappa:S.\tau}}
+
+  \inferrule*[right=T-Iapp]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\forall\kappa:S.\tau}
+     \quad \Theta;\Delta\vdash I:S}
+    {\hastype{\Theta;\Delta;\Gamma}{e\;[\,]}{\tau[I/\kappa]}}
+
+  \inferrule*[right=T-Fold]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau[\mu\alpha.\tau/\alpha]}}
+    {\hastype{\Theta;\Delta;\Gamma}{\fold e}{\mu\alpha.\tau}}
+
+  \inferrule*[right=T-Unfold]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\mu\alpha.\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}{\unfold e}{\tau[\mu\alpha.\tau/\alpha]}}
+
+  \inferrule*[right=T-Next]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}{\delay e}{\triangleright \tau}}
+
+  \inferrule*[right=T-Napp]
+    {\hastype{\Theta;\Delta;\Gamma}{e_1}{\triangleright (\tau_1 \to \tau_2)}
+     \quad \hastype{\Theta;\Delta;\Gamma}{e_2}{\triangleright \tau_1}}
+    {\hastype{\Theta;\Delta;\Gamma}{e_1 \circledast e_2}{\triangleright \tau_2}}
+
+  \inferrule*[right=T-Ret]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}{\ret e}{\tmonad{0}{\tau}}}
+
+  \inferrule*[right=T-Tick]
+    {\Theta;\Delta\vdash I:\mathbb{R}_{\ge0}}
+    {\hastype{\Theta;\Delta;\Gamma}{\,\tick{ I}}{\tmonad{ I}{\textbf{1}}}}
+
+  \inferrule*[right=T-Bind]
+    {\hastype{\Theta;\Delta;\Gamma}{e_1}{\tmonad{ I_1}{\tau_1}}
+     \quad \hastype{\Theta;\Delta;\Gamma,x:\tau_1}{e_2}{\tmonad{ I_2}{\tau_2}}}
+    {\hastype{\Theta;\Delta;\Gamma}{\bind{x}{e_1}{e_2}}{\tmonad{( I_1 + I_2)}{\tau_2}}}
+  
+  \inferrule*[right=T-Pull]
+    {\Theta;\Delta;\Gamma\vdash e : \triangleright \tmonad{ I}{\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}{\pull e}{\tmonad{\mathsf{S}( I)}{\triangleright \tau}}}
+  
+  \inferrule*[right=T-Sub]
+  {\hastype{\Theta;\Delta;\Gamma}{e}{\tau}
+    \quad \Theta;\Delta\vdash\tau <: \tau'}
+  {\hastype{\Theta;\Delta;\Gamma}{e}{\tau'}}
+
+  \inferrule*[right=T-Weaken]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau}
+     \quad \Theta;\Delta\vdash\Gamma'<:\Gamma}
+    {\hastype{\Theta;\Delta;\Gamma'}{e}{\tau}}
+\end{mathpar}
+\caption{Typing rules for terms}
+\label{def:worst-case-typing-judgment}
+\end{figure}
+
+\section{Semantics}
+In this section, we present the big-step, call-by-value operational semantics of $\lambda^g_{\mathsf{worst}}$.
+We first dicuss the value judgment of terms, 
+
+Let $\mathsf{Exp}$ denote the set of expressions. The judgment
+\[
+e;\mathsf{val}_n
+\]
+states that (e) is a value at observation index (n). We define
+\[
+\mathsf{Val}_n
+={e\in\mathsf{Exp}\mid e;\mathsf{val}_n}.
+\]
+
+\begin{figure}[H]
+  \begin{mathpar}
+    \inferrule*[right=V-Constant]
+    { e \in 
+      \{\langle\rangle, b, \tlam{x}{e}, nil, 
+        \Lambda.e, \ret e, \tick{I}, \pull e\}
+    }
+    {\isval{e}{n}}
+
+    \inferrule*[right=V-Cons]
+    {\isval{e_1}{n} \quad \isval{e_2}{n}}
+    {\isval{e_1::e_2}{n}}
+
+    \inferrule*[right=V-Pair]
+    {\isval{e_1}{n} \quad \isval{e_2}{n}}
+    {\isval{\tuple{e_1}{e_2}}{n}}
+
+    \inferrule*[right=V-Inl]
+    {\isval{e}{n}}
+    {\isval{\mathsf{inl}\,e}{n}}
+
+    \inferrule*[right=V-Inr]
+    {\isval{e}{n}}
+    {\isval{\mathsf{inr}\,e}{n}}
+
+    \inferrule*[right=V-Fold]
+    {\isval{e}{n}}
+    {\isval{\fold e}{n}}
+
+    \inferrule*[right=V-NextZero]
+    { }
+    {\isval{\delay e}{0}}
+
+    \inferrule*[right=V-NextSucc]
+    {\isval{e}{n}}
+    {\isval{\delay e}{n+1}}
+  \end{mathpar}
+  \caption{Value judgment}
+  \label{:values}
+\end{figure}
+
+\begin{figure}[H]
+\begin{mathpar}
+  \inferrule*[right=E-App]
+  {e_1 \Downarrow_n \tlam{x}{e} \quad e_2 \Downarrow_n v_2
+   \quad e[v_2/x] \Downarrow_n v}
+  {e_1e_2 \Downarrow_n v}
+
+  \inferrule*[right=E-Pair]
+  {e_1\Downarrow_n v_1 \quad e_2\Downarrow_n v_2}
+  {\tuple{e_1}{e_2}\Downarrow_n\tuple{v_1}{v_2}}
+
+  \inferrule*[right=E-Fst]
+  {e\Downarrow_n\tuple{v_1}{v_2}}
+  {\mathsf{fst}\,e\Downarrow_n v_1}
+
+  \inferrule*[right=E-Snd]
+  {e\Downarrow_n\tuple{v_1}{v_2}}
+  {\mathsf{snd}\,e\Downarrow_n v_2}
+
+  \inferrule*[right=E-Inl]
+  {e\Downarrow_n v}
+  {\mathsf{inl}\,e\Downarrow_n\mathsf{inl}\,v}
+
+  \inferrule*[right=E-Inr]
+  {e\Downarrow_n v}
+  {\mathsf{inr}\,e\Downarrow_n\mathsf{inr}\,v}
+
+  \inferrule*[right=E-CaseL]
+  {e\Downarrow_n\mathsf{inl}\,v
+    \quad e_1[v/x]\Downarrow_n v'}
+  {\case{e}{x}{e_1}{y}{e_2} \Downarrow_n v'}
+
+  \inferrule*[right=E-CaseR]
+  {e\Downarrow_n\mathsf{inr}\,v
+    \quad e_2[v/y]\Downarrow_n v'}
+  {\case{e}{x}{e_1}{y}{e_2} \Downarrow_n v'}
+
+  \inferrule*[right=E-Cons]
+  {e_1\Downarrow_n v \quad e_2\Downarrow_n l}
+  {e_1::e_2\Downarrow_n v::l}
+
+  \inferrule*[right=E-MatchNil]
+  {e\Downarrow_nnil \quad e_1\Downarrow_n v}
+  {\lmatch{e}{e_1}{h}{t}{e_2}\Downarrow_n v}
+
+  \inferrule*[right=E-MatchCons]
+  {e\Downarrow_n v_h::l \quad e_2[v_h/h][l/t]\Downarrow_n v}
+  {\lmatch{e}{e_1}{h}{t}{e_2}\Downarrow_n v}
+
+  \inferrule*[right=E-NextBase]
+  { }
+  {\delay e \Downarrow_0 \delay e}
+
+  \inferrule*[right=E-NextInd]
+  {e \Downarrow_n v}
+  {\delay e \Downarrow_{n+1} \delay v}
+
+  \inferrule*[right=E-NappBase]
+  {e_1 \Downarrow_{0} \delay e_1'
+   \quad e_2 \Downarrow_{0} \delay e_2'}
+  {e_1 \circledast e_2 \Downarrow_{0} \delay(e_1' e_2')} 
+
+  \inferrule*[right=E-NappInd]
+  {e_1 \Downarrow_{n+1} \delay (\lambda x.e)
+   \quad e_2 \Downarrow_{n+1} \delay v_2
+   \quad e[v_2/x] \Downarrow_n v}
+  {e_1 \circledast e_2 \Downarrow_{n+1} \delay v}  
+
+  \inferrule*[right=E-Fold]
+  {e \Downarrow_n v}
+  {\fold e \Downarrow_n \fold v}
+
+  \inferrule*[right=E-Unfold]
+  {e \Downarrow_n \fold v}
+  {\unfold e \Downarrow_n v}
+
+  \inferrule*[right=E-Iapp]
+  {e \Downarrow_n \Lambda.e' \quad e' \Downarrow_n v}
+  {e\;[] \Downarrow_n v}
+
+  \inferrule*[right=E-Val]
+  {\mathsf{val}\; v}
+  {v \Downarrow_n v}
+
+\end{mathpar}
+\caption{Pure evaluation rules}
+\end{figure}
+
+\begin{figure}[H] 
+  \begin{mathpar}
+  \inferrule*[right=E-Return]
+  {e \Downarrow_n v}
+  {\ret e \Downarrow_{n,i}^0 v}
+
+  \inferrule*[right=E-Tick]
+  { }
+  {\tick{ I} \Downarrow_{n,i}^{ I(i)} \langle \rangle}
+
+  \inferrule*[right=E-Bind]
+  {
+    e_1 \Downarrow_n v_1 \quad 
+    v_1 \Downarrow_{n,i}^{c_1}v_1'
+    \quad
+    e_2[v_1'/x] \Downarrow_n v_2
+    \quad
+    v_2 \Downarrow_{n,i}^{c_2} v_2'
+  }
+  {
+    \bind{x}{e_1}{e_2}
+    \Downarrow_{n,i}^{c_1+c_2}
+    v_2'
+  }
+
+  \inferrule*[right=E-Pull]
+  {
+    e \Downarrow_{n+1} \delay v
+    \quad
+    v \Downarrow_{n,i+1}^{c}v'
+  }
+  {
+    \pull e\Downarrow_{n+1,i}^c\delay v'
+  }
+  \end{mathpar}
+  \caption{Forcing evaluation rules}
+\end{figure}
+
+
+
+
+

@@ -29,6 +29,7 @@
   \newdateformat{monthonly}{\monthname[\THEMONTH]}
   \newdateformat{monthyeardate}{\monthname[\THEMONTH] \THEYEAR}
 \usepackage{amssymb,amsthm,amsmath}                  % standard math packages; often used
+\usepackage{mathpartir}                  % standard math packages; often used
 \usepackage[backref=page]{hyperref}  % defines style of references / links
 \hypersetup{
 linktocpage,                         % in the table of contents, the numbers serve as links, not the entries
@@ -54,6 +55,8 @@ citecolor   = blue
 \usepackage{paralist}                                % provides compactitem, a more compact itemize
 \usepackage{wrapfig}
 \usepackage{needspace}
+
+\renewcommand*{\figureformat}{\figurename~\thefigure}
 
 \begin{document}
 
