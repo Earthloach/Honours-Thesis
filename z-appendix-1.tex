@@ -1,4 +1,4 @@
-\chapter{Appendix: Explanation on Appendices}\label{chap:appendix1}
+\chapter{Appendix: Proofs for the worst-case calculus}\label{chap:appendix1}
 
 You may use appendices to provide additional information that is in principle relevant to your work, though you don't want \emph{every reader} to look at the entire material, but only those interested.
 
@@ -9,3 +9,56 @@ There are many cases where an appendix may make sense. For example:
   \item You developed a model of some sort. In your work, you explained an excerpt of the model. You also used mathematical syntax for this. Here, you can (if you wish) provide the actual model as you provided it in probably some textfile. Note that you don't have to do this, as artifacts can be submitted separately. Consult your supervisor in such a case.
   \item You could also provide a list of figures and/or list of tables in here (via the commands \verb!\listoffigures! and \verb!\listoftables!, respectively). Do this only if you think that this is beneficial for your work. If you want to include it, you can of course also provide it right after the table of contents. You might want to make this dependent on how many people you think are interested in this.
 \end{itemize}
+
+\begin{applem}
+\label{app:shift-dist}
+Let $Index$ be the set of well-formed indices, for any $I, J, K\in Index$, if K is a natural number constant, then the following equalities hold:
+\begin{align*}
+  &(1) \qquad \mathsf{S}^K(I+J)
+  = \mathsf{S}^K(I)+\mathsf{S}^K(J),\\
+  &(2)\qquad \mathsf{S}^K(I-J)
+  = \mathsf{S}^K(I)-\mathsf{S}^K(J),\\
+  &(3)\qquad \text{If } J \text{ is a natural number constant}, \text{ then }\mathsf{S}^K\left(\textstyle\sum_{\kappa<J}I\right)
+  = \textstyle\sum_{\kappa<J}\mathsf{S}^K(I).
+\end{align*}
+\end{applem}
+
+\begin{proof}
+From Definition \ref{def:constraint-entailment}, for any $i \in \mathbb{N}$, it suffices to show:
+\begin{itemize}
+  \item[(1)]
+  \begin{align*}
+    \bigl(\mathsf{S}^K(I+J)\bigr)(i)
+    &= (I+J)(i+K)&& \text{(interpretation of $\mathsf{S}$)}\\
+    &= I(i+K)+J(i+K)&& \text{(interpretation of $+$)}\\
+    &= \bigl(\mathsf{S}^K(I)\bigr)(i)
+       +\bigl(\mathsf{S}^K(J)\bigr)(i)&& \text{(interpretation of $\mathsf{S}$)}\\
+    &= \bigl(\mathsf{S}^K(I)+\mathsf{S}^K(J)\bigr)(i) && \text{(interpretation of $+$)}\\
+  \end{align*}
+
+  \item[(2)]
+  \begin{align*}
+    \bigl(\mathsf{S}^K(I-J)\bigr)(i)
+    &= (I-J)(i+K)
+       && \text{(interpretation of $\mathsf{S}$)}\\
+    &= I(i+K)-J(i+K) && \text{(interpretation of $\mathsf{-}$)}\\
+    &= \bigl(\mathsf{S}^K(I)\bigr)(i) -\bigl(\mathsf{S}^K(J)\bigr)(i)
+      && \text{(interpretation of $\mathsf{S}$)}\\
+    &= \bigl(\mathsf{S}^K(I)-\mathsf{S}^K(J)\bigr)(i) 
+      && \text{(interpretation of $\mathsf{-}$)}\\
+  \end{align*}
+
+  \item[(3)]
+  \begin{align*}
+    \mathsf({S}^{K}(\sum_{\kappa<J}I))(i)
+    &= (\mathsf{S}^{K}(\sum_{k=0}^{J-1}I[k/\kappa]))(i)
+      && \text{(interpretation of bounded sum)}\\
+    &= (\sum_{k=0}^{J-1}I[k/\kappa])(i+K) && \text{(interpretation of $\mathsf{S}$)}\\
+    &= \sum_{k=0}^{J-1}((I[k/\kappa])(i+K)) && \text{(interpretation of $+$)}\\
+    &= \sum_{k=0}^{J-1}(\mathsf{S}^K(I[k/\kappa])(i)) && \text{(interpretation of $\mathsf{S}$)}\\
+    &= (\sum_{k=0}^{J-1}\mathsf{S}^K(I[k/\kappa]))(i) && \text{(interpretation of $+$)}\\
+    &= \sum_{\kappa<J}\mathsf{S}(I)
+       && \text{(interpretation of bounded sum)}
+  \end{align*}
+\end{itemize}
+\end{proof}
