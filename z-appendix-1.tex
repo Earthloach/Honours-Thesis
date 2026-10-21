@@ -10,9 +10,9 @@ There are many cases where an appendix may make sense. For example:
   \item You could also provide a list of figures and/or list of tables in here (via the commands \verb!\listoffigures! and \verb!\listoftables!, respectively). Do this only if you think that this is beneficial for your work. If you want to include it, you can of course also provide it right after the table of contents. You might want to make this dependent on how many people you think are interested in this.
 \end{itemize}
 
-\begin{applem}
-\label{app:shift-dist}
-Let $Index$ be the set of well-formed indices, for any $I, J, K\in Index$, if K is a natural number constant, then the following equalities hold:
+\begin{appalem}
+\label{appa:shift-dist}
+For any well-formed indices $I, J$, and $K$, if $ K$ is a natural number constant, then the following equalities hold:
 \begin{align*}
   &(1) \qquad \mathsf{S}^K(I+J)
   = \mathsf{S}^K(I)+\mathsf{S}^K(J),\\
@@ -21,7 +21,7 @@ Let $Index$ be the set of well-formed indices, for any $I, J, K\in Index$, if K 
   &(3)\qquad \text{If } J \text{ is a natural number constant}, \text{ then }\mathsf{S}^K\left(\textstyle\sum_{\kappa<J}I\right)
   = \textstyle\sum_{\kappa<J}\mathsf{S}^K(I).
 \end{align*}
-\end{applem}
+\end{appalem}
 
 \begin{proof}
 From Definition \ref{def:constraint-entailment}, for any $i \in \mathbb{N}$, it suffices to show:
@@ -61,4 +61,180 @@ From Definition \ref{def:constraint-entailment}, for any $i \in \mathbb{N}$, it 
        && \text{(interpretation of bounded sum)}
   \end{align*}
 \end{itemize}
+\end{proof}
+
+\begin{appalem}[Type substitution preserves subtyping]
+\label{appa:substitute-subtyping}
+$\\$ If $\Theta;\Delta\vdash\tau<:\tau'$, then
+ $\Theta;\Delta\vdash\tau[\tau_0/\alpha]<:\tau'[\tau_0/\alpha]$.
+\end{appalem}
+\begin{proof}
+Induction on the subtyping derivation.
+
+\paragraph{{\textsc{Sub-Refl}}}
+By \textsc{Sub-Refl}, we have the desired directly.
+
+\paragraph{{\textsc{Sub-Trans}}}
+By IH1 and IH2, we have
+\[
+  \Theta;\Delta\vdash\tau_1[\tau_0/\alpha]<:\tau_2[\tau_0/\alpha],
+  \qquad
+  \Theta;\Delta\vdash\tau_2[\tau_0/\alpha]<:\tau_3[\tau_0/\alpha]
+\]
+Applying \textsc{Sub-Trans} gives the desired.
+
+\paragraph{{\textsc{Sub-Arrow}}}
+By IH1 and IH2, we have
+\[
+  \Theta;\Delta\vdash\tau_1'[\tau_0/\alpha]<:\tau_1[\tau_0/\alpha],
+  \qquad
+  \Theta;\Delta\vdash\tau_2[\tau_0/\alpha]<:\tau_2'[\tau_0/\alpha]
+\]
+Applying \textsc{Sub-Arrow} gives the desired.
+
+\paragraph{{\textsc{Sub-Product}}}
+By IH1 and IH2, we have
+\[
+  \Theta;\Delta\vdash\tau_1[\tau_0/\alpha]<:\tau_1[\tau_0/\alpha],
+  \qquad
+ \Theta;\Delta\vdash\tau_2[\tau_0/\alpha]<:\tau_2[\tau_0/\alpha] 
+\]
+Applying \textsc{Sub-Product} gives the desired
+
+\paragraph{{\textsc{Sub-Sum}}}
+By IH1 and IH2, we have
+\[
+  \Theta;\Delta\vdash\tau_1[\tau_0/\alpha]<:\tau_1[\tau_0/\alpha],
+  \qquad
+ \Theta;\Delta\vdash\tau_2[\tau_0/\alpha]<:\tau_2[\tau_0/\alpha] 
+\] Applying \textsc{Sub-Sum} gives the desired.
+
+\paragraph{{\textsc{Sub-List}}}
+By the IH, we have \[\Theta;\Delta\vdash\tau[\tau_0/\alpha]<:\tau'[\tau_0/\alpha]\]
+Since type substitution leaves the index $I$ unchanged applying \textsc{Sub-List} gives the desired
+
+\paragraph{{\textsc{Sub-Later}}}
+By the IH, we have \[\Theta;\Delta\vdash\tau[\tau_0/\alpha]<:\tau'[\tau_0/\alpha]\]
+Applying \textsc{Sub-Later} gives the desired
+
+\paragraph{{\textsc{Sub-Monad}}}
+By the IH, we have \[\Theta;\Delta\vdash\tau[\tau_0/\alpha]<:\tau'[\tau_0/\alpha]\]
+The constraint $\Theta;\Delta\models I\leq I'$ is unchanged by type
+substitution, then applying \textsc{Sub-Monad} gives the desired.
+
+\paragraph{{\textsc{Sub-IndexPoly}}}
+By the IH, we have 
+\[
+  \Theta,\kappa:S;\Delta\vdash
+  \tau[\tau_0/\alpha]<:\tau'[\tau_0/\alpha]
+\]
+Applying \textsc{Sub-IndexPoly} gives the desired.
+
+\paragraph{{\textsc{Sub-Rec}}}
+Rename the recursive variable to $\beta$, since $\beta$ is not free in $\tau_0$,
+we have 
+\[
+  (\mu\beta.\tau_1)[\tau_0/\alpha] = 
+  \mu\beta.(\tau_1[\tau_0/\alpha]), \quad
+  (\mu\beta.\tau_1')[\tau_0/\alpha] = 
+  \mu\beta.(\tau_1'[\tau_0/\alpha]). 
+\]
+By the IH, we have 
+\[
+  \Theta;\Delta\vdash\tau_1[\tau_0/\alpha]
+    <: \tau_1'[\tau_0/\alpha]
+\]
+Applying \textsc{Sub-Rec} gives the desired
+\end{proof}
+
+\begin{appalem}[Subtyping of Substitution]
+\label{appa:subtyping-polarity}
+$\\$ If
+$\Theta;\Delta\vdash\tau_0<:\tau_1$, then
+\begin{align*}
+  &\alpha\text{ positive in }\sigma
+    \implies\Theta;\Delta\vdash
+      \sigma[\tau_0/\alpha]<:\sigma[\tau_1/\alpha],\\
+  &\alpha\text{ negative in }\sigma
+    \implies\Theta;\Delta\vdash
+      \sigma[\tau_1/\alpha]<:\sigma[\tau_0/\alpha].
+\end{align*}
+\end{appalem}
+
+\begin{proof}
+By structural induction on $\sigma$, generalising $\Theta$.
+The proof for both cases are similar except for the arrow type, hence we only present the positive case for most types.
+
+\paragraph{Case $\sigma=\alpha$}
+Only the positive case applies and the goal is the given premise $\Theta;\Delta\vdash\tau_0<:\tau_1$.
+
+\paragraph{Case $\sigma=\beta$, where $\beta\neq\alpha$}
+The substitutions are equal to $\beta$, and both goals follow by \textsc{Sub-Refl}.
+
+\paragraph{Case $\sigma=\textbf{1}$}
+Both substitutions are equal to $\textbf{1}$, and both goals follow by \textsc{Sub-Refl}.
+
+\paragraph{Case $\sigma=\textbf{b}$}
+Both substitutions are equal to $\tint$, and both goals follow by \textsc{Sub-Refl}.
+
+\paragraph{Case $\sigma=\sigma_1\to\sigma_2$}
+In the positive case, $\alpha$ is a negative occurrence in $\sigma_1$ and a positive occurrence the in $\sigma_2$. By the negative IH for $\sigma_1$ and the positive IH for
+$\sigma_2$, we have 
+\[
+  \Theta;\Delta\vdash\sigma_1[\tau_1/\alpha]<:\sigma_1[\tau_0/\alpha],
+  \qquad
+  \Theta;\Delta\vdash\sigma_2[\tau_0/\alpha]<:\sigma_2[\tau_1/\alpha]
+\]
+Applying \textsc{Sub-Arrow} gives the desired:
+In the negative case, $\alpha$ is a positive occurrence in $\sigma_1$ and a negative occurrence the in $\sigma_2$. 
+By the positive IH for $\sigma_1$ and the negative IH for
+$\sigma_2$, we have 
+\[
+  \Theta;\Delta\vdash\sigma_1[\tau_0/\alpha]<:\sigma_1[\tau_1/\alpha],
+  \qquad
+  \Theta;\Delta\vdash\sigma_2[\tau_1/\alpha]<:\sigma_2[\tau_0/\alpha]
+\]
+Applying \textsc{Sub-Arrow} gives the desired.
+
+\paragraph{Case $\sigma=\sigma_1\times\sigma_2$}
+In the positive case, the two positive IHs give
+$\Theta;\Delta\vdash\sigma_j[\tau_0/\alpha]<:\sigma_j[\tau_1/\alpha]$
+for $j=1,2$. Applying \textsc{Sub-Product} gives the desired.
+
+\paragraph{Case $\sigma=\sigma_1+\sigma_2$}
+In the positive case, the two positive IHs give
+$\Theta;\Delta\vdash\sigma_j[\tau_0/\alpha]<:\sigma_j[\tau_1/\alpha]$
+for $j=1,2$. Applying \textsc{Sub-Sum} gives the desired.
+
+\paragraph{Case $\sigma=L^I\sigma_0$}
+In the positive case, the positive IH for $\sigma_0$ gives 
+\[ \sigma_0[\tau_0/\alpha] <: \sigma_0[\tau_1/\alpha]\]
+Applying \textsc{Sub-List} gives the desired.
+
+\paragraph{Case $\sigma=\triangleright\sigma_0$}
+In the positive case, the positive IH for $\sigma_0$ gives 
+\[\sigma_0[\tau_0/\alpha] <: \sigma_0[\tau_1/\alpha] \]
+Applying \textsc{Sub-Later} gives the desired.
+
+\paragraph{Case $\sigma=\tmonad{I}{\sigma_0}$}
+In the positive case, the positive IH for $\sigma_0$ gives
+$\Theta;\Delta\models I\leq I$, gives by \textsc{Sub-Monad}
+\[\sigma_0[\tau_0/\alpha] <: \sigma_0[\tau_1/\alpha]\]
+Since $\Theta;\Delta\models I\leq I$, we get the desired by \textsc{Sub-Monad}:
+\[
+  \Theta;\Delta\vdash\tmonad{I}{(\sigma_0[\tau_0/\alpha])}
+    <: \tmonad{I}{(\sigma_0[\tau_1/\alpha])}.
+\]
+
+\paragraph{Case $\sigma=\forall\kappa:S.\sigma_0$}
+% Weakening the given judgment from assumption, we have
+% \[\Theta,\kappa:S;\Delta\vdash\tau_0<:\tau_1\]
+In the positive case, instantiating the positive IH with $\Theta,\kappa:S$ gives
+\[\Theta,\kappa:S;\Delta\vdash\sigma_0[\tau_0/\alpha]<:\sigma_0[\tau_1/\alpha]\]
+Applying \textsc{Sub-IndexPoly} gives the desired.
+
+\paragraph{Case $\sigma=\mu\beta.\sigma_0$, where $\beta\neq\alpha$}
+In the positive case, the positive IH gives
+\[\Theta;\Delta\vdash\sigma_0[\tau_0/\alpha]<:\sigma_0[\tau_1/\alpha]\]
+Applying \textsc{Sub-Rec} gives the desired.
 \end{proof}
