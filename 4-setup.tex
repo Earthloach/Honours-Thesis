@@ -6,7 +6,7 @@ The type system combines the later modality for guarded recursion with a graded 
 Specifically, the calculus adapts fragments from the guarded lambda calculus of \cite{cloustonGuardedLambdaCalculusProgramming2017a}
 and $\lambda$-amor of \cite{rajaniUnifyingTypetheoryHigherorder2021a}.
 
-Firstly, in Section \ref{sec:cost-foundation} we look at how the interaction between gradeds and the later modality yields the notion of \emph{time-dependent cost},  
+Firstly, in Section \ref{sec:cost-foundation} we look at how the interaction between grades and the later modality yields the notion of \emph{time-dependent cost},  
 which is the foundation of cost analysis in $\lambda^g_{\mathsf{worst}}$. 
 We then describe the syntax, type system, and semantics in Section \ref{sec:worst-case-syntax} and Section \ref{sec:worst-case-type-system}.
 Finally, we demonstrate cost analysis examples in Section \ref{sec:worst-case-program-examples}.
@@ -24,13 +24,13 @@ Combining with the graded monad, we can leverage this logical time to express co
 
 Note that some work presents the clock explicitly \citep{atkeyProductiveCoprogrammingGuarded2013a,mogelberg14, bahrClocksAreTicking2017}, and
 multiple clocks can exist, e.g. types like $\triangleright^\alpha$ and $\triangleright^\beta$ where $\alpha, \beta$ denotes 2 different clocks,
-thus the notion of time differs between the clocks. 
+thus, the notion of time differs between the clocks. 
 Following the guarded lambda calculus, we only consider a single global clock in our type system. This also ensures that all costs 
 change uniformly as time passes.
 
 \subsection{Time-dependent Cost}
 Firstly, we use an abstract parameter $i\in\mathbb N$ to denote the current time. Advancing one time step corresponds to moving from $i$ to $i+1$. 
-Our aim is to specify non-uniform costs that changes with $i$. For instance, if $i$ starts at zero, a cost of $i+2$ 
+Our aim is to specify non-uniform costs that change with $i$. For instance, if $i$ starts at zero, a cost of $i+2$ 
 gives costs 2, 3, 4 \dots as $i$ advances to $i+1$, $i+2$ \dots, while a constant cost like 3 remains unchanged as $i$ increments.
 
 Similar to $\lambda$-amor, we use an index language to express quantitative information contained in different types, such as the graded monad.
@@ -92,7 +92,7 @@ For example, a computation of type $\tmonad{\clk}{\tau}$ produces a \emph{symbol
 $i$. If we consider the time starts from 0, then the cost is 0. By contrast, a computation of type $\triangleright\tmonad{\clk}{\tau}$ means that it
 will be executed one step later, and the cost will be the value of $i+1 = 1$. 
 Likewise, the cost will be $n$ for a computation of type $\triangleright^n \tmonad{\kappa}{\tau}$, where $n$ is the number of nested $\triangleright$ types. 
-For a clearer illustration, Table \ref{fig:ticktime-costs} lists the cost sequence of a stream.
+For a clearer illustration, Table \ref{fig:ticktime-costs} lists the cost sequence of a guarded stream whose elements are typed $\tmonad{\clk}{\tau}$.
 
 In contrast, computations of types $\tmonad{3}{\tau}$ and $\triangleright^n \tmonad{3}{\tau}$ do not distinguish their costs.
 
@@ -235,7 +235,7 @@ Lists have the constructors $nil$ and cons ``::'', with pattern matching as the 
 We use iso-recursive types in $\lambda^g_{\mathsf{worst}}$, where a recursive type and its unfolding are isomorphic.
 This is achieved by the $\fold$ and $\unfold$ operators, mapping recursive types and their unfoldings to each other.
 Universal index quantification is introduced by the index abstraction $\Lambda.e$ and eliminated by the application $e\;[\,]$.
-Observe that index variables are omitted for them; this follows from $\lambda$-amor, where index variables cannot occur in terms.
+Observe that index variables are omitted for them, this follows from $\lambda$-amor, where index variables cannot occur in terms.
 
 There are several constructors for the type $\tmonad{I}{\tau}$, including the standard unit and bind operation of monads: $\ret e$ and $\bind{x}{e_1}{e_2}$.
 The tick operator ($\tick{I}$) is the atomic operation for incurring a symbolic cost of $I$.
@@ -312,7 +312,7 @@ In this section, we present the typing judgments of $\lambda^g_{\mathsf{worst}}$
 \end{figure}
 
 The judgment for indices is in the form $\Theta;\Delta\vdash I: S$, where $\Theta$ is the context that maps index variables $\kappa$ to their sorts $S$, and 
-$\Delta$ is the context that contains constraints about indices as mentioned previously. Constraints in $\Delta$ may refer to variables in $\Theta$, hence,  we need to couple them together.
+$\Delta$ is the context that contains constraints about indices as mentioned previously. Constraints in $\Delta$ may refer to variables in $\Theta$, we thus need to use them together.
 
 Figure \ref{defn:worst-case-sort-rule} presents the sort rules for indices. The \textsc{S-Var, S-Nat}  and \textsc{S-Real} rules should be self-explanatory. 
 The $\mathsf{clk}$ expression is treated as a natural number, representing the logical time. The \textsc rule allows a natural number index to be used as a nonnegative real number with the same value. 
@@ -440,6 +440,7 @@ Figure \ref{def:worst-case-subtyping} gives the subtyping rules.
   \caption{Subtyping rules for types}
   \label{def:worst-case-subtyping}
 \end{figure}
+
 The subtyping judgment is $\Theta;\Delta\vdash\tau<:\tau'$, similar to the type well-formedness judgment, it requires $\Theta$ and $\Delta$ to ensure constraints hold for certain rules. 
 We follow $\lambda$-amor and the usual treatment of subtyping: the relation $<:$ is a preorder on types that satisfies reflexivity and transitivity. These two 
 properties are captured by \textsc{Sub-Refl} and \textsc{SubTrans}. The \textsc{Sub-Arrow} rule follows the standard, where it is contravariant in its argument type, i.e.
@@ -477,8 +478,8 @@ are defined inductively:
 We say that a type variable $\alpha$ is \emph{positive} in $\tau$ if all free occurrences of it in $\tau$ are positive, i.e. no negative occurrences of $\alpha$ in $\tau$.
 For example, the variable $\alpha$ is positive in $\textbf{1} \to \alpha$, $L^n\,\alpha \times \textbf{1}$, and negative in $\alpha \to \textbf{1}$.
 
-Due to negative occurrences, the subtyping relation does not always hold after unfolding two related recursive types, we follow an example adapted from \cite{zhouRevisitingIsorecursiveSubtyping2020}:
-suppose dropping the positive side condition from \textsc{S-Rec}, we can derive the following relation:
+Due to negative occurrences, the subtyping relation does not always hold after unfolding two related recursive types, we adapt an example from \cite{zhouRevisitingIsorecursiveSubtyping2020} to our setting:
+Suppose dropping the positive side condition from \textsc{S-Rec}, we can derive the following relation:
 \[\mu \alpha.(\triangleright\alpha) \to \tmonad{0}{\textbf{1}} <: \mu \alpha.(\triangleright\alpha) \to \tmonad{1}{\textbf{1}} \qquad (1)\]
 Unfolding the types on each side, we have
 \[
@@ -494,7 +495,7 @@ Although the preservation of subtyping is not necessary for iso-recursive types,
 $\lambda^g_{\mathsf{worst}}$ presented in the next chapter.
 
 The major limitation of restricting negative occurrences in the \textsc{Sub-Rec} rule is that it rejects all negative subtyping. However, most recursive types considered in 
-$\lambda^g_{\mathsf{worst}}$ like streams only have positive occurrences. An alternative approach is using the Amber rules \citep{cardelli85}, which are commonly used for recursive subtyping. These rules are more permissive, allowing certain negative occurrences of recursive type variables. Nevertheless,  those cases are usually not concerned in our type system, we
+$\lambda^g_{\mathsf{worst}}$ like streams only have positive occurrences. An alternative approach is the Amber rules \citep{cardelli85}, which are commonly used for recursive subtyping. These rules are more permissive, allowing certain negative occurrences of recursive type variables. Nevertheless,  those cases are usually not concerned in our type system, we
 choose to adopt the simple restriction approach.
 
 \subsection{Terms and Typing judgments}
@@ -504,8 +505,8 @@ Since type variables only appear in recursive types, and type substitution is us
 record type variables. 
 
 The typing rules are presented in Figure \ref{def:worst-case-typing-judgment}. Most rules are standard, corresponding to the introduction and elimination rules for the respective type constructors.
-\textsc{T-Nil} is the rule for the term $nil$ that introduces an empty list, thus the type is $L^0 \tau$.
-\textsc{T-Cons} describes the typing for the cons (::) expression that pushes a new element in front of a list, and the length index of the resulting list 
+\textsc{T-Nil} is the rule for the term $nil$ that introduces an empty list, thus, the type is $L^0 \tau$.
+\textsc{T-Cons} describes the typing for the cons (::) expression which pushes a new element in front of a list, and the length index of the resulting list 
 needs to increase by one. Consequently, pattern matching on a list has two branches, where the list is either $nil$ or cons.
 The \textsc{T-Match} rule also adds more assumptions to refine existing constraints: length $I = 0$ and $I > 0$ for the corresponding branch.
 \textsc{T-Fold} and \textsc{T-Unfold} are the two rules that substitutes type variables bounded by the recursive type.
@@ -669,14 +670,22 @@ Usually, the semantics should relate a term $e$ to a value (normal form) defined
 the semantics.
 
 \subsection{Values}
-The judgment $e\;\mathsf{val}_n$ means that the term $e$ is a value at "depth $n$".
-The intuition is that all recursive definitions for terms will be guarded by a $\delay$ constructor, just like recursive types are guarded by a $\triangleright$, then we may get 
-infinite nested $\delay$ constructors for a possibly infinite result. As the time $i$ passes under a $\delay$, we count down from $n$, 
-it controls how \emph{deep} we can pass through $\delay$ constructors, and gives a prefix of an infinite computation.
+The judgment $e\;\mathsf{val}_n$ states that the term $e$ is a value at "depth $n$".
+The intuition is that all recursive definitions of terms will be guarded by a $\delay$ constructor, just like recursive types are guarded by a $\triangleright$, then we may get 
+infinite nested $\delay$ constructors for recursions. Evaluation must look inside
+$\mathsf{next}$ to produce anything beyond the current step. We therefore bound the number of nested
+$\mathsf{next}$ constructors it may enter by a natural number $n$.
+A value at depth $n$ is thus a finite
+prefix of a possibly infinite result.
 
-Figure \ref{def:values} gives the value judgments. \textsc{V-Constant} specifies terms that are considered directly as values no matter the value of $n$.
-Following $\lambda$-amor, monads are lazy, hence their constructors are treated as values directly. The value judgments of most constructors are defined based 
-on their components. The judgment for $\delay e$ is defined inductively, where the checking keeps going inside $\delay$ constructors, and stops when $n$ reaches zero.
+Figure \ref{def:values} gives the value judgments. The judgments of most constructors are defined compositionally by their components. 
+For instance, \textsc{V-Pair} states that $\tuple{e_1}{e_2}$ is a value when both $e_1$ and $e_2$ are values. \textsc{V-Constant} specifies terms that are considered directly as values no matter the value of $n$.
+Monads are lazy, hence their constructors are treated as values directly.
+
+The judgment for $\mathsf{next}\,e$ is defined by induction on $n$: at depth $0$,
+$\mathsf{next}\,e$ is a value for any term $e$, and at depth $n+1$
+it is a value when $e$ is a value at depth $n$. Once the depth reaches
+$0$, terms inside a $\delay$ are considered as being suspended, hence they are accepted as values without inspecting their content.
 
 Intuitively, if a term is a value at depth $n$, it is also a value at a smaller depth.
 
@@ -723,7 +732,7 @@ $\\$ For any $e$, and $m, n \in \mathbb{N}$, if $\isval{e}{n}$ and $m\leq n$, th
     { }
     {\isval{\delay e}{0}}
 
-    \inferrule*[right=V-NextSucc]
+    \inferrule*[right=V-NextInd]
     {\isval{e}{n}}
     {\isval{\delay e}{n+1}}
 
@@ -742,7 +751,7 @@ $\\$ For any $e$, and $m, n \in \mathbb{N}$, if $\isval{e}{n}$ and $m\leq n$, th
 Following $\lambda$-amor, $\lambda^g_{\mathsf{worst}}$ includes two kinds of semantics: pure evaluation for pure terms and forcing evaluation for monadic computations.
 
 \subsubsection{Pure Evaluation}
-The pure evaluation judgment is defined as $e \Downarrow_n v$, evaluating a pure term into a value, without incurring any cost. For convenience, we write $v$ to denote a term that satisfies the value judgment given the depth $n$.
+The pure evaluation judgment is defined as $e \Downarrow_n v$, evaluating a pure term into a value, without incurring any cost. For convenience, we write $v$ to denote a term that satisfies the value judgment at the depth $n$.
 Operationally, one can also think of the index $n$ as the amount of fuel
 available to an interpreter: evaluation may unfold recursive definitions at most $n$ times. 
 
@@ -799,7 +808,7 @@ We can give $\delay(\delay(\mathsf{id}\,\langle\rangle))$ a larger $n$ to furthe
 The forcing evaluation judgment $e \Downarrow^{c}_{n,i} v$ relates a term $e$ of type $\tmonad{I}{\tau}$
 to a value $v$ of type $\tau$, it is indexed additionally by the time $i$ to interpret the cost of evaluation from a symbolic cost to a real cost $c$.
 
-Figure \ref{def:worst-case-forcing-eval} gives all the evaluation rules. In particular, only constructors of monads have forcing evaluation. \textsc{E-Tick} gives the time interpretation of
+Figure \ref{def:worst-case-forcing-eval} gives all the forcing evaluation rules. In particular, only constructors of monads have forcing evaluation. \textsc{E-Tick} gives the time interpretation of
 $I$ in the term $\tick{I}$ and reduces it to $\langle \rangle$, hence the evaluation costs $I(i)$. The \textsc{E-Return} rule specifies that $\ret e$ just gives the pure evaluation result of 
 $e$ with 0 cost. \textsc{E-Bind} composes two monadic computations $e_1$ and $e_2$ and sums the costs, it first evaluates $e_1$ purely to reach its monadic constructor, then 
 continues to force it, and similarly for $e_2$. Of greater interest is the $\text{E-Prepay}$ rule, evaluating $\pull e$ requires at least one amount of "fuel" to reduce inside the 
@@ -952,12 +961,12 @@ The proof of this theorem will be discussed in the next chapter.
 
 \section{Program Examples}
 \label{sec:worst-case-program-examples}
-In this section, we present a few program examples in $\lambda^g_{\mathsf{worst}}$ that demonstrate the expressiveness of the 
+In this section, we present several programs in $\lambda^g_{\mathsf{worst}}$ that demonstrate the expressiveness of the 
 calculus and its type-based cost analysis features.
 
 \subsection{Guarded Recursion}
-To express guarded recursive functions, a fixed point combinator is required. Here we present the guarded version of the turing combinator 
-descibred in \citep{cloustonGuardedLambdaCalculusProgramming2017a}.
+To express guarded recursive functions, a fixed point combinator is required. Here we present the guarded version of Turing's fixed point combinator 
+described in \citep{cloustonGuardedLambdaCalculusProgramming2017a}.
 
 \begin{defn}[Guarded Fixed point] The fixed point is derived as follows:
 \begin{align*}
@@ -1000,13 +1009,13 @@ From \textsc{E-NappZero} and \textsc{E-NappInd}, no matter what $n$ we are given
           \bigr)
 \]
 Suppose $n=1$, we can reduce inside the $\delay$. 
-The inner application gives $\unfold \fold \theta$, it get eliminated to $\theta$ by $\textsc{E-Unfold}$.
+The inner application gives $\unfold \fold \theta$, it then gets eliminated to $\theta$ by $\textsc{E-Unfold}$.
 Therefore, the whole expression becomes 
 \[
   f (\delay (\theta(\delay \fold \theta)f)) 
 \]
 This expression is exactly $f (\delay \fix f)$. 
-Since our call-by-value semantics evaluate arguments eagarly, different $n$ results in different expansions:
+Since our call-by-value semantics evaluate arguments eagerly, different $n$ results in different expansions:
 \begin{align*}
   &n = 0: \fix f  \\
   &n = 1: f (\delay \fix f)   \\
@@ -1040,37 +1049,38 @@ Firstly, we define the guarded stream type and its standard functions:
   \tail &\triangleq \tlam{s}{\mathsf{snd}\,(\unfold s)}
    &&: \tstr{\tau}\to\triangleright\tstr{\tau}.
 \end{align*}
-Here we overload the syntax, use the same notation $"::"$ as list cons to construct streams.
+Here we overload the syntax, using the same notation (::) as list cons to construct streams.
 
-Following the stream functions, we can define a family of functions that enables us to observe a stream deeper:
+Based on the stream constructors, we can define a family of functions that enables us to observe a stream deeper:
 \begin{flalign*}
   &\quad\mathsf{nth}_n : \tstr{\tau} \to \triangleright^n\tau && \\
   &\quad\mathsf{nth}_0 \triangleq \tlam{s}{\head s} && \\
   &\quad\mathsf{nth}_{n+1} \triangleq \tlam{s}{(\delay \mathsf{nth}_n)\circledast(\tail s)} &&
 \end{flalign*}
-The functions are defined inductively for convenience instead of listing all of them, and $n$ 
-is hardcoded as the order number of a function.
+The functions are defined inductively for convenience instead of listing all of their definitions, and $n$ 
+is hardcoded as the order number of a function in the family.
 
 We will focus on the $\tstr{\tmonad{I}{\tau}}$ type for our later examples,
 it denotes a stream of computations, where each element takes $I(i)$ cost to evaluate.
-For example ,we can construct a stream whose cost varies for each element:
+For example, we can construct a stream whose cost varies for each element:
 \begin{flalign*}
   &\quad\mathsf{tickTime} : \tstr{\tmonad{\clk}{\mathbf{1}}} && \\
   &\quad\mathsf{tickTime} \triangleq \fix\lambda x.\, \tick{\clk} :: x &&
 \end{flalign*}
-This stream simply produces the cost representing the current time for each element. 
-Intuitively, we can be think this as modelling the cost of traversal.
-Table \ref{fig:ticktime-costs} shows the semantic cost of each element, the cost aligns with the time and the element position.
+For each element, this stream simply ticks the cost representing the time.
+Table \ref{fig:ticktime-costs} shows the cost of each element. 
+Intuitively, each cost aligns with the time and its element position, which can be thought of as modelling the cost 
+of traversing the stream.
 
-Operationally, we can define a family of functions that allow us to evalaute the $nth$ element of a stream:
+Operationally, we can define a family of functions that allow us to evaluate the $ n$-th element of a stream:
 \begin{flalign*}
 &\quad\mathsf{prepayNth}_n : \forall I.\,\tstr{(\tmonad{I}{\tau})} \to \tmonad{\mathsf{S}^n(I)}{(\triangleright^n\tau)}, &&\\
 &\quad\mathsf{prepayNth}_0 \triangleq \Lambda.\tlam{s}{\head s}, &&\\
 &\quad\mathsf{prepayNth}_{n+1} \triangleq \Lambda.\tlam{s}{\pull((\delay (\mathsf{prepayNth}_n\,[\,]))\circledast(\tail s))} &&
 \end{flalign*}
-The symbolic cost $\mathsf{S}^n(I)$ records the amount of increment needs for the current time 
-to obtain the delayed cost. Moreover, the index $I$ is also polymorphic which takes streams of arbitrary cost.
-However, there is no polymorphism for the number of ``laters'' in our type system, hence we 
+The symbolic cost $\mathsf{S}^n(I)$ records the amount of increment needed for the current time 
+to obtain the delayed cost. Moreover, the index $I$ is polymorphic and can take streams of arbitrary cost.
+However, there is no polymorphism for the number of nested ``laters''($\triangleright^n\tau$) in our type system, we 
 choose the index that is equal to $n$ for $\mathsf{S}^n(I)$.
 
 \begin{table}[H]
@@ -1079,7 +1089,7 @@ choose the index that is equal to $n$ for $\mathsf{S}^n(I)$.
     \hline
      Position
       & Type 
-      & Semantic cost (Time Interpretation)\\
+      & Time Interpretation of costs \\
     \hline
     $0$
       & $\tmonad{\mathsf{clk}}{\mathbf{1}}$
@@ -1102,8 +1112,8 @@ choose the index that is equal to $n$ for $\mathsf{S}^n(I)$.
       & $n$ \\
     \hline
   \end{tabular}
-  \caption{Semantic cost of elements in $\mathsf{tickTime}$, starting
-    at time $0$}
+  \caption{Costs of elements in $\mathsf{tickTime}$, starting
+    at time $i = 0$}
   \label{fig:ticktime-costs}
 \end{table}
 
@@ -1116,7 +1126,7 @@ Ordinary element-wise stream processing functions can be defined easily:
 $\mathsf{mapC}$ is the cost-aware version of the common stream mapping function.
 The function $f$ has type $\tau \to \tmonad{I_1}{\tau}$, which is the standard type of encoding 
 a computation that does some work to process its input. For streams, we need to first force the head computation
-and feed its result into $f$, and the 2 separate costs will be added through $\mathsf{bind}$.
+and feed its result into $f$, and the 2 separate costs will be added by $\mathsf{bind}$.
 
 Likewise, we can define a $\mathsf{zipWithC}$ as follows:
 \begin{flalign*}
@@ -1131,18 +1141,17 @@ Likewise, we can define a $\mathsf{zipWithC}$ as follows:
   \bind{h_1}{\head s_1}{\bind{h_2}{\head s_2}{f\,h_1\,h_2}}. &&
 \end{flalign*}
 
-Since $f$ requires one element of each input stream, the final cost accounts for three computations: evaluating the two heads 
-and processing them with $f$.
+The function $f$ now requires one element of each input stream, and the final cost accounts for three computations: evaluating the two heads 
+and processing their values with $f$.
 
 \subsection{Primitive Recursion}
-Stream processing is a standard way of demonstrating co-recursion, as the operation continues to process
-each element and does not stop. On the other hand, we can also express (primitive) recursions that will eventually terminate, with the 
+Functions like $\mathsf{mapC}$ and $\mathsf{zipWithC}$ are standard examples for demonstrating co-recursion since they continue to perform element-wise operations on streams 
+and never stop. On the other hand, we can also express (primitive) recursions that will eventually terminate, with the 
 help of indexed types.
 
-Firstly, we can derive a indexed natural number type using lists: 
+Firstly, we can derive a size-indexed natural number type using lists: 
 \[\mathsf{Nat}(I) \triangleq L^I\textbf{1}\]
-A natural number is just a list of units, where the data stored is relevant. 
-Since lists have fixed constant length based on type-wellformedness, so does the natural number type.
+The natural number type is just a list of units, where the data stored is irrelevant. 
 
 Next, we define the $\mathsf{Colist}$ type, which represents a possibly infinite guarded list:
 \[
@@ -1153,13 +1162,13 @@ Next, we define the $\mathsf{Colist}$ type, which represents a possibly infinite
 \begin{align*}
   (::) &\triangleq \tlam{x}{\tlam{s}{\fold(\mathsf{inr}(\tuple{x}{s}))}}
   &&: \tau\to\triangleright\colist{\tau}\to\colist{\tau}, \\
-  (null) &\triangleq \fold(\mathsf{inl} \langle\rangle)
+  (null) &\triangleq \fold(\mathsf{inl}\,\langle\rangle)
   &&: \colist{\tau}
 \end{align*}
-A co-list is almost same as a guarded stream, except that it can terminate with a unit value, represented by the ``$null$'' consturctor.
-Similar to stream, we also use the ``::'' as the cons constructor.
+A co-list is almost the same as a guarded stream, except that it can terminate with a unit value, represented by the ``$null$'' constructor.
+Similar to stream, we also use the notation (::) as the cons constructor.
 
-After constructing the two types, we can use them to define functions that consume a finite prefix of a stream.
+After constructing the two types, we can use them to define functions that consume a fixed-length prefix of a stream.
 For example:
 \begin{flalign*}
 &\quad\mathsf{takeC}:\forall J, I.\;\mathsf{Nat}(J) \to \tstr{\tmonad{I}{\tau}} 
@@ -1174,26 +1183,27 @@ For example:
 The $\mathsf{takeC}$ function copies the first $J$ elements of the input stream into a co-list. It forces each element and stores their results,
 hence the final type is a monad that sums all the costs and returns a pure co-list. 
 
-Since the natural number type is indeed a list, we can pattern match on 
-it to achieve the effect of recursion on natural numbers. In the base ($nil$) case, the function returns $null$ to end the co-list; $\mathsf{ret}$ gives cost 0, which obeys with the type signature since 
+Since $\mathsf{Nat}(J)$ is indeed a list, we can pattern match on 
+it to achieve the effect of recursion on natural numbers. In the base ($nil$) case, the function returns $null$ to end the co-list; $\mathsf{ret}$ gives cost 0, which is consistent with the type signature since 
 $\textstyle\sum_{\kappa<0}\mathsf{S}^\kappa I = 0$. In the recursive case, we use $\pull$ to access the recursive call that is originally guarded, 
-bind its result and the head computation to construct the co-list. Note that the recursive call is also polymorphic, the natural number's size is instantiated with $J-1$.
-Thus, the cost of the $\pull$ is $\mathsf{S}(\textstyle{\sum}_{\kappa<(J-1)}\mathsf{S}^{J-1} I)$, and the final cost is $\mathsf{S}(\textstyle{\sum}_{\kappa<(J-1)}\mathsf{S}^J I) + I$.
+bind its result and the head computation to construct the result co-list. Note that the recursive call's type is also polymorphic, the natural number's size is instantiated with $J-1$.
+As a result, the cost of the $\pull$ is $\mathsf{S}(\textstyle{\sum}_{\kappa<(J-1)}\mathsf{S}^{\kappa} I)$, and the final cost is $\mathsf{S}(\textstyle{\sum}_{\kappa<(J-1)}\mathsf{S}^\kappa I) + I$.
 
-From the sort rule of bounded sum, we know $J$ is a time-independent natural number, then we can rewrite the final cost to that presented in the type signature:
+From the sort rule of bounded sum, we know $J$ is a time-independent natural number, then we can rewrite the final cost to match that presented in the type signature:
 \[
 \begin{aligned}
-\mathsf{S}\Bigl(\sum_{\kappa<n-1}\mathsf{S}^J I\Bigr) + I 
-  &= \Bigl(\sum_{\kappa<J-1}\mathsf{S}^{J+1} I\Bigr) + I && (\text{by Lemma \ref{lem:shif-dist} and } \mathsf{S}(\mathsf{S}^{J}) = \mathsf{S}^{J+1})\\
-  &= \Bigl(\sum_{i<J-1}\mathsf{S}^{J+1} I\Bigr) + \mathsf{S}^0 I && (I = \mathsf{S}^{0}I) \\
-  &= \sum_{\kappa<J}\mathsf{S}^J I && (\text{reindexing } J-1 \text{ to } J) 
+\mathsf{S}\Bigl(\sum_{\kappa<J-1}\mathsf{S}^\kappa I\Bigr) + I 
+  &= \Bigl(\sum_{\kappa<J-1}\mathsf{S}^{\kappa+1} I\Bigr) + I && (\text{by Lemma \ref{lem:shif-dist} and } \mathsf{S}(\mathsf{S}^{\kappa}) = \mathsf{S}^{\kappa+1})\\
+  &= \Bigl(\sum_{\kappa<J-1}\mathsf{S}^{\kappa+1} I\Bigr) + \mathsf{S}^0 I && (I = \mathsf{S}^{0}I) \\
+  &= \sum_{\kappa<J}\mathsf{S}^\kappa I && (\text{reindexing } \kappa-1 \text{ to } \kappa) 
 \end{aligned}
 \]
-Overall, indexed types like natural numbers allow us to aggregate the costs of processing finitely amount of data on infinite (co-inductive) types, such as streams.
-To store the results we want, the standard way is to use a type that can terminate like co-lists since it also agrees with the structure of guarded recursive types.
 
-Common cost analysis program examples that process inductive data structures like indexed lists can be found in \cite{rajaniUnifyingTypetheoryHigherordera}
-In $\lambda^g_{\mathsf{worst}}$, 
-indexed lists primarily serve as auxiliary data structures for defining finite operations. Since their constructors require an unguarded tail, recursive list construction  difficult under guarded recursion.
+Overall, indexed types such as $\mathrm{Nat}(I)$ let us process a finite prefix
+of an infinite type like the guarded stream, and the total cost is a finite sum. Since
+a stream cannot end, the results are collected in a type that can terminate,
+such as a co-list, which also agrees with the structure of guarded recursive types.
 
-
+% Common cost analysis program examples that process inductive data structures like indexed lists can be found in \cite{rajaniUnifyingTypetheoryHigherordera}
+% In $\lambda^g_{\mathsf{worst}}$, 
+% indexed lists primarily serve as auxiliary data structures for defining finite operations. Since their constructors require an unguarded tail, recursive list construction  difficult under guarded recursion.
