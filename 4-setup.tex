@@ -1001,7 +1001,7 @@ $\delay$ constructor. As we pass through a $\delay$, $i$ also increments by one 
 For example, $\pull \tick{I} \Downarrow^{I(i+1)}_{n, i} \delay \langle\rangle$, the cost is $I(i+1)$. From Definition \ref{def:time-indices}, this aligns with the typing cost $\mathsf{S}(I)$'s interpretation.
 
 There is no rule for evaluating a term typed $\triangleright \tmonad{I}{\tau}$ using $n$, this is to keep the laziness of cost effects:
-If a computation is delayed, its cost should not be incurred now. To demand the data inside a delayed monad, the only way is to use $\pull$ and pay for
+If a computation is delayed, its cost should not be incurred now. To demand the data inside a delayed monadic computation, the only way is to use $\pull$ and pay for
 the corresponding future cost.
 
 
@@ -1050,7 +1050,7 @@ the corresponding future cost.
   \label{def:worst-case-forcing-eval}
 \end{figure}
 
-Now we can investigate Theorem \ref{thm:worst-case-soundness}, which formulates the soundness of $\lambda^g_{\mathsf{worst}}$.
+Now we can examine Theorem \ref{thm:worst-case-soundness}, which formulates the soundness of $\lambda^g_{\mathsf{worst}}$.
 The theorem states that if $e$ is a closed term that has a symbolic cost $I$ designated by its type, and if it can be evaluated purely into a value $v$, then 
 continue forcing it incurs a semantic cost $c$, this cost will be bounded by the interpretation of $I$ based on current time 
 $i$, i.e. $c \leq I(i)$.
@@ -1164,7 +1164,9 @@ Based on the stream constructors, we can define a family of functions that enabl
   &\quad\mathsf{nth}_{n+1} \triangleq \tlam{s}{(\delay \mathsf{nth}_n)\circledast(\tail s)} &&
 \end{flalign*}
 The functions are defined inductively for convenience instead of listing all of their definitions, and $n$ 
-is hardcoded as the order number of a function in the family.
+is hardcoded as the order number of a function. In particular, 
+the base case just returns the current head, and the inductive case calls previous functions on the stream tail to demand 
+the next element. Since subsequent elements are guarded, the number of ``later''s in the type signature follow the exact position of the element in the stream.
 
 We will focus on the $\tstr{\tmonad{I}{\tau}}$ type for our later examples,
 it denotes a stream of computations, where each element takes $I(i)$ cost to evaluate.
@@ -1178,7 +1180,7 @@ Table \ref{fig:ticktime-costs} shows the cost of each element.
 Intuitively, each cost aligns with the time and its element position, which can be thought of as modelling the cost 
 of traversing the stream.
 
-Operationally, we can define a family of functions that allow us to evaluate the $ n$-th element of a stream:
+Operationally, we can define a family of functions that allow us to evaluate the $ n$-th element of a stream, which is similar to the $\mathsf{nth}$ function:
 \begin{flalign*}
 &\quad\mathsf{prepayNth}_n : \forall I.\,\tstr{(\tmonad{I}{\tau})} \to \tmonad{\mathsf{S}^n(I)}{(\triangleright^n\tau)}, &&\\
 &\quad\mathsf{prepayNth}_0 \triangleq \Lambda.\tlam{s}{\head s}, &&\\

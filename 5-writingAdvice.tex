@@ -1,4 +1,174 @@
-\chapter{Meta-Theory of $\lambda^g_{\mathsf{worst}}$}\label{chap:5}
+\chapter{Meta-Theory of $\lambda^g_{\mathsf{worst}}$}
+\label{chap:5}
+
+\raggedbottom
+
+\begingroup
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.75}
+\setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+\setlength{\floatsep}{10pt plus 2pt minus 2pt}
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{16pt plus 2pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+\makeatother
+
+This chapter develops the meta-theory of $\lambda^g_{\mathsf{worst}}$.
+Its central tool is a semantic model of the type system based on a technique of logical relations \citep{tait67}.
+In particular, the model gives interpretations to the types and can be used to prove the soundness of the type system. 
+
+We begin by presenting the model in Section \ref{sec:worst-case-model}, 
+followed by auxiliary lemmas derived from it in Section \ref{sec:axu-lemma}.\ 
+Finally,\ Section X.3 proves the fundamental theorem of the underlying logical relation, from which the soundness theorem follows.
+
+
+\section{Model}
+\label{sec:worst-case-model}
+The model of $\lambda^g_{\mathsf{worst}}$ is constructed using a step-indexed Kripke logical relation \citep{ahmed2004semantics}.
+Figure \ref{fig:worst-case-logical-relation} gives the formalisation of our model, which consists of two
+mutually recursive relations indexed by well-formed types:\ the value relation $\vrel{}$ and the term/expression relation $\erel{}$.
+Essentially, such relations are a family of sets of the triple $(n, i, e)$, where $e$ is a usual term in our calculus,
+the index $i$ serves as the Kripke world that represents the logical time, and $n$ is the evaluation ``depth’’ mentioned in the last chapter.
+Specifically, our logical relation is close to that of $\lambda$-amor, where we drop its potential Kripke world $p$ used for amortised analysis and add another world $i$.
+Furthermore, $\lambda$-amor uses a step index as the fuel for beta reduction, which is different from our depth $n$. 
+On the other hand, \cite{cloustonGuardedLambdaCalculusProgramming2017a} 
+and \cite{guattoGeneralizedModalityRecursion2018d} present logical relations of their calculi that uses a step index similar to ours.
+
+The logical relations are well-founded by the lexicographic order $(n, |\tau|, \text{value} < \text{term})$.
+The order of $n$ is the standard one for natural numbers, and $\text{value} < \text{term}$ means
+value relations are considered smaller than term relations. The order $|\tau|$ is more involved, it represents the size of types, defined
+as follows:
+
+\begin{defn}{Type Size}
+\label{def:worst-case-ty-size}
+  \begin{align*}
+    &|\alpha|=|\textbf{b}|=|\textbf{1}|=|\triangleright\tau|=1, \\
+    &|\tau_1\to\tau_2|=1+|\tau_1|+|\tau_2|, \\
+    &|\tau_1\times\tau_2|=|\tau_1+\tau_2|
+      =1+|\tau_1|+|\tau_2|, \\
+    &|\forall\kappa.\tau|=|\mu\alpha.\tau|=|\tmonad{ I}{\tau}|=1+|\tau|, \\
+    &|L^s\tau|=1+|\tau|.
+  \end{align*}
+\end{defn}
+
+\begin{figure}[H]
+\setlength{\jot}{1.5pt}
+\[
+\begin{alignedat}{2}
+&\vrel{\textbf{1}}
+  &\quad\triangleq\quad& \{(n,i,\langle\rangle)\} \\[0.5ex]
+&\vrel{\textbf{b}}
+  &\quad\triangleq\quad& \{(n,i,b) \mid b\in \llbracket \textbf{b}\rrbracket\} \\[0.5ex]
+&\vrel{L^0\tau}
+  &\quad\triangleq\quad& \{(n,i,nil)\} \\[0.5ex]
+&\vrel{L^{s+1}\tau}
+  &\quad\triangleq\quad&
+    \{(n,i,v::l) \mid (n,i,v)\in\vrel{\tau}
+    \land (n,i,l)\in\vrel{L^I\tau}\} \\[0.5ex]
+&\vrel{\tau_1\times\tau_2}
+  &\quad\triangleq\quad&
+    \{(n,i,\tuple{v_1}{v_2}) \mid (n,i,v_1)\in\vrel{\tau_1}\ \land (n,i,v_2)\in\vrel{\tau_2}\} \\[0.5ex]
+&\vrel{\tau_1+\tau_2}
+  &\quad\triangleq\quad&
+    \{(n,i,\mathsf{inl}\,v) \mid (n,i,v)\in\vrel{\tau_1}\}\;\cup\;\{(n,i,\mathsf{inr}\,v) \mid (n,i,v)\in\vrel{\tau_2}\} \\[0.5ex]
+&\vrel{\tau_1\to\tau_2}
+  &\quad\triangleq\quad&
+    \{(n,i,\tlam{x}{e}) \mid \forall m\leq n,j\geq i,v'.\; (m,j,v')\in\vrel{\tau_1}
+        \implies (m,j,e[v'/x])\in\erel{\tau_2}\} \\[0.5ex]
+&\vrel{\forall\kappa.\tau}
+  &\quad\triangleq\quad&
+    \{(n,i,\Lambda.e) \mid \forall I.\;(n,i,e)\in\erel{\tau[I/\kappa]}\} \\[0.5ex]
+&\vrel{\triangleright\tau}
+  &\quad\triangleq\quad&
+    \{(0,i,\delay e)\}\;\cup\;\{(n+1,i,\delay v) \mid (n,i+1,v)\in\vrel{\tau}\} \\[0.5ex]
+&\vrel{\tmonad{I}{\tau}}
+  &\quad\triangleq\quad&
+    \{(n,i,v) \mid \forall m\leq n,j\geq i,v',c.\; v\Downarrow^c_{m,j}v'\implies c\leq I(j)
+        \land (m,j,v')\in\vrel{\tau}\} \\[0.5ex]
+&\vrel{\mu\alpha.\tau}
+  &\quad\triangleq\quad&
+    \{(n,i,\fold v) \mid (n,i,v)\in\vrel{\tau[\mu\alpha.\tau/\alpha]}\} \\[0.8ex]
+\\
+&\erel{\tau}
+  &\quad\triangleq\quad&
+    \{(n,i,e) \mid \forall m\leq n,v.\; e\Downarrow_m v\implies (m,i,v)\in\vrel{\tau}\} \\[0.8ex]
+&\erel{\Gamma}
+  &\quad\triangleq\quad&
+    \{(n,i,\gamma) \mid \forall x\in\operatorname{dom}(\Gamma).\;
+        (n,i,\gamma(x))\in\vrel{\Gamma(x)}\}.
+\end{alignedat}
+\]
+\caption{Model of $\lambda^g_{\mathsf{worst}}$}
+\label{fig:worst-case-logical-relation}
+\end{figure}
+
+Most type sizes are defined by adding those of their components. Note that we define $|\triangleright \tau|$ to be 1, which can help us 
+to justify the well-foundedness of recursive types, i.e. $|\tau[\mu\alpha.\tau/\alpha]| < |\mu\alpha.\tau|$.
+To this end, we first need the following lemma:
+\begin{lem}[Guarded size]
+\label{lem:worst-case-ty-size}
+$\\$ If $\alpha$ is guarded in $\tau$, then $|\tau[\tau'/\alpha]| \leq |\tau|$.
+\end{lem}
+\begin{proof}
+  See Lemma \ref{appa:worst-case-ty-size}.
+\end{proof}
+
+After this, we can prove the desired property:
+
+\begin{lem}[Well-foundedness of recursive types]
+\label{lem:rec-well-founded}
+$\\$ For any recursive type $\mu\alpha.\tau$, $|\tau[\mu\alpha.\tau/\alpha]| < |\mu\alpha.\tau|$.
+\end{lem}
+\begin{proof}
+  Since $\alpha$ is guarded in $\mu\alpha.\tau$, we know $|\tau[\mu\alpha.\tau/\alpha]| \leq |\tau|$ from Lemma \ref{lem:worst-case-ty-size}.
+  By Definition \ref{def:worst-case-ty-size}, we have $|\tau| < (|\mu\alpha.\tau| = 1+|\tau|)$. Thus by transitivity of $<$, we get 
+  $|\tau[\mu\alpha.\tau/\alpha]| < |\mu\alpha.\tau|$.
+\end{proof}
+
+\subsection{Value Relations}
+We now explain the definitions of the value relations in our model.
+The value relations define properties that need to hold for the triple $(n, i, v)$. Similar to the evaluation judgment, we write $v$ 
+as a value that depends on $n$ based on the value judgment.
+
+The value relation of the $\textbf{1}$ (unit) type has only one inhabitant $\langle\rangle$, together with any $n$ and $i$.
+Likewise, for the $\textbf{b}$ (base) type, the relation just includes the value $b$ that belongs to the set of base-typed values, denoted as $\llbracket \textbf{b} \rrbracket$.
+The value relations for $\tau_1 \times \tau_2$ and $\tau_1 + \tau_2$ are standard, where both components of the product type need to satisfy the relation,
+and only one relation of the components needs to hold for the sum type.
+
+The relation of the list type is defined by a nested induction on its size $s$ since $s$ is a natural number constant.
+If the size is 0, the relation just contains the $nil$ value. For size $s+1$, the list is in the form of $v::l$,
+where both the head $v$ and the tail $l$ should satisfy their corresponding relations.
+
+The relation of the $\tau_1 \to \tau_2$ (arrow) type holds for the lambda abstraction $\lambda.e$
+if it receives an argument $v'$ that satisfies the value relation of $\tau_1$, and the result of their function application $e[v/x]$ 
+belongs the term relation of $\tau$. Moreover, the relations of $v'$ and $e[v/x]$ can hold at any possibly smaller depth $m$ and any later time $j$.
+The value relation of the $\forall\kappa.\tau$ is similar, while the function application happens on the type: the $e$ inside 
+the index abstraction $\forall e$ needs to satisfy the term relation of the type $\tau[I/\kappa]$ instantiated by any well-formed index $I$.
+
+Next comes the later type $\triangleright \tau$, which is defined inductively by $n$.\ If the depth $n$ reaches 0, then 
+the relation holds trivially for $\delay e$. If there is further $n$ left, the term inside the $\delay$ should belong to value relation of $\tau$. Notably, the value relation corresponds directly to the inductive value judgment of $\delay e$.
+
+The value relation for graded monads is of particular importance.\ If a monadic value $v$ of $\tmonad{I}{\tau}$ can be further forced 
+to a pure result $v'$ with time-interpreted cost $c$, then $c$ should be bounded by the time interpretation of $I$, and the value relation should hold
+for $v'$. Note that the forcing evaluation can take place at any later time $j$, the semantic cost is always bounded by $I(j)$.
+
+Lastly, recursive types are interpreted by unfolding: $\fold v$ satisfies the value relation if the unfolded $v$ belongs to the value relation of the unfolded type.
+In addition, the relation is well-founded by Lemma \ref{lem:rec-well-founded}.
+
+\subsection{Term Relation}
+The term relations have two forms.\ The $\erel{\tau}$ relation extends the value relation to terms by characterising their evaluation results. 
+Particularly, if a term $e$ evaluates to a value $v$ at any possibly smaller depth $m$, then then $v$ should satisfy the value relation $\vrel{\tau}$.
+
+The substitution relation $\erel{\Gamma}$ characterises substitutions that satisfy the typing context $\Gamma$.\
+Specifically, a substitution $\gamma$ maps term variables $x$ contained in $\Gamma$ to their corresponding values.
+The relation holds for $\gamma$ if each substituted value $\gamma(x)$ satisfies the value relation of their corresponding type $\Gamma(x)$.
+
+\section{Auxiliary Lemmas}
+\label{sec:axu-lemma}
 
 This chapter provides general beginner's advice on writing a scientific report. It should be read once in advance before starting your work and then occasionally be used during writing as a checklist.
 
@@ -147,3 +317,6 @@ Finally, every theorem (etc.) needs a proof!
 \end{proof}
   
 There is a box again! This wasn't added by me but it's already standard behavior by the respective package. A white empty box at the end of proofs is a general convention to have to indicate the respective proof's end. (You can google its origin if interested!) In older papers or maths scripts you might also find ``q.e.d.'' instead, Latin for ``quod erat demonstrandum'' (Eng.: ``what was to be shown'').
+
+\clearpage
+\endgroup

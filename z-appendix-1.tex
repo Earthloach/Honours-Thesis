@@ -63,6 +63,16 @@ From Definition \ref{def:constraint-entailment}, for any $i \in \mathbb{N}$, it 
 \end{itemize}
 \end{proof}
 
+\pagebreak
+
+\begin{appalem}
+\label{appa:worst-case-ty-size}
+$\\$ If $\alpha$ is guarded in $\tau$, then $|\tau[\tau'/\alpha]| \leq |\tau|$.
+\end{appalem}
+\begin{proof}
+  Induction on $|\tau|$, and case analysis on the construction of $\tau$.
+\end{proof}
+
 \begin{appalem}[Type substitution preserves subtyping]
 \label{appa:substitute-subtyping}
 $\\$ If $\Theta;\Delta\vdash\tau<:\tau'$, then
@@ -147,7 +157,7 @@ By the IH, we have
 Applying \textsc{Sub-Rec} gives the desired
 \end{proof}
 
-\begin{appalem}[Subtyping of Substitution]
+\begin{appalem}[Subtyping variance of Substitution]
 \label{appa:subtyping-polarity}
 $\\$ If
 $\Theta;\Delta\vdash\tau_0<:\tau_1$, then
@@ -185,8 +195,9 @@ $\sigma_2$, we have
   \qquad
   \Theta;\Delta\vdash\sigma_2[\tau_0/\alpha]<:\sigma_2[\tau_1/\alpha]
 \]
-Applying \textsc{Sub-Arrow} gives the desired:
-In the negative case, $\alpha$ is a positive occurrence in $\sigma_1$ and a negative occurrence the in $\sigma_2$. 
+Applying \textsc{Sub-Arrow} gives the desired.
+
+In the negative case, $\alpha$ is a positive occurrence in $\sigma_1$ and a negative occurrence in $\sigma_2$. 
 By the positive IH for $\sigma_1$ and the negative IH for
 $\sigma_2$, we have 
 \[
