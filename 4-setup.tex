@@ -209,12 +209,12 @@ For any two indices $I$ and $J$, we define
   \label{def:worst-case-syntax}
 \end{figure}
 
-From Definition \ref{def:time-indices} and the pointwise interpretation of predicates, we can easily derive equalities about the shift operation: For any index $I$, $\mathsf{S}^0 I= \mathsf{S}I$, 
+From Definition \ref{def:time-indices} and the pointwise interpretation of predicates, we can easily derive equations about the shift operation: For any index $I$, $\mathsf{S}^0 I= \mathsf{S}I$, 
 and for any natural number constant indices $J, K$, $\mathsf{S}^J(\mathsf{S}^KI) = \mathsf{S}^{J+K}I$.
 In addition, the shift operation distributes over standard arithmetic expressions:
-\begin{lem}[Distributivity of Shift]
+\begin{prop}[Distributivity of Shift]
 \label{lem:shif-dist}
-For any well-formed indices $I, J$, and $K$, if $ K$ is a natural number constant, then the following equalities hold:
+For any well-formed indices $I, J$, and $K$, if $ K$ is a natural number constant, then the following equations hold:
 \begin{align*}
   &(1) \qquad \mathsf{S}^K(I+J)
   = \mathsf{S}^K(I)+\mathsf{S}^K(J),\\
@@ -223,7 +223,7 @@ For any well-formed indices $I, J$, and $K$, if $ K$ is a natural number constan
   &(3)\qquad \text{If } J \text{ is a natural number constant}, \text{ then }\mathsf{S}^K\left(\textstyle\sum_{\kappa<J}I\right)
   = \textstyle\sum_{\kappa<J}\mathsf{S}^K(I).
 \end{align*}
-\end{lem}
+\end{prop}
 \begin{proof}
   See Lemma \ref{appa:shift-dist}
 \end{proof}
@@ -618,10 +618,10 @@ record type variables.
     {\hastype{\Theta;\Delta;\Gamma}{nil}{L^0\tau}}
 
   \inferrule*[right=T-Cons]
-    {\Theta;\Delta\vdash s:\mathbb{N}
-    \quad \hastype{\Theta;\Delta;\Gamma}{e_1}{\tau}
-     \quad \hastype{\Theta;\Delta;\Gamma}{e_2}{L^I\tau}}
-    {\hastype{\Theta;\Delta;\Gamma}{e_1::e_2}{L^{I+1}\tau}}
+    {
+    \hastype{\Theta;\Delta;\Gamma}{e_1}{\tau}
+     \quad \hastype{\Theta;\Delta;\Gamma}{e_2}{L^s\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}{e_1::e_2}{L^{s+1}\tau}}
   \\
 
   \inferrule*[right=T-Match]
@@ -798,7 +798,7 @@ $0$, terms inside a $\delay$ are considered as being suspended, hence they are a
 
   \inferrule*[right=V-Constant]
     { e \in 
-      \{\langle\rangle, b, \tlam{x}{e}, nil, 
+      \{\langle\rangle, b, x, \tlam{x}{e}, nil, 
         \Lambda.e, \ret e, \tick{I}, \bind{x}{e_1}{e_2},\pull e\}
     }
     {\isval{e}{n}}
@@ -945,8 +945,8 @@ we can derive that a value will remain unchanged if we decrease the depth.
 \end{figure}
 
 Our notion of values and evaluation is similar to that of \cite{guattoGeneralizedModalityRecursion2018c}, in which evaluation produces a finite prefix of a potentially infinite computation. 
-In Guatto's semantics, all terms evaluate to a dummy value $\mathsf{stop}$ when $n=0$, thereby discarding any unevaluated terms within a $\delay$. By contrast, our semantics preserves these suspended terms, allowing them to be evaluated further if a larger "fuel"  is supplied.
-To see this feature of evaluation, consider the example below:
+In Guatto's semantics, all terms evaluate to a dummy value $\mathsf{stop}$ when $n=0$, thereby discarding any unevaluated terms within a $\delay$. By contrast, our semantics preserves these suspended terms, allowing them to be evaluated further if a larger ``fuel''  is supplied.
+To see this feature of evaluation, consider the following example:
 
 Let $f := \lambda x.\delay(x\,\langle\rangle)$, $\mathsf{id} := \lambda y.y$. We know $f\,\mathsf{id} = \delay(\mathsf{id}\,\langle\rangle)$ and $\mathsf{id}\,\langle\rangle = \langle\rangle$.
 The evaluation of $\delay(f\,\mathsf{id})$ at $n = 1$ is: 
@@ -1056,7 +1056,7 @@ continue forcing it incurs a semantic cost $c$, this cost will be bounded by the
 $i$, i.e. $c \leq I(i)$.
 \begin{thm}[Soudness of $\lambda^g_{\mathsf{worst}}$]
 \label{thm:worst-case-soundness}
-$\\$ For all $e, v, I,c,\tau \in Type$ and $n, i \in \mathbb{N}$, if $\,\hastype{}{e}{\tmonad{ I}{\tau}}$, $e \Downarrow_n v$ 
+$\\$ For any $n, i \in \mathbb{N}$, if $\,\hastype{}{e}{\tmonad{ I}{\tau}}$, $e \Downarrow_n v$ 
 and $v \Downarrow^c_{n, i} v'$, then $c \leq  I(i).$ 
 \end{thm}
 The soundness theorem is different from $\lambda$-amor since our cost needs to be interpreted by the logical time, 
@@ -1300,7 +1300,7 @@ From the sort rule of bounded sum, we know $J$ is a time-independent natural num
 \[
 \begin{aligned}
 \mathsf{S}\Bigl(\sum_{\kappa<J-1}\mathsf{S}^\kappa I\Bigr) + I 
-  &= \Bigl(\sum_{\kappa<J-1}\mathsf{S}^{\kappa+1} I\Bigr) + I && (\text{by Lemma \ref{lem:shif-dist} and } \mathsf{S}(\mathsf{S}^{\kappa}) = \mathsf{S}^{\kappa+1})\\
+  &= \Bigl(\sum_{\kappa<J-1}\mathsf{S}^{\kappa+1} I\Bigr) + I && (\text{by Proposition \ref{lem:shif-dist} and } \mathsf{S}(\mathsf{S}^{\kappa}) = \mathsf{S}^{\kappa+1})\\
   &= \Bigl(\sum_{\kappa<J-1}\mathsf{S}^{\kappa+1} I\Bigr) + \mathsf{S}^0 I && (I = \mathsf{S}^{0}I) \\
   &= \sum_{\kappa<J}\mathsf{S}^\kappa I && (\text{reindex } J-1 \text{ and } \kappa +1) 
 \end{aligned}

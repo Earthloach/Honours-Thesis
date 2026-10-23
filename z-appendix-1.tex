@@ -1,24 +1,14 @@
 \chapter{Appendix: Proofs for the worst-case calculus}\label{chap:appendix1}
 
-You may use appendices to provide additional information that is in principle relevant to your work, though you don't want \emph{every reader} to look at the entire material, but only those interested.
-
-There are many cases where an appendix may make sense. For example:
-\begin{itemize}
-  \item You developed various variants of some algorithm, but you only describe one of them in the main body, since the different variants are not that different.
-  \item You may have conducted an extensive empirical analysis, yet you don't want to provide \emph{all} results. So you focus on the most relevant results in the main body of your work to get the message across. Yet you present the remaining and complete results here for the more interested reader.
-  \item You developed a model of some sort. In your work, you explained an excerpt of the model. You also used mathematical syntax for this. Here, you can (if you wish) provide the actual model as you provided it in probably some textfile. Note that you don't have to do this, as artifacts can be submitted separately. Consult your supervisor in such a case.
-  \item You could also provide a list of figures and/or list of tables in here (via the commands \verb!\listoffigures! and \verb!\listoftables!, respectively). Do this only if you think that this is beneficial for your work. If you want to include it, you can of course also provide it right after the table of contents. You might want to make this dependent on how many people you think are interested in this.
-\end{itemize}
-
 \begin{appalem}
 \label{appa:shift-dist}
-For any well-formed indices $I, J$, and $K$, if $ K$ is a natural number constant, then the following equalities hold:
+For any well-formed indices $I, J$, and $K$, if $ K$ is a natural number constant, then the following equations hold:
 \begin{align*}
-  &(1) \qquad \mathsf{S}^K(I+J)
+  &(1) \quad \mathsf{S}^K(I+J)
   = \mathsf{S}^K(I)+\mathsf{S}^K(J),\\
-  &(2)\qquad \mathsf{S}^K(I-J)
+  &(2)\quad \mathsf{S}^K(I-J)
   = \mathsf{S}^K(I)-\mathsf{S}^K(J),\\
-  &(3)\qquad \text{If } J \text{ is a natural number constant}, \text{ then }\mathsf{S}^K\left(\textstyle\sum_{\kappa<J}I\right)
+  &(3)\quad \text{If } J \text{ is a natural number constant}, \text{ then }\mathsf{S}^K\left(\textstyle\sum_{\kappa<J}I\right)
   = \textstyle\sum_{\kappa<J}\mathsf{S}^K(I).
 \end{align*}
 \end{appalem}
@@ -63,9 +53,7 @@ From Definition \ref{def:constraint-entailment}, for any $i \in \mathbb{N}$, it 
 \end{itemize}
 \end{proof}
 
-\pagebreak
-
-\begin{appalem}
+\begin{appalem}[Guarded size]
 \label{appa:worst-case-ty-size}
 $\\$ If $\alpha$ is guarded in $\tau$, then $|\tau[\tau'/\alpha]| \leq |\tau|$.
 \end{appalem}
@@ -81,80 +69,93 @@ $\\$ If $\Theta;\Delta\vdash\tau<:\tau'$, then
 \begin{proof}
 Induction on the subtyping derivation.
 
-\paragraph{{\textsc{Sub-Refl}}}
+\begin{itemize}
+\item Case \textsc{Sub-Refl}
+
 By \textsc{Sub-Refl}, we have the desired directly.
 
-\paragraph{{\textsc{Sub-Trans}}}
+\item Case \textsc{Sub-Trans}
+
 By IH1 and IH2, we have
 \[
   \Theta;\Delta\vdash\tau_1[\tau_0/\alpha]<:\tau_2[\tau_0/\alpha],
-  \qquad
+  \quad
   \Theta;\Delta\vdash\tau_2[\tau_0/\alpha]<:\tau_3[\tau_0/\alpha]
 \]
 Applying \textsc{Sub-Trans} gives the desired.
 
-\paragraph{{\textsc{Sub-Arrow}}}
+\item Case \textsc{Sub-Arrow}
+
 By IH1 and IH2, we have
 \[
   \Theta;\Delta\vdash\tau_1'[\tau_0/\alpha]<:\tau_1[\tau_0/\alpha],
-  \qquad
+  \quad
   \Theta;\Delta\vdash\tau_2[\tau_0/\alpha]<:\tau_2'[\tau_0/\alpha]
 \]
 Applying \textsc{Sub-Arrow} gives the desired.
 
-\paragraph{{\textsc{Sub-Product}}}
+\item Case \textsc{Sub-Product}
+
 By IH1 and IH2, we have
 \[
   \Theta;\Delta\vdash\tau_1[\tau_0/\alpha]<:\tau_1[\tau_0/\alpha],
-  \qquad
- \Theta;\Delta\vdash\tau_2[\tau_0/\alpha]<:\tau_2[\tau_0/\alpha] 
+  \quad
+ \Theta;\Delta\vdash\tau_2[\tau_0/\alpha]<:\tau_2[\tau_0/\alpha]
 \]
 Applying \textsc{Sub-Product} gives the desired
 
-\paragraph{{\textsc{Sub-Sum}}}
+\item Case \textsc{Sub-Sum}
+
 By IH1 and IH2, we have
 \[
   \Theta;\Delta\vdash\tau_1[\tau_0/\alpha]<:\tau_1[\tau_0/\alpha],
-  \qquad
- \Theta;\Delta\vdash\tau_2[\tau_0/\alpha]<:\tau_2[\tau_0/\alpha] 
+  \quad
+ \Theta;\Delta\vdash\tau_2[\tau_0/\alpha]<:\tau_2[\tau_0/\alpha]
 \] Applying \textsc{Sub-Sum} gives the desired.
 
-\paragraph{{\textsc{Sub-List}}}
+\item Case \textsc{Sub-List}
+
 By the IH, we have \[\Theta;\Delta\vdash\tau[\tau_0/\alpha]<:\tau'[\tau_0/\alpha]\]
 Since type substitution leaves the index $I$ unchanged applying \textsc{Sub-List} gives the desired
 
-\paragraph{{\textsc{Sub-Later}}}
+\item Case \textsc{Sub-Later}
+
 By the IH, we have \[\Theta;\Delta\vdash\tau[\tau_0/\alpha]<:\tau'[\tau_0/\alpha]\]
 Applying \textsc{Sub-Later} gives the desired
 
-\paragraph{{\textsc{Sub-Monad}}}
+\item Case \textsc{Sub-Monad}
+
 By the IH, we have \[\Theta;\Delta\vdash\tau[\tau_0/\alpha]<:\tau'[\tau_0/\alpha]\]
 The constraint $\Theta;\Delta\models I\leq I'$ is unchanged by type
 substitution, then applying \textsc{Sub-Monad} gives the desired.
 
-\paragraph{{\textsc{Sub-IndexPoly}}}
-By the IH, we have 
+\item Case \textsc{Sub-IndexPoly}
+
+By the IH, we have
 \[
   \Theta,\kappa:S;\Delta\vdash
   \tau[\tau_0/\alpha]<:\tau'[\tau_0/\alpha]
 \]
 Applying \textsc{Sub-IndexPoly} gives the desired.
 
-\paragraph{{\textsc{Sub-Rec}}}
+\item Case \textsc{Sub-Rec}
+
 Rename the recursive variable to $\beta$, since $\beta$ is not free in $\tau_0$,
-we have 
+we have
 \[
-  (\mu\beta.\tau_1)[\tau_0/\alpha] = 
+  (\mu\beta.\tau_1)[\tau_0/\alpha] =
   \mu\beta.(\tau_1[\tau_0/\alpha]), \quad
-  (\mu\beta.\tau_1')[\tau_0/\alpha] = 
-  \mu\beta.(\tau_1'[\tau_0/\alpha]). 
+  (\mu\beta.\tau_1')[\tau_0/\alpha] =
+  \mu\beta.(\tau_1'[\tau_0/\alpha]).
 \]
-By the IH, we have 
+By the IH, we have
 \[
   \Theta;\Delta\vdash\tau_1[\tau_0/\alpha]
     <: \tau_1'[\tau_0/\alpha]
 \]
 Applying \textsc{Sub-Rec} gives the desired
+\qedhere
+\end{itemize}
 \end{proof}
 
 \begin{appalem}[Subtyping variance of Substitution]
@@ -172,62 +173,77 @@ $\Theta;\Delta\vdash\tau_0<:\tau_1$, then
 \end{appalem}
 
 \begin{proof}
-By structural induction on $\sigma$, generalising $\Theta$.
+By structural induction on $\sigma$.
 The proof for both cases are similar except for the arrow type, hence we only present the positive case for most types.
 
-\paragraph{Case $\sigma=\alpha$}
+\begin{itemize}
+\item Case $\sigma=\alpha$
+
 Only the positive case applies and the goal is the given premise $\Theta;\Delta\vdash\tau_0<:\tau_1$.
 
-\paragraph{Case $\sigma=\beta$, where $\beta\neq\alpha$}
+\item Case $\sigma=\beta$, where $\beta\neq\alpha$
+
 The substitutions are equal to $\beta$, and both goals follow by \textsc{Sub-Refl}.
 
-\paragraph{Case $\sigma=\textbf{1}$}
+\item Case $\sigma=\textbf{1}$
+
 Both substitutions are equal to $\textbf{1}$, and both goals follow by \textsc{Sub-Refl}.
 
-\paragraph{Case $\sigma=\textbf{b}$}
-Both substitutions are equal to $\tint$, and both goals follow by \textsc{Sub-Refl}.
+\item Case $\sigma=\textbf{b}$
 
-\paragraph{Case $\sigma=\sigma_1\to\sigma_2$}
+Both substitutions are equal to $\textbf{b}$, and both goals follow by \textsc{Sub-Refl}.
+
+\item Case $\sigma=\sigma_1\to\sigma_2$
+
+\begin{itemize}
+\item Subcase positive.
 In the positive case, $\alpha$ is a negative occurrence in $\sigma_1$ and a positive occurrence the in $\sigma_2$. By the negative IH for $\sigma_1$ and the positive IH for
-$\sigma_2$, we have 
+$\sigma_2$, we have
 \[
   \Theta;\Delta\vdash\sigma_1[\tau_1/\alpha]<:\sigma_1[\tau_0/\alpha],
-  \qquad
+  \quad
   \Theta;\Delta\vdash\sigma_2[\tau_0/\alpha]<:\sigma_2[\tau_1/\alpha]
 \]
 Applying \textsc{Sub-Arrow} gives the desired.
 
-In the negative case, $\alpha$ is a positive occurrence in $\sigma_1$ and a negative occurrence in $\sigma_2$. 
+\item Subcase negative.
+In the negative case, $\alpha$ is a positive occurrence in $\sigma_1$ and a negative occurrence in $\sigma_2$.
 By the positive IH for $\sigma_1$ and the negative IH for
-$\sigma_2$, we have 
+$\sigma_2$, we have
 \[
   \Theta;\Delta\vdash\sigma_1[\tau_0/\alpha]<:\sigma_1[\tau_1/\alpha],
-  \qquad
+  \quad
   \Theta;\Delta\vdash\sigma_2[\tau_1/\alpha]<:\sigma_2[\tau_0/\alpha]
 \]
 Applying \textsc{Sub-Arrow} gives the desired.
+\end{itemize}
 
-\paragraph{Case $\sigma=\sigma_1\times\sigma_2$}
+\item Case $\sigma=\sigma_1\times\sigma_2$
+
 In the positive case, the two positive IHs give
 $\Theta;\Delta\vdash\sigma_j[\tau_0/\alpha]<:\sigma_j[\tau_1/\alpha]$
 for $j=1,2$. Applying \textsc{Sub-Product} gives the desired.
 
-\paragraph{Case $\sigma=\sigma_1+\sigma_2$}
+\item Case $\sigma=\sigma_1+\sigma_2$
+
 In the positive case, the two positive IHs give
 $\Theta;\Delta\vdash\sigma_j[\tau_0/\alpha]<:\sigma_j[\tau_1/\alpha]$
 for $j=1,2$. Applying \textsc{Sub-Sum} gives the desired.
 
-\paragraph{Case $\sigma=L^I\sigma_0$}
-In the positive case, the positive IH for $\sigma_0$ gives 
+\item Case $\sigma=L^I\sigma_0$
+
+In the positive case, the positive IH for $\sigma_0$ gives
 \[ \sigma_0[\tau_0/\alpha] <: \sigma_0[\tau_1/\alpha]\]
 Applying \textsc{Sub-List} gives the desired.
 
-\paragraph{Case $\sigma=\triangleright\sigma_0$}
-In the positive case, the positive IH for $\sigma_0$ gives 
+\item Case $\sigma=\triangleright\sigma_0$
+
+In the positive case, the positive IH for $\sigma_0$ gives
 \[\sigma_0[\tau_0/\alpha] <: \sigma_0[\tau_1/\alpha] \]
 Applying \textsc{Sub-Later} gives the desired.
 
-\paragraph{Case $\sigma=\tmonad{I}{\sigma_0}$}
+\item Case $\sigma=\tmonad{I}{\sigma_0}$
+
 In the positive case, the positive IH for $\sigma_0$ gives
 $\Theta;\Delta\models I\leq I$, gives by \textsc{Sub-Monad}
 \[\sigma_0[\tau_0/\alpha] <: \sigma_0[\tau_1/\alpha]\]
@@ -237,15 +253,1182 @@ Since $\Theta;\Delta\models I\leq I$, we get the desired by \textsc{Sub-Monad}:
     <: \tmonad{I}{(\sigma_0[\tau_1/\alpha])}.
 \]
 
-\paragraph{Case $\sigma=\forall\kappa:S.\sigma_0$}
-% Weakening the given judgment from assumption, we have
-% \[\Theta,\kappa:S;\Delta\vdash\tau_0<:\tau_1\]
+\item Case $\sigma=\forall\kappa:S.\sigma_0$
+
 In the positive case, instantiating the positive IH with $\Theta,\kappa:S$ gives
 \[\Theta,\kappa:S;\Delta\vdash\sigma_0[\tau_0/\alpha]<:\sigma_0[\tau_1/\alpha]\]
 Applying \textsc{Sub-IndexPoly} gives the desired.
 
-\paragraph{Case $\sigma=\mu\beta.\sigma_0$, where $\beta\neq\alpha$}
+\item Case $\sigma=\mu\beta.\sigma_0$, where $\beta\neq\alpha$
+
 In the positive case, the positive IH gives
 \[\Theta;\Delta\vdash\sigma_0[\tau_0/\alpha]<:\sigma_0[\tau_1/\alpha]\]
 Applying \textsc{Sub-Rec} gives the desired.
+\qedhere
+\end{itemize}
+\end{proof}
+
+\begin{appalem}[Value Monotonicity]
+\label{appa:worst-case-val-mono}
+$\\$ If $m \leq n, j \geq i$, and $(n,i,v)\in\vrel{\tau}$, then $(m,j,v)\in\vrel{\tau}$.
+\end{appalem}
+\begin{proof}
+Induction on the lexicographic order $(n,|\tau|)$ and case analysis on $\tau$,
+We apply Lemma \ref{lem:worst-case-value-closure} to show $\isval{v}{m}$ required by the goal for each case.
+\begin{itemize}
+\item Case $\tau = \textbf{b}$.
+Directly from the definition of $\textbf{b}$.
+
+\item Case $\tau = \textbf{1}$.
+Directly from the definition of $\vrel{\textbf{1}}$.
+
+\item Case $\tau = \tau_1\times\tau_2$.
+Unfold the definition of $\vrel{\tau_1\times\tau_2}$, we have $v=\tuple{v_1}{v_2}$, $(n,i,v_1) \in \vrel{\tau_1}$,
+and $(n,i,v_2) \in \vrel{\tau_2}$. By the inner IH1 and IH2, we have 
+$(m,j,v_1) \in \vrel{\tau_1}$ and $(m,j,v_2) \in \vrel{\tau_2}$, which are the desired.
+
+\item Case $\tau = \tau_1+\tau_2$.
+We proceed by cases on $v$.
+
+\begin{itemize}
+\item {Subcase $v = \mathsf{inl}\,v_1$.}
+The assumption gives
+$(n,i,v_1)\in\vrel{\tau_1}$. Since $|\tau_1| <|\tau_1+\tau_2|$, by the inner IH1, we have $(m, j, v_1) \in \vrel{\tau_1}$, 
+hence $(m,j,\mathsf{inl}\,v_1)\in\vrel{\tau_1+\tau_2}$
+
+\item {Subcase $v = \mathsf{inr}\,v_2$.}
+Similar to the first case.
+\end{itemize}
+
+\item Case $\tau = \tau_1\to\tau_2$.
+Unfold the assumption, we know $v = \lambda x.e$. Unfold the goal, assume $r \leq m$, $\ell \geq j$ and $(r, \ell, v') \in \vrel{\tau_1}$,
+it suffices to show 
+\[(r, \ell, e[v'/x]) \in \erel{\tau_2}.\]
+Since $r\leq m\leq n$ and $\ell\geq j\geq i$, unfolding and instantiating the assumption $(n, i, v) \in \vrel{\tau_1 \to \tau_2}$ with
+$r, \ell, $ and $(r, \ell, v') \in \vrel{\tau_1}$ gives the desired.
+
+\item Case $\tau=\triangleright\tau'$.
+We proceed by cases on $m$
+
+\begin{itemize}
+\item {Subcase $m=0$.}
+We get $(0,j,v) \in \vrel{\triangleright\tau'}$ directly by the definition.
+
+\item {Subcase $m=k+1$.}
+Since $m \leq n$, we have $p$ such that
+$n = p+1$ and $k \leq p$. Unfolding $(p+1, i, v) \in \vrel{\triangleright \tau'}$ gives
+\[v = \delay v',\quad \quad (p,i+1,v')\in\vrel{\tau'}.\]
+Since $k \leq p$ and $j+1\geq i+1$, applying the outer IH gives
+\[(k,j+1,v')\in\vrel{\tau'}.\]
+Therefore, we have $(k+1,j,\delay v') \in \vrel{\triangleright\tau'}$ by the definition of $\vrel{\triangleright \tau'}$.
+\end{itemize}
+
+\item Case $\tau = \mu\alpha.\tau'$.
+Unfold the assumption, we have $v=\fold v'$ and 
+\[
+  (n,i,v')\in
+  \vrel{\tau'[\mu\alpha.\tau'/\alpha]}.
+\]
+From Lemma \ref{lem:rec-well-founded}, we know $|\tau'[\mu\alpha.\tau'/\alpha]| < |\mu\alpha.\tau'|$, so the inner IH gives
+\[
+  (m,j,v')\in
+  \vrel{\tau'[\mu\alpha.\tau'/\alpha]}.
+\]
+By the definition of $\vrel{\mu\alpha.\tau'}$, we have 
+$(m,j,\fold v')\in\vrel{\mu\alpha.\tau'}$, and we are done.
+
+\item Case $\tau = \forall\kappa.\tau'$.
+Unfold the assumption, we have 
+\[v = \Lambda.e, \quad (n,i,e)\in\erel{\tau'[I/\kappa]}\]
+Unfold the goal, given a well-formed index $I$, it suffices to prove
+\[(m,j,e) \in \erel{\tau'[I/\kappa]}.\]
+From Definition \ref{def:worst-case-ty-size}, we know $|\tau'[I/\kappa]| < |\forall\kappa.\tau'|$. 
+Therefore, applying Lemma \ref{appa:worst-case-term-mono} to $(n,i,e)\in\erel{\tau'[I/\kappa]}$
+gives the desired.
+
+\item Case $\tau = L^s \tau'$.
+We proceed by induction on the natural number $s$.
+
+\begin{itemize}
+\item {Base case $s=0$.}
+The assumption gives $v=nil$, and $(m,j,nil)\in\vrel{L^0\tau'}$ by definition.
+
+\item {Inductive case $s=k+1$.}
+Unfold the assumption, we have $v=v'::l$ and
+\[
+  (n,i,l)\in\vrel{L^k\tau'}, \quad
+  (n,i,v')\in\vrel{\tau'}.
+\]
+Since $k < k+1$, by the IH of $s$, we have
+\[
+  (m,j,l)\in\vrel{L^k\tau'}.
+\]
+By Definition \ref{def:worst-case-ty-size}, $|\tau'|<|L^{k+1}\tau'$, then applying type-size IH to $(n,i,v')\in\vrel{\tau'}$ gives
+\[ (m,j,v')\in\vrel{\tau'} \]
+By the definition of the list value relation, we have $(m,j,v'::l)\in\vrel{L^{k+1}\tau'}$.
+\end{itemize}
+
+\item Case $\tau = \tmonad{I}{\tau'}$.
+Unfold the goal, assume $r \leq m$, $\ell \geq j$, $v'$, and $v\Downarrow^c_{r,\ell}v'$. It suffices to show 
+\[c \leq  I(\ell), \quad (r, \ell, v') \in \vrel{\tau'}.\]
+Since $r\leq m\leq n$ and $\ell\geq j\geq i$, instantiating the assumption $(n, i, v) \in 
+\vrel{\tmonad{ I}{\tau'}}$ with $r, \ell$ and $v\Downarrow^c_{r,\ell}v'$ gives the desired.
+\nopagebreak[4]
+\qedhere
+\end{itemize}
+\end{proof}
+
+\begin{appalem}[Term Monotonicity]
+\label{appa:worst-case-term-mono}
+$\\$ If $m \leq n, j \geq i$, and $(n,i,e)\in\erel{\tau}$, then $(m,j,e)\in\erel{\tau}$.
+\end{appalem}
+\begin{proof}
+  Unfold the definition of the term relation and apply Lemma \ref{appa:worst-case-val-mono}.
+\end{proof}
+
+\begin{appalem}[$\Gamma$ monotonicity] 
+\label{appa:worst-case-context-mono}
+$\\$ If $m\leq n$, $j\geq i$, and
+$(n,i,\gamma)\in\erel{\Gamma}$, then $(m,j,\gamma)\in\erel{\Gamma}$.
+\end{appalem}
+\begin{proof}
+  Unfold the definition of the term substitution relation and apply Lemma \ref{appa:worst-case-val-mono}.
+\end{proof}
+
+\begin{appalem}[Value Subtyping of Logical Relation]
+\label{appa:val-subtyping}
+$\\$ If $\Theta;\Delta\vdash\tau<:\tau'$, $\cdot\models\Delta\iota$ and $(n,i,v) \in \vrel{\tau\iota}$, then $(n,i,v) \in \vrel{\tau'\iota}$.
+\end{appalem}
+\begin{proof}
+Induction on the lexicographic order
+$(|\tau|+|\tau'|,h)$, where
+$h$ is the height of the subtyping derivation.
+\begin{itemize}
+\item Case
+\[
+  \inferrule*[right=Sub-Refl]
+    { }
+    {\Theta;\Delta\vdash \tau <: \tau}
+\]
+Trivial.
+
+\item Case
+\[
+  \inferrule*[right=Sub-Trans]
+    {\Theta;\Delta\vdash \tau_1 <: \tau_2 \quad \Theta;\Delta\vdash \tau_2 <: \tau_3}
+    {\Theta;\Delta\vdash\tau_1 <: \tau_3}
+\]
+Directly by the inner IH1 and IH2, and the transitivity of $\subseteq$.
+\item Case
+\[
+  \inferrule*[right=Sub-Arrow]
+    {\Theta;\Delta\vdash \tau_1' <: \tau_1 \quad \Theta;\Delta\vdash \tau_2 <: \tau_2'}
+    {\Theta;\Delta\vdash \tau_1 \to \tau_2 <: \tau_1' \to \tau_2'}
+\]
+Given $(n,i,\tlam{x}{e})\in\vrel{\tau_1\iota\to\tau_2\iota}$. Unfold the goal,
+assume $m \leq n$, $j \geq i$, and $v'$ such that
+$(m,j,v') \in \vrel{\tau_1'\iota}$, it suffices to prove
+\[ (m,j,e[v'/x]) \in \erel{\tau_2'\iota}.\]
+By the inner IH1, $(m,j,v') \in \vrel{\tau_1\iota}$.\ Applying
+$(n,i,\tlam{x}{e})\in\vrel{\tau_1\iota\to\tau_2\iota}$ to this then gives
+\[
+  (m,j,e[v'/x])\in\erel{\tau_2\iota}
+\]
+Since the derivation $\tau_2 <: \tau_2'$ is smaller, instantiating this to Lemma \ref{appa:exp-subtyping}, we get the desired.
+
+\item Case
+\[
+  \inferrule*[right=Sub-Product]
+    {\Theta;\Delta\vdash \tau_1 <: \tau_1' \quad \Theta;\Delta\vdash \tau_2 <: \tau_2'}
+    {\Theta;\Delta\vdash \tau_1 \times \tau_2 <:  \tau_1' \times \tau_2'}
+\]
+Given $(n, i, \tuple{v_1}{v_2}) \in \vrel{\tau_1\iota \times \tau_2\iota}$.
+Unfold the goal, it suffices to show 
+\[
+(n,i,v_1) \in \vrel{\tau_1'\iota} 
+  \quad \text{and} \quad
+(n,i,v_2)\in\vrel{\tau_2'\iota}.
+\]
+Unfolding the assumption's product relation gives
+\[
+(n,i,v_1)\in\vrel{\tau_1\iota} 
+\quad \text{and} \quad
+(n,i,v_2)\in\vrel{\tau_2\iota}.
+\]
+Since each premise's derivation is smaller, applying the inner IH1 and IH2 gives the desired.
+
+\item Case
+\[
+  \inferrule*[right=Sub-Sum]
+    {\Theta;\Delta\vdash \tau_1 <: \tau_1' \quad \Theta;\Delta\vdash \tau_2 <: \tau_2'}
+    {\Theta;\Delta\vdash \tau_1 + \tau_2 <:  \tau_1' + \tau_2'}
+\]
+Assume $(n, i, v) \in \vrel{\tau_1\iota + \tau_2\iota}$, we proceed by cases on $v$.
+
+\begin{itemize}
+\item {Subcase $v = \mathsf{inl}\,v_1$.}
+Unfold the goal, it suffices to show 
+\[(n, i, v_1) \in \vrel{\tau_1'\iota}.\] 
+The assumption gives $(n,i,v_1)\in\vrel{\tau_1\iota}$,
+applying the inner IH1 gives the desired.
+
+\item {Subcase $v = \mathsf{inr}\,v_2$.}
+Similar to the first case.
+\end{itemize}
+
+\item Case
+\[
+  \inferrule*[right=Sub-Later]
+    {\Theta;\Delta\vdash \tau <:  \tau'}
+    {\Theta;\Delta\vdash \triangleright \tau <: \triangleright \tau'}
+\]
+Given $ (n, i, v) \in \vrel{\triangleright \tau\iota}$, we proceed by cases on $n$.
+
+\begin{itemize}
+\item {Subcase $n=0$.}
+The goal holds directly by the definition of $\vrel{\triangleright\tau'}$.
+
+\item {Subcase $n=k+1$.}
+Unfold the goal, assume $v = \delay v'$, it suffices to show 
+\[(k, i+1, v') \in \vrel{\tau'\iota}.\]
+Unfold the given $(n, i, v) \in \vrel{\triangleright \tau\iota}$, we have
+\[(k, i+1, v') \in \vrel{\tau\iota}.\]
+Instantiating the inner IH with $k$ gives the desired.
+\end{itemize}
+
+\item Case
+\[
+  \inferrule*[right=Sub-Monad]
+    {\Theta;\Delta\vdash \tau <: \tau' \quad \Theta;\Delta\models I\leq I'}
+    {\Theta;\Delta\vdash \tmonad{I}{\tau} <: \tmonad{ I'}{\tau'}}
+\]
+Given $(n,i,v)\in\vrel{\tmonad{I\iota}{\tau\iota}}$, $m\leq n$,
+$j\geq i$, and $v\Downarrow^c_{m,j}v'$, it suffices to show 
+\[
+  c \leq I'\iota(j)
+  \quad\text{and}\quad
+  (m,j,v') \in \vrel {\tau'\iota}.
+\]
+Unfolding the assumption's relation gives
+\[
+  c\leq I\iota(j)
+  \quad\text{and}\quad
+  (m,j,v')\in\vrel{\tau\iota}.
+\]
+Since $\cdot \models \Delta\iota$, we have $I\iota \leq I'\iota$.
+Therefore, $c \leq I\iota(j) \leq I'\iota(j)$. 
+Applying the inner IH to $(m,j,v')\in\vrel{\tau\iota}$ gives
+$(m,j,v') \in \vrel {\tau'\iota}$, and we are done.
+
+\item Case
+\[
+  \inferrule*[right=Sub-List]
+    {\Theta;\Delta\vdash \tau <: \tau'}
+    {\Theta;\Delta\vdash L^s\tau <: L^s\tau'}
+\]
+Given $(n,i,v) \in \vrel{L^{s\iota}(\tau\iota)}$, it suffices to show
+\[(n,i,v) \in \vrel{L^{s\iota}(\tau'\iota)}.\]
+We proceed by structural induction on $v$.
+
+\begin{itemize}
+\item {Base case $v=nil$.} We get the desired directly by the
+definition of $\vrel{L^0(\tau'\iota)}$.
+
+\item {Inductive case $v=v'::l$.} 
+Let $s \iota$ = $k$+1, then the given assumption is $(n,i,v'::l) \in \vrel{L^{k+1}(\tau\iota)}$.
+Unfold the assumption, we have  
+\[
+(n, i,l) \in \vrel{L^k(\tau\iota)}, \quad
+(n,i,v') \in \vrel{\tau\iota}.
+\]
+Unfold the goal, it suffices to show 
+\[
+(n, i,l) \in \vrel{L^k(\tau'\iota)}, \quad
+(n,i,v') \in \vrel{\tau'\iota}.
+\]
+The IH of $v$ applied to $l$ gives
+$(n,i,l)\in\vrel{L^k(\tau'\iota)}$.
+From the premise, we know $\Theta;\Delta\vdash \tau <: \tau'$,
+hence applying the IH of the subtyping derivation gives
+$(n,i,v')\in\vrel{\tau'\iota}$, and we are done.
+\end{itemize}
+
+\item Case
+\[
+  \inferrule*[right=Sub-IndexPoly]
+    {\Theta,\kappa:S;\Delta\vdash\tau<:\tau'}
+    {\Theta;\Delta\vdash
+      \forall\kappa.\tau <:\forall\kappa.\tau'}
+\]
+Given $(n,i,\Lambda.e) \in \vrel{\forall\kappa.\tau\iota}$, it suffices to prove
+\[(n,i,\Lambda.e) \in \vrel{\forall\kappa.\tau'\iota}.\]
+Unfold the goal, given some $I$, it remains to prove
+\[(n, i, e) \in \erel{\tau'[I/\kappa]\iota}.\]
+Unfold the assumption's relation, we have 
+\[(n, i, e) \in \erel{\tau[I/\kappa]\iota}.\]
+Let $\iota' = \iota[\kappa \mapsto I]$, then we know 
+\[(n, i, e) \in \erel{\tau\iota'}.\]
+Instantiate Lemma \ref{appa:exp-subtyping} with $\Theta,\kappa:S;\Delta\vdash\tau<:\tau'$ and $\iota'$, we have
+\[(n, i, e) \in \erel{\tau'\iota'} = \erel{\tau'[I/\kappa]\iota}\]
+This is exactly what we want to show.
+
+\item Case
+\[
+  \inferrule*[right=Sub-Rec]
+    {\Theta;\Delta\vdash \tau <: \tau'
+     \quad \alpha\text{ positive in }\tau,\tau'}
+    {\Theta;\Delta\vdash \mu\alpha.\tau <: \mu\alpha.\tau'}
+\]
+Given $(n,i,\fold v) \in \vrel{\mu\alpha.\tau\iota}$, it suffices to prove 
+\[(n,i,\fold v) \in \vrel{\mu\alpha.\tau'\iota}.\]
+Unfold the goal, it remains to prove 
+\[(n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]}.\]
+Instantiate Lemma \ref{lem:substitute-subtyping} with $\Theta;\Delta\vdash\tau\iota <: \tau'\iota$ and $\mu\alpha.\tau$, we have
+\[
+  \Theta;\Delta\vdash\tau\iota[\mu\alpha.\tau\iota/\alpha]<:\tau\iota[\mu\alpha.\tau\iota/\alpha].
+\]
+Since $\iota$ only substitutes indices, we know all occurrences of $\alpha$ are positive in $\tau'\iota$. 
+Therefore, applying Lemma \ref{lem:subtyping-polarity} to 
+$\Theta;\Delta\vdash \mu\alpha.\tau\iota <:\mu\alpha.\tau'\iota$ and $\tau'\iota$ gives
+\[
+  \Theta;\Delta\vdash\tau'\iota[\mu\alpha.\tau'\iota\/\alpha]<:\tau'\iota[\mu\alpha.\tau'\iota/\alpha]
+\]
+By \textsc{Sub-Trans}, we obtain
+\[
+  \Theta;\Delta\vdash
+  \tau\iota[\mu\alpha.\tau\iota/\alpha]
+  <: \tau'\iota[\mu\alpha.\tau'\iota/\alpha] \quad (\text{S0})
+\]
+By Lemma \ref{lem:worst-case-ty-size}, we have
+\[
+  |\tau\iota[\mu\alpha.\tau\iota/\alpha]|
+    <|\mu\alpha.\tau\iota|, \quad
+  |\tau'\iota[\mu\alpha.\tau'\iota/\alpha]|<|\mu\alpha.\tau'\iota|
+\]
+Thus, instantiate the IH of $|\tau + \tau'|$ with (S0) and $(n,i,v)$, we obtain 
+\[(n,i,v) \in \vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]} \implies (n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]} \] 
+Unfold the given $(n,i,\fold v) \in \vrel{\mu\alpha.\tau\iota}$, we get $(n,i,v) \in \vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]}$, hence we know 
+$(n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]}$.
+\qedhere
+\end{itemize}
+\end{proof}
+
+\begin{appalem}[Expression subtyping Lemma]
+\label{appa:exp-subtyping}
+$\\$ If $\Theta;\Delta\vdash\tau<:\tau'$ and $\cdot\models\Delta\iota$, then $\erel{\tau\iota}\subseteq\erel{\tau'\iota}$.
+\end{appalem}
+\begin{proof}
+  Unfold the goal, given some $(n, i, e) \in \erel{\tau\iota}$, we need to prove 
+  \[(n, i, e) \in \erel{\tau'\iota}\]
+  Unfold this term relation, assume $m \leq n$ and $e \Downarrow_m v$, it suffices to prove 
+  \[(m, i, v) \in \vrel{\tau'\iota}\]
+  Unfolding $(n, i, e) \in \erel{\tau\iota}$ and applying it to $m, e \Downarrow_m v$, we have 
+  \[(m, i, v) \in \vrel{\tau\iota}.\]
+  By Lemma \ref{appa:val-subtyping}, we get the desired.
+\end{proof}
+
+\begin{appalem}[$\Gamma$ Subtyping: domain containment]
+\label{appa:domain-containment}
+$\\$ if $\Theta;\Delta\vdash\Gamma<:\Gamma'$, then $\forall x:\tau' \in \Gamma'.\;x:\tau\in \Gamma$ 
+and $\Theta;\Delta\vdash\tau<:\tau'$
+\end{appalem}
+\begin{proof}
+Induction on the subtyping derivation of $\Gamma, \Gamma'$.
+\begin{itemize}
+\item Case {\textsc{Sub-Base}}
+\[
+    \inferrule*[right=Sub-Base]
+    { }
+    {\Theta;\Delta\vdash\Gamma <: \cdot} 
+\]
+Trivial.
+
+\item Case {\textsc{Sub-Ind}}
+\[
+\inferrule*[right=Sub-Ind]
+    {x:\tau \in \Gamma \quad \Theta;\Delta\vdash \tau <: \tau' 
+    \quad \Theta;\Delta\vdash \Gamma/x <: \Gamma'}
+    {\Theta;\Delta\vdash\Gamma <: \Gamma', x:\tau'} 
+\]
+Given some $y:\tau' \in (\Gamma',x:\tau_2)$, we need to prove 
+\[y:\tau \in \Gamma, \quad \Theta;\Delta\vdash\tau<:\tau'.\]
+We proceed by cases on $y = x$.
+
+\begin{itemize}
+\item {Subcase $y=x$.} We have the goal directly.
+
+\item {Subcase $y\neq x$.} We know $y:\tau' \in \Gamma'$.
+By IH1, we have 
+\[y: \tau \in \Gamma / x, \quad \Theta;\Delta\vdash\tau<:\tau'.\]
+Therefore we know $y: \tau \in \Gamma$, and we are done.
+\end{itemize}
+\qedhere
+\end{itemize}
+\end{proof}
+
+\begin{appalem}[$\Gamma$ Subtyping of Logical Relation]
+\label{appa:worst-case-ctx-subtyping}
+$\\$ If $\Theta;\Delta\vdash\Gamma<:\Gamma'$ and $\cdot\models\Delta\iota$, 
+then $\erel{\Gamma\iota}\subseteq\erel{\Gamma'\iota}$. 
+\end{appalem}
+\begin{proof}
+Induction on the subtyping derivation of $\Gamma, \Gamma'$.
+\begin{itemize}
+\item Case {\textsc{Sub-Base}}
+\[
+    \inferrule*[right=Sub-Base]
+    { }
+    {\Theta;\Delta\vdash\Gamma <: \cdot} 
+\]
+Unfold the goal, given some $(n, i, \gamma) \in \vrel{\Gamma}$, we need to prove
+\[(n, i, \gamma) \in \vrel{\cdot}.\]
+By the definition of the substitution relation, since dom($\cdot$) is empty, 
+we have the desired directly.
+
+\item Case {\textsc{Sub-Ind}}
+\[
+\inferrule*[right=Sub-Ind]
+    {x:\tau \in \Gamma \quad \Theta;\Delta\vdash \tau <: \tau'
+    \quad \Theta;\Delta\vdash \Gamma/x <: \Gamma'}
+    {\Theta;\Delta\vdash\Gamma <: \Gamma', x:\tau'} 
+\]
+Unfold the goal, given some $(n, i, \gamma) \in \vrel{\Gamma}$, we need to prove
+\[(n, i, \gamma) \in \vrel{\Gamma', x:\tau'}.\]
+Unfold the substitution relation, it suffices to prove 
+\[
+  \forall y \in dom(\Gamma',x:\tau').\;(n, i, \gamma(y)) \in \vrel{\tau_2}, 
+  \text{where }\tau_2 = (\Gamma', x:\tau')(y). 
+\]
+Unfold the assumption's substitution relation, we have 
+\[\forall x \in dom(\Gamma).\;(n, i, \gamma(x)) \in \vrel{\Gamma(x)}. \quad (\text{L0})\]
+By Lemma \ref{appa:domain-containment}, given some $y \in dom(\Gamma',x:\tau')$, we have 
+\[y : \tau_1 \in \Gamma, \quad \Theta;\Delta\vdash \tau_1<:\tau_2.\]
+Therefore, instantiate $(\text{L0})$ with $y$, we have 
+\[(n,i,\gamma(y)) \in \vrel{\tau_1}.\]
+Since $\Theta;\Delta\vdash \tau_1<:\tau_2$, by Lemma \ref{lem:worst-case-mono}, we have 
+\[(n, i, \gamma(y)) \in \vrel{\tau_2}\]
+This is exactly the desired.
+\qedhere
+\end{itemize}
+\end{proof}
+
+
+%%%%% Fundamental Property %%%%%%%%%%%%%%%%%
+\begin{appathm}[Fundamental Property]
+\label{appa:fundamental}
+$\\$ If $\hastype{\Theta;\Delta;\Gamma}{e}{\tau}$, $\cdot\models\Delta\iota$, and $(n,i,\gamma) \in \erel{\Gamma\iota}$, 
+then $(n,i,e\gamma)\in\erel{\tau\iota}$. 
+\end{appathm}
+\begin{proof}
+  Induction on the typing derivation.
+\begin{itemize}
+\item Case
+\[
+  \inferrule*[right=T-Var]
+    { }
+    {\hastype{\Theta;\Delta;\Gamma,x:\tau}{x}{\tau}}.
+\]
+It suffices to prove
+\[(n,i,\gamma(x))\in\erel{\tau\iota}.\]
+Unfold this relation, assume $m \leq n$ and $\gamma(x) \Downarrow_m v$, it remains to proof
+\[ (m, i, v) \in \vrel{\tau\iota}\]
+From the assumption, we know
+$(n,i,\gamma)\in\erel{(\Gamma,x:\tau)\iota}$.  Unfolding this substitution relation gives
+$(n,i,\gamma(x))\in\vrel{((\Gamma,x:\tau)(x))\iota}$, which is $(n,i,\gamma(x))\in\vrel{\tau\iota}$.
+Therefore, we know $\isval{\gamma(x)}{n}$. By Lemma \ref{lem:worst-case-value-closure}, $\isval{\gamma(x)}{m}$.
+By \textsc{E-Val}, $\gamma(x) \Downarrow_m \gamma(x)$, hence $v =\gamma(x)$ and $(n,i,v)\in\vrel{\tau\iota}$.
+From Lemma \ref{lem:worst-case-mono}, we have the desired.
+
+\item Case
+\[
+  \inferrule*[right=T-Unit]
+    { }
+    {\hastype{\Theta;\Delta;\Gamma}{\langle\rangle}{\textbf{1}}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\langle\rangle\Downarrow_m v$, it suffices to show
+\[(m,i,v)\in\vrel{\textbf{1}}.\]
+From \textsc{V-Constant}, we know $\langle\rangle\;\mathsf{val}_m$.
+Therefore, by \textsc{E-Val}, we have $v=\langle\rangle$.  Unfold the value relation
+$\vrel{\textbf{1}}$, the goal holds trivially.
+
+\item Case
+\[
+  \inferrule*[right=T-Base]
+    { }
+    {\hastype{\Theta;\Delta;\Gamma}{b}{\textbf{b}}}.
+\]
+Unfold the goal's term relation, assume $m \leq n$ and
+$b \Downarrow_m v$.  It suffices to show
+\[(m,i,v)\in\vrel{\textbf{b}}.\]  
+From \textsc{V-Constant}, we know $b\;\mathsf{val}_m$ hence by \textsc{E-Val}, we have $v=b$.
+Unfold the goal, it remains to show $b \in \llbracket \textbf{b} \rrbracket$, which holds directly.
+
+\item Case
+\[
+  \inferrule*[right=T-Pair]
+    {\hastype{\Theta;\Delta;\Gamma}{e_1}{\tau_1}
+     \quad \hastype{\Theta;\Delta;\Gamma}{e_2}{\tau_2}}
+    {\hastype{\Theta;\Delta;\Gamma}{\tuple{e_1}{e_2}}{\tau_1\times\tau_2}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\tuple{e_1\gamma}{e_2\gamma}\Downarrow_m v$.  It suffices to show
+\[(m,i,v) \in \vrel{(\tau_1\times\tau_2)\iota}.\]  
+From \textsc{E-Pair}, we have $v_1$ and $v_2$ such that
+\[
+  v=\tuple{v_1}{v_2},\quad
+  e_1\gamma\Downarrow_m v_1,
+  \quad e_2\gamma\Downarrow_m v_2.
+\]
+Therefore, unfold the definition of $\vrel{(\tau_1\times\tau_2)\iota}$, it remains to show 
+\[
+  (m,i,v_1)\in\vrel{\tau_1\iota}
+  \quad\text{and}\quad
+  (m,i,v_2)\in\vrel{\tau_2\iota}.
+\]
+By IH1 and IH2, we have $(n,i,e_1\gamma)\in\erel{\tau_1\iota}$ and
+$(n,i,e_2\gamma)\in\erel{\tau_2\iota}$.  Instantiating these two term
+relations with the two evaluations gives the desired.
+
+\item Case
+\[
+  \inferrule*[right=T-Fst]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau_1\times\tau_2}}
+    {\hastype{\Theta;\Delta;\Gamma}{\mathsf{fst}\,e}{\tau_1}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\mathsf{fst}\,(e\gamma) \Downarrow_m v$.  It suffices to show
+\[(m,i,v) \in\vrel{\tau_1\iota}.\]  
+From \textsc{E-Fst}, we have $e \gamma \Downarrow_m\tuple{v_1}{v_2}$ and 
+$\mathsf{fst}\, (e\gamma) \Downarrow_m v_1$. 
+Therefore it suffices to show 
+\[(m,i,v_1) \in\vrel{\tau_1\iota}.\] 
+Applying IH gives $(n,i,e\gamma) \in \erel{(\tau_1\times\tau_2)\iota}$, instantiating it at $m$
+gives
+\[(m,i,\tuple{v_1}{v_2}) \in \vrel{(\tau_1\times\tau_2)\iota}.\] 
+Unfolding this value relation gives the desired.
+
+\item Case
+\[
+  \inferrule*[right=T-Snd]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau_1\times\tau_2}}
+    {\hastype{\Theta;\Delta;\Gamma}{\mathsf{snd}\,e}{\tau_2}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\mathsf{snd}\,(e\gamma) \Downarrow_m v$.  It suffices to show
+\[(m,i,v) \in\vrel{\tau_2\iota}.\]  
+From \textsc{E-Snd}, we have $e\gamma \Downarrow_m\tuple{v_1}{v_2}$ and 
+$\mathsf{snd}\, (e\gamma) \Downarrow_m v_2$. 
+Therefore it suffices to show 
+\[(m,i,v_2) \in\vrel{\tau_2\iota}.\] 
+Applying IH gives $(n,i,e\gamma) \in \erel{(\tau_1\times\tau_2)\iota}$, instantiating it at $m$
+gives
+\[(m,i,\tuple{v_1}{v_2}) \in \vrel{(\tau_1\times\tau_2)\iota}.\] 
+Unfolding this value relation gives the desired.
+
+\item Case
+\[
+  \inferrule*[right=T-Inl]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau_1}}
+    {\hastype{\Theta;\Delta;\Gamma}{\mathsf{inl}\,e}{\tau_1+\tau_2}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\mathsf{inl}\,(e\gamma)\Downarrow_m v'$.  It suffices to show
+\[(m,i,v') \in \vrel{(\tau_1+\tau_2)\iota}.\]  
+From \textsc{E-Inl},
+we have
+\[
+  e\gamma\Downarrow_m v, \quad
+  \mathsf{inl}(e\gamma) \Downarrow_m \mathsf{inl}\,v, 
+  \quad v'=\mathsf{inl}\,v.
+\]
+Therefore, unfold the definition of $\vrel{(\tau_1+\tau_2)\iota}$, it remains to show
+\[(m,i,v) \in \vrel{\tau_1\iota} .\]
+IH gives $(n,i,e\gamma) \in \erel{\tau_1\iota}$, instantiating this
+term relation with $m$ and $e\gamma\Downarrow_m v$ gives the desired.
+
+
+\item Case
+\[
+  \inferrule*[right=T-Inr]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau_2}}
+    {\hastype{\Theta;\Delta;\Gamma}{\mathsf{inr}\,e}{\tau_1+\tau_2}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\mathsf{inr}\,(e\gamma)\Downarrow_m v'$.  It suffices to show
+\[(m,i,v') \in \vrel{(\tau_1+\tau_2)\iota}.\]  
+From \textsc{E-Inr},
+we have
+\[
+  e\gamma\Downarrow_m v, \quad
+  \mathsf{inr}(e\gamma) \Downarrow_m \mathsf{inr}\,v, 
+  \quad v'=\mathsf{inr}\,v.
+\]
+Therefore, unfold the definition of $\vrel{(\tau_1+\tau_2)\iota}$, it remains to show
+\[(m,i,v) \in \vrel{\tau_2\iota} .\]
+IH gives $(n,i,e\gamma) \in \erel{\tau_2\iota}$, instantiating this
+term relation with $m$ and the $e\gamma\Downarrow_m v$ gives the desired.
+
+\item Case
+\[
+  \inferrule*[right=T-Case]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau_1+\tau_2}
+     \quad \hastype{\Theta;\Delta;\Gamma,x:\tau_1}{e_1}{\tau}
+     \quad \hastype{\Theta;\Delta;\Gamma,y:\tau_2}{e_2}{\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}
+      {\case{e}{x}{e_1}{y}{e_2}}{\tau}}.
+\]
+Unfold the goal's term relation, assume $m \leq n$ and
+$(\case{e\gamma}{x}{e_1\gamma}{y}{e_2\gamma}) \Downarrow_m v$.  
+It suffices to show
+\[(m,i,v) \in \vrel{\tau\iota}.\] 
+From \textsc{E-CaseL} and \textsc{E-CaseR}, we have 
+\[e\gamma \Downarrow_m v_1.\]
+By IH1, $(n,i,e\gamma) \in \erel{(\tau_1+\tau_2)\iota}$. Instantiating this with $m, i$ 
+and $e\gamma \Downarrow v_1$ gives 
+\[(m, i, v_1) \in \vrel{(\tau_1+\tau_2)\iota}.\]
+We proceed by cases on $v_1$.
+
+\begin{itemize}
+\item {Subcase $v_1 = \mathsf{inl}\,v_1'$.}
+Unfold the defintion of $\vrel{(\tau_1+\tau_2)\iota}$, we know
+\[(m, i, v_1') \in \vrel{\tau_1\iota}.\]
+By Lemma \ref{lem:worst-case-mono},
+$(m,i,\gamma)\in\erel{\Gamma\iota}$.  Let
+$\gamma'=\gamma[x\mapsto v_1']$; the definition of the context
+relation then gives
+$(m,i,\gamma')\in\erel{(\Gamma,x:\tau_1)\iota}$.  Instantiating IH2 at
+$m,i,\gamma'$ gives
+\[(m, i, e_1\gamma') \in \erel{\tau\iota}.\]
+From \textsc{E-CaseL} and $e\gamma \Downarrow_m \mathsf{inl}\,v_1'$, we have
+\[(e_1\gamma)[v_1'/x]\Downarrow_m v.\]
+Since $e_1\gamma[v_1'/x] = e_1[x\mapsto v_1']$, we know 
+\[(e_1\gamma') \Downarrow_m v.\]
+Instantiating $(m, i, e_1\gamma') \in \erel{\tau\iota}$ with this evaluation gives $(m, i, v) \in \vrel{\tau\iota}$, which is the desired.
+
+\item {Subcase $v_1 = \mathsf{inr}\,v_2'$.}
+The proof is similar to the first subcase, extend
+$\gamma$ with $y\mapsto v_2'$, then apply IH3 and
+\textsc{E-CaseR}.
+
+\end{itemize}
+
+\item Case
+\[
+  \inferrule*[right=T-Lam]
+    {\hastype{\Theta;\Delta;\Gamma,x:\tau_1}{e}{\tau_2}}
+    {\hastype{\Theta;\Delta;\Gamma}{\tlam{x}{e}}{\tau_1\to\tau_2}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\tlam{x}{e\gamma}\Downarrow_m v$, it suffices to prove 
+\[(m,i,v)\in\vrel{\tau_1\iota \to\tau_2 \iota}\]
+By \textsc{E-Val}, $v=\tlam{x}{e\gamma}$, we then need to show 
+\[(m,i,e\gamma)\in\vrel{\tau_1\iota \to\tau_2 \iota}\]
+Unfold the definition of this value relation, assume $r\leq m$, $j\geq i$, and
+$(r,j,v')\in\vrel{\tau_1\iota}$, it remains to prove
+\[
+  (r,j,(e\gamma)[v'/x])\in\erel{\tau_2\iota}.
+\]
+Since $r\leq m\leq n$ and $j\geq i$,
+Lemma \ref{lem:worst-case-mono} gives
+\[(r,j,\gamma)\in\erel{\Gamma\iota}.\]
+From $(r,j,v')\in\vrel{\tau_1\iota}$ and the definition of the
+substitution relation, we have
+\[
+  (r,j,\gamma[x\mapsto v'])\in\erel{(\Gamma,x:\tau_1)\iota}.
+\] 
+Instantiating IH with $r, j, \gamma[x\mapsto v']$ gives
+\[
+  (r,j,e(\gamma[x\mapsto v']))\in\erel{\tau_2\iota}.
+\]
+Since $e(\gamma[x\mapsto v']) =(e\gamma)[v'/x]$, we get the desired.
+
+
+\item Case
+\[
+  \inferrule*[right=T-App]
+    {\hastype{\Theta;\Delta;\Gamma}{e_1}{\tau_1\to\tau_2}
+     \quad \hastype{\Theta;\Delta;\Gamma}{e_2}{\tau_1}}
+    {\hastype{\Theta;\Delta;\Gamma}{e_1e_2}{\tau_2}}.
+\]
+Unfold the goal's term relation, assume $m \leq n$ and
+$(e_1\gamma)(e_2\gamma)\Downarrow_m v$.  It suffices to show
+\[(m,i,v)\in\vrel{\tau_2\iota}.\]
+From \textsc{E-App}, we have $e', e_1, e_2$ and $v_2$ such that
+\[
+  e_1\gamma\Downarrow_m\tlam{x}{e'},
+  \quad e_2\gamma\Downarrow_m v_2,
+  \quad e'[v_2/x]\Downarrow_m v.
+\]
+IH1 gives $(n,i,e_1\gamma)\in\erel{\tau_1\iota \to\tau_2 \iota}$.
+Applying it to $e_1\gamma\Downarrow_m\tlam{x}{e'}$ gives
+\[(m,i,\tlam{x}{e'}) \in \vrel{\tau_1\iota \to\tau_2 \iota}.\]
+IH2 gives
+\[
+  (n,i,e_2\gamma)\in\erel{\tau_1\iota}.
+\]
+Applying it to $e_2\gamma\Downarrow_m v_2$ gives
+\[(m,i,v_2)\in\vrel{\tau_1\iota}.\]
+Therefore, applying $(m,i,\tlam{x}{e'})\in\vrel{\tau_1\iota \to\tau_2 \iota}$ to this relation gives
+\[(m,i,e'[v_2/x])\in\erel{\tau_2\iota}.\]
+Applying this relation to $e'[v_2/x]\Downarrow_m v$ gives the desired.
+
+\item Case
+\[
+  \inferrule*[right=T-Fold]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau[\mu\alpha.\tau/\alpha]}}
+    {\hastype{\Theta;\Delta;\Gamma}{\fold e}{\mu\alpha.\tau}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\fold(e\gamma)\Downarrow_m v'$.  It suffices to show
+\[(m,i,v')\in\vrel{\mu\alpha.\tau\iota}.\]
+From \textsc{E-Fold}, we have $v$ such that
+\[
+  e\gamma\Downarrow_m v,
+  \quad
+  v'=\fold v.
+\]
+By IH, we have
+\[(n,i,e\gamma)\in\erel{\tau\iota[\mu\alpha.\tau\iota/\alpha]}.\]
+Applying this term relation to $e\gamma\Downarrow_m v$ gives
+\[
+  (m,i,v)\in\vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]}.
+\]
+Together with the definition of $\vrel{\mu\alpha.\tau\iota}$, we have 
+$(m,i,\fold v)\in\vrel{\mu\alpha.\tau\iota}$, which is exactly the desired.
+
+\item Case
+\[
+  \inferrule*[right=T-Unfold]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\mu\alpha.\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}{\unfold e}{\tau[\mu\alpha.\tau/\alpha]}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\unfold(e\gamma)\Downarrow_m v'$.  It suffices to show
+\[
+  (m,i,v')\in\vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]}.
+\]
+From \textsc{E-Unfold}, we have
+$e\gamma\Downarrow_m\fold v$ and $v' = v$. By IH, we have  
+\[(n,i,e\gamma)\in\erel{\mu\alpha.\tau\iota}.\]
+Applying this relation to $e\gamma\Downarrow_m\fold v$ gives
+\[(m,i,\fold v)\in\vrel{\mu\alpha.\tau\iota}.\]
+Unfold this value relation, we have 
+\[ (m,i,v)\in\vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]} \]
+Since $v'=v$, we have shown the desired.
+
+\item Case
+\[
+  \inferrule*[right=T-Next]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}{\delay e}{\triangleright\tau}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\delay(e\gamma)\Downarrow_m v'$.  It suffices to show
+\[(m,i,v')\in\vrel{\triangleright(\tau\iota)}.\] 
+We proceed by cases on $m$.
+
+\begin{itemize}
+\item {Subcase $m=0$.}
+It suffices to show
+\[(0,i,v')\in\vrel{\triangleright(\tau\iota)}\]
+From \textsc{E-NextBase}, we have 
+\[\delay(e\gamma)\Downarrow_m \delay(e\gamma)\]
+Therefore, $v' = \delay(e\gamma)$, then we need to show 
+\[(0,i,\delay(e\gamma))\in\vrel{\triangleright(\tau\iota)}\]
+This holds directly by the definition of $\vrel{\triangleright(\tau\iota)}$.
+
+\item {Subcase $m=k+1$.}
+It suffices to show 
+\[(k+1,i,v')\in\vrel{\triangleright(\tau\iota)}\]
+From \textsc{E-NextSucc}, we have $v$ such that
+\[
+  e\gamma\Downarrow_k v
+  \quad\text{and}\quad
+  v'=\delay v
+\]
+Unfold the goal, it suffices to show
+\[ (k, i+1, v) \in \vrel{\tau\iota}\]
+By IH, $(n, i, e\gamma) \in \erel{\tau\iota}$.
+Since $k < m \leq n$ and $i+1 > i$, applying Lemma \ref{lem:worst-case-mono} gives 
+\[(k,i+1,e\gamma)\in\erel{\tau\iota}\] 
+Applying this term relation to $e\gamma\Downarrow_k v$ gives the desired:
+\[(k,i+1,v)\in\vrel{\tau\iota}\]
+
+\end{itemize}
+
+\item Case
+\[
+  \inferrule*[right=T-Napp]
+    {\hastype{\Theta;\Delta;\Gamma}{e_1}{\triangleright(\tau_1\to\tau_2)}
+     \quad \hastype{\Theta;\Delta;\Gamma}{e_2}{\triangleright\tau_1}}
+    {\hastype{\Theta;\Delta;\Gamma}{e_1\circledast e_2}{\triangleright\tau_2}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+\[(e_1\gamma\circledast e_2\gamma)\Downarrow_m v'.\]
+It suffices to show \[(m,i,v')\in\vrel{\triangleright(\tau_2\iota)}\]
+We proceed by cases on $m$.
+
+\begin{itemize}
+\item {Subcase $m=0$.}
+It suffices to show 
+\[(0,i,v')\in\vrel{\triangleright(\tau_2\iota)}\]
+From \textsc{E-NappBase}, we know some $e_1', e_2'$ such that 
+\[
+  e_1\gamma \Downarrow_0 \delay e_1',\quad e_2\gamma \Downarrow_0 \delay e_2', 
+  \quad (e_1\gamma\circledast e_2\gamma)\Downarrow_m \delay e_1'e_2'
+\]
+Thus, $v' = \delay e_1'e_2'$, then we need to prove 
+\[(0, i, \delay e_1'e_2') \in \vrel{\triangleright(\tau_2\iota)}\]
+This holds directly by the definition of $\vrel{\triangleright(\tau_2\iota)}$.
+
+\item {Subcase $m=k+1$.}
+It suffices to show 
+\[(k+1,i,v')\in\vrel{\triangleright(\tau_2\iota)}\]
+From \textsc{E-NappInd}, we have
+$x,e_0,v_2$, and $v$ such that
+\[
+  e_1\gamma \Downarrow_{k+1}\delay(\tlam{x}{e_1'}), \quad
+  e_2\gamma \Downarrow_{k+1}\delay v_2, \quad
+  e_1'[v_2/x] \Downarrow_p v,\quad v' =\delay v
+\]
+IH1 and IH2 give
+\[
+  (n,i,e_1\gamma)\in\erel{\triangleright(\tau_1\iota\to\tau_2\iota)},
+  \quad
+  (n,i,e_2\gamma)\in\erel{(\triangleright\tau_1\iota)}
+\]
+Since $k+1 \leq n$, apply these two term relations to $e_1\gamma \Downarrow_{k+1}\delay(\tlam{x}{e_1'})$ 
+and $e_2\gamma \Downarrow_{k+1}\delay v_2$ respectively, we have
+\[
+  (k+1,i,\delay(\tlam{x}{e_1'}))
+    \in\vrel{\triangleright(\tau_1\iota\to\tau_2\iota)},
+  \quad
+  (k+1,i,\delay v_2)\in\vrel{(\triangleright\tau_1\iota)}
+\]
+Unfolding the relations gives
+\[
+  (k,i+1,\tlam{x}{e_1'})\in\vrel{\tau_1\iota\to\tau_2\iota},
+  \quad
+  (k,i+1,v_2)\in\vrel{\tau_1\iota}
+\]
+Unfolding and applying the first value relation to the second value relation gives
+\[(k,i+1,e_1'[v_2/x])\in\erel{\tau_2\iota}\]
+Applying this term relation to $e_1'[v_2/x]\Downarrow_k v$
+gives $(k,i+1,v)\in\vrel{\tau_2\iota}$. By the definition of $\vrel{\triangleright(\tau_2\iota)}$, 
+we have the desired:
+\[(k+1,i,\delay v)\in\vrel{\triangleright(\tau_2\iota)}\]
+
+\end{itemize}
+
+\item Case
+\[
+  \inferrule*[right=T-Ret]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}{\ret e}{\tmonad{0}{\tau}}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\ret(e\gamma) \Downarrow_m v'$.  It suffices to show
+\[(m,i,v')\in\vrel{\tmonad{0}{\tau}\iota}.\] 
+From \textsc{E-Val}, we have $\ret(e\gamma) \Downarrow_m \ret(e\gamma) = v'$. Thus it remains to show
+\[
+  (m,i,\ret(e\gamma))\in\vrel{\tmonad{0}{\tau}\iota}.
+\]
+Unfolding this value relation, assume $r\leq m$, $j\geq i$, and
+$\ret(e\gamma)\Downarrow^c_{r,j}v$.  It suffices to show
+\[ 
+c\leq 0(j), 
+\quad 
+(r,j,v)\in\vrel{\tau\iota}.\] 
+From
+\textsc{E-Return}, we have
+\[
+  c=0=0(j)
+  \quad\text{and}\quad
+  e\gamma\Downarrow_r v.
+\]
+By IH, we have $(n, i, e\gamma) \in \erel{\tau\iota}$. Since $r \leq m \leq n$ and $j \ge i$, 
+applying Lemma \ref{lem:worst-case-mono} gives
+\[(r, j, e\gamma) \in \erel{\tau\iota}.\]
+Applying this term relation to $e\gamma\Downarrow_r v$ gives 
+\[(r,j,v)\in\vrel{\tau\iota}.\]
+This is exactly what left to show.
+
+\item Case
+\[
+  \inferrule*[right=T-Tick]
+    {\Theta;\Delta\vdash I:\mathbb{R}_{\ge0}}
+    {\hastype{\Theta;\Delta;\Gamma}{\tick{ I}}{\tmonad{ I}{\textbf{1}}}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\tick{ I}\Downarrow_m v'$.  It suffices to show
+\[(m,i,v')\in\vrel{\tmonad{ I}{\textbf{1}}}.\]  
+From \textsc{E-Val}, we have $v'=\tick{ I}$. Unfold the
+value relation, assume $r\leq m$, $j\geq i$, and
+$\tick{ I}\Downarrow^c_{r,j}v$.  It suffices to show
+\[c\leq I(j), \quad (r,j,v)\in\vrel{\textbf{1}}.\] 
+From \textsc{E-Tick}, we have
+\[
+  c= I(j)
+  \quad\text{and}\quad
+  v=\langle\rangle.
+\]
+Thus, we know $c \leq I(j)$. Using $v=\langle\rangle$ gives
+$(r,j,v)\in\vrel{\textbf{1}}$ directly by its definition.
+
+\item Case
+\[
+  \inferrule*[right=T-Bind]
+    {\hastype{\Theta;\Delta;\Gamma}{e_1}{\tmonad{ I_1}{\tau_1}}
+     \quad
+     \hastype{\Theta;\Delta;\Gamma,x:\tau_1}{e_2}{\tmonad{ I_2}{\tau_2}}}
+    {\hastype{\Theta;\Delta;\Gamma}{\bind{x}{e_1}{e_2}}
+      {\tmonad{ I_1+ I_2}{\tau_2}}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\bind{x}{e_1\gamma}{e_2\gamma}\Downarrow_m v'$. It suffices to show
+\[
+  (m,i,v')\in\vrel{\tmonad{ (I_1\iota+ I_2\iota)}{\tau_2\iota}}
+\]
+From \textsc{E-Val}, we have
+$\bind{x}{e_1\gamma}{e_2\gamma} \Downarrow_m \bind{x}{e_1\gamma}{e_2\gamma}$, hence $v' = \bind{x}{e_1\gamma}{e_2\gamma}$. 
+Unfold the goal's value relation, assume $r\leq m$, $j\geq i$ and
+$
+  \bind{x}{e_1\gamma}{e_2\gamma}
+  \Downarrow^c_{r,j}v''
+$,
+It suffices to show
+\[
+  c\leq(I_1\iota +I_2 \iota)(j),
+  \quad
+  (r,j,v'')\in\vrel{\tau_2\iota}
+\]
+From \textsc{E-Bind}, we have some $c_1,c_2, v_1, v_1', v_2, v_2'$ such that
+\[
+  \bind{x}{e_1\gamma}{e_2\gamma} \Downarrow^{c_1+c_2}_{r,j}v_2', \quad 
+  e_1\gamma \Downarrow_r v_1,
+  \quad
+  v_1 \Downarrow^{c_1}_{r,j}v_1',
+  \quad
+  (e_2\gamma)[v_1'/x] \Downarrow_r v_2
+  \quad
+  v_2 \Downarrow^{c_2}_{r,j}v_2'
+\]
+Therefore, $v'' = v_2'$ and $c = c_1+c_2$, then we need to show 
+\[ c_1+c_2 \leq(I_1\iota +I_2 \iota)(j),
+  \quad
+  (r,j,v_2')\in\vrel{\tau_2\iota} \]
+Since $r \leq m$ and $j \ge i$,  apply IH1 and Lemma \ref{lem:worst-case-mono}, we have
+\[(r,j,e_1\gamma)\in\erel{\tmonad{ I_1}{\tau_1}\iota}\]
+Apply this term relation to $e_1\gamma \Downarrow_r v_1$, we have 
+\[(r, j, v_1) \in \vrel{\tmonad{ I_1}{\tau_1}\iota}\]
+Applying this value relation to $v_1 \Downarrow^{c_1}_{r,j}v_1'$ gives
+\[
+  c_1\leq (I_1\iota)(j),
+  \quad
+  (r,j,v_1')\in\vrel{\tau_1\iota}.
+\]
+Lemma \ref{lem:worst-case-mono} also gives
+$(r,j,\gamma)\in\erel{\Gamma\iota}$. From the definition of the substitution relation, we konw
+\[
+  (r,j,\gamma[x\mapsto v_1'])
+  \in\erel{(\Gamma,x:\tau_1)\iota}.
+\]
+Therefore, applying IH2 gives
+\[
+  (r,j,(e_2\gamma[x\mapsto v_1')])
+  \in\erel{\tmonad{I_2}{\tau_2}\iota}
+\]
+Since $e_2\gamma[x\mapsto v_1'] = e_2\gamma[v_1'/x]$, we have 
+\[
+  (r,j,e_2\gamma[v_1'/x])
+  \in\erel{\tmonad{I_2}{\tau_2}\iota}
+\]
+Unfold and apply this term relation to $(e_2\gamma)[v_1'/x] \Downarrow_r v_2$, we get one of the goal:
+\[(r, j, v_2) \in \vrel{\tmonad{I_2}{\tau_2\iota}}\]
+Applying this value relation to $v_2 \Downarrow^{c_2}_{r,j}v_2'$ gives
+\[
+  c_2\leq (I_2\iota)(j)
+  \quad
+  (r,j,v_2')\in\vrel{\tau_2\iota}.
+\]
+By Definition \ref{def:time-indices}, we know $(I_1\iota)(j)+ (I_2\iota)(j) =(I_1\iota +I_2 \iota)(j)$.
+Since $c_1 \leq (I_1\iota)(j)$ and $c_2\leq (I_2\iota)(j)$, we have the desired
+\[
+  c_1+c_2 \leq ((I_1+I_2)\iota)(j)
+\]
+
+\item Case
+\[
+  \inferrule*[right=T-Prepay]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\triangleright\tmonad{ I}{\tau}}}
+    {\hastype{\Theta;\Delta;\Gamma}{\pull e}
+      {\tmonad{\mathsf{S}( I)}{\triangleright\tau}}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\pull(e\gamma) \Downarrow_m v'$.  It suffices to show
+\[(m,i,v')\in\vrel{\tmonad{\mathsf{S}(I\iota)}{(\triangleright\tau\iota)}}\]
+From \textsc{E-Val}, we have $\pull(e\gamma) \Downarrow \pull(e\gamma)$, hence $v' = \pull(e\gamma)$.
+
+Unfold the goal, assume $r\leq m$, $j\geq i$, and
+$\pull(e\gamma)\Downarrow^c_{r,j}v''$.  It suffices to show
+\[
+  c \leq \mathsf{S}(I\iota)(j),
+  \quad
+  (r,j,v'')\in\vrel{\triangleright\tau\iota}
+\]
+From
+\textsc{E-Prepay}, we have $p+1,v_0$ and $v_0'$ such that
+\[
+  r = p+1, \quad
+  \pull (e\gamma) \Downarrow_{p+1,j}^{c} \delay v_0', \quad 
+  e\gamma\Downarrow_{p+1}\delay v_0,
+  \quad
+  v_0 \Downarrow^c_{p,j+1}v_0'
+\]
+Therefore, $v''=\delay v_0'$.
+Since $p+1 \leq m\leq n$ and $j\geq i$, applying IH and Lemma \ref{lem:worst-case-mono} gives
+\[(p+1,j,e\gamma) \in \erel{\triangleright(\tmonad{ I\iota}{\tau\iota})}.\]
+Unfolding and applying this term relation to $e\gamma\Downarrow_{p+1}\delay v_0$ gives
+\[
+  (p+1,j,\delay v_0)
+  \in\vrel{\triangleright(\tmonad{I\iota}{\tau\iota})}
+\]
+Unfold this relation, we have
+\[(p,j+1,v_0)\in\vrel{\tmonad{I\iota}{\tau\iota}}\]
+Apply this value relation to
+$v_0 \Downarrow^c_{p,j+1}v_0'$, we have
+\[
+  c\leq (I\iota)(j+1)=\mathsf{S}(I\iota)(j),
+  \quad
+  (p,j+1,v_0')\in\vrel{\tau\iota}.
+\]
+By the definition of $\vrel{\triangleright \tau\iota}$, 
+\[(p+1,j,\delay v_0')\in\vrel{\triangleright\tau\iota}.\]
+Since $r=p+1$ and $v''=\delay v_0'$, we have shown the desired.
+
+\item Case
+\[
+\inferrule*[right=T-Nil]
+    { }
+    {\hastype{\Theta;\Delta;\Gamma}{nil}{L^0\tau}}.
+\]
+Trivial.
+
+\item Case
+\[
+\inferrule*[right=T-Cons]
+    {\hastype{\Theta;\Delta;\Gamma}{e_1}{\tau}
+     \quad\hastype{\Theta;\Delta;\Gamma}{e_2}{L^s\tau}} 
+    {\hastype{\Theta;\Delta;\Gamma}{e_1::e_2}{L^{s+1}\tau}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$e_1\gamma::e_2\gamma \Downarrow_m v$. It suffices to show
+\[(m, i, v) \in \vrel{L^{s+1}\tau\;\iota}.\]
+From \textsc{E-Cons}, we have 
+\[
+v = v'::l, \quad 
+e_1\gamma\Downarrow_m v', \quad
+e_2\gamma\Downarrow_m l.
+\]
+Unfold and apply the value relation to this, it remains to show 
+\[(m, i, v') \in \vrel{\tau \iota}, \quad (m, i, l) \in \vrel{L^{s}\tau\;\iota}.\]
+Since $m \leq n$, applying IH1 to $e_1\gamma\Downarrow_m v'$ and IH2 
+to $e_2\gamma\Downarrow_m l$ gives the desired.
+
+\item Case
+\[
+\inferrule*[right=T-Match]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{L^s\tau}
+     \\ \hastype{\Theta;\Delta,s=0;\Gamma}{e_1}{\tau'}
+     \\ \hastype{\Theta;\Delta,s\geq1;\Gamma,h:\tau,t:L^{s-1}\tau}{e_2}{\tau'}}
+    {\hastype{\Theta;\Delta;\Gamma}{\lmatch{e}{e_1}{h}{t}{e_2}}{\tau'}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$(\lmatch{e\gamma}{e_1\gamma}{h}{t}{e_2\gamma})\Downarrow_m v$. It suffices to show
+\[(m, i,v) \in \vrel{\tau'\iota}.\]
+From \textsc{E-MatchNil} and \textsc{E-MatchCons}, we know there is some 
+$v'$ such that $e\gamma \Downarrow_m v'.$ 
+We proceed by cases on $v'$.
+
+\begin{itemize}
+\item {Subcase $v'= nil$.}
+From \textsc{E-MatchNil}, we have $e_1\gamma \Downarrow_m v$.
+Since $m\leq n$, applying IH2 to this gives the desired.
+
+\item {Subcase $v'= v_f::l$.}
+From \textsc{E-MatchCons}, we have $e_2\gamma[v_f/h][l/t]\Downarrow_m v$.
+Let $\gamma' = \gamma[h\mapsto v_f][t\mapsto l]$, then we get $e_2\gamma'\Downarrow_m v$.
+Applying IH1 to $e\gamma \Downarrow_m v'$ gives
+\[(m, i,v_f::l) \in \vrel{L^{s\iota}\tau\;\iota}.\]
+Unfold this value relation, we have 
+\[(m,i,v_f) \in \vrel{\tau \iota},\quad (m,i,v_f) \in \vrel{L^{s\iota-1}\tau\;\iota}.\]
+Therefore, we know $(m, i,\gamma') \in \erel{(\Gamma, h:\tau,t:L^{s-1})\iota}$ from the definition of the substitution relation.
+Now applying IH3's term relation to $e_2\gamma'\Downarrow_m v$ gives the desired.
+
+
+\end{itemize}
+
+\item Case
+\[
+\inferrule*[right=T-Iabs]
+    {\hastype{\Theta,\kappa:S;\Delta;\Gamma}{e}{\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}{\Lambda.e}{\forall\kappa:S.\tau}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and $\Lambda.e\gamma \Downarrow_m v$, 
+it suffices to show
+\[(m,i,v) \in \vrel{\forall \kappa.\tau\iota}.\]
+From \textsc{E-Val}, we know $v = \Lambda.e\gamma$, it suffices to prove 
+\[(m, i, \Lambda.e\gamma) \in \vrel{\forall \kappa.\tau\iota}.\]
+Unfold the value relation, given some $I$, we need to prove 
+\[(m, i, e\gamma) \in \erel{\tau\iota[I/\kappa]}.\]
+Let $\iota' = \iota[\kappa\mapsto I]$, by IH, we have 
+\[(m, i, e\gamma) \in \erel{\tau\iota'}.\]
+Since $\tau(\iota[\kappa\mapsto I])$ = $(\tau\iota)[I\kappa]$, we have the desired.
+
+\item Case
+\[
+\inferrule*[right=T-Iapp]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\forall\kappa:S.\tau}
+     \quad\Theta;\Delta\vdash I:S}
+    {\hastype{\Theta;\Delta;\Gamma}{e\,[\,]}{\tau[I/\kappa]}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and $e\gamma\,[\,]\Downarrow_m v$, 
+it suffices to show
+\[(m,i,v) \in \vrel{\tau\iota[I\iota/\kappa]}.\]
+From \textsc{E-Iapp}, we have 
+\[e\gamma \Downarrow_m \Lambda.e', \quad e'\Downarrow_m v.\]
+Apply IH to $e\gamma \Downarrow_m \Lambda.e'$ gives 
+\[(m,i,\Lambda.e') \in \vrel{\forall\kappa.\tau\iota}.\]
+Unfold and apply this value relation to $I\iota$, we have 
+\[(m,i,e') \in \erel{\tau[I\iota/\kappa]\iota}.\]
+Applying this relation to $e'\Downarrow_m v$ gives the desired.
+
+\item Case
+\[
+  \inferrule*[right=T-Sub]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau} \quad \Theta;\Delta\vdash\tau<:\tau'}
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau'}}.
+\]
+It suffices to show 
+\[(n,i,e\gamma)\in\erel{\tau'\iota}\]
+From the IH, we have 
+\[(n,i,e\gamma)\in\erel{\tau\iota}.\] 
+Applying Lemma \ref{lem:worst-semantic-subtyping} to this, we get the desired.
+
+\item Case
+\[
+\inferrule*[right=T-Weaken]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau}
+     \quad\Theta;\Delta\vdash\Gamma'<:\Gamma}
+    {\hastype{\Theta;\Delta;\Gamma'}{e}{\tau}}.
+\]
+Given $(n, i, \gamma) \in \erel{\Gamma'\iota}$, it suffices to prove
+\[(n, i, e\gamma) \in \erel{\tau}\] 
+Since $\Theta;\Delta\vdash\Gamma'<:\Gamma$, applying Lemma \ref{lem:worst-case-ctx-subtyping} to $(n, i, \gamma) \in \erel{\Gamma'\iota}$, we have 
+\[(n, i, \gamma) \in \erel{\Gamma\iota}\]
+Therefore, we can apply the IH with $\gamma$, and it gives the desired.
+\nopagebreak[4]
+\qedhere
+\end{itemize}
 \end{proof}

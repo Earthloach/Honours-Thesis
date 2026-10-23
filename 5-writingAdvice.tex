@@ -23,7 +23,7 @@ In particular, the model gives interpretations to the types and can be used to p
 
 We begin by presenting the model in Section \ref{sec:worst-case-model}, 
 followed by auxiliary lemmas derived from it in Section \ref{sec:axu-lemma}.\ 
-Finally,\ Section X.3 proves the fundamental theorem of the underlying logical relation, from which the soundness theorem follows.
+Finally,\ Section X.3 proves the fundamental property of the underlying logical relation, from which the soundness theorem follows.
 
 
 \section{Model}
@@ -33,6 +33,7 @@ Figure \ref{fig:worst-case-logical-relation} gives the formalisation of our mode
 mutually recursive relations indexed by well-formed types:\ the value relation $\vrel{}$ and the term/expression relation $\erel{}$.
 Essentially, such relations are a family of sets of the triple $(n, i, e)$, where $e$ is a usual term in our calculus,
 the index $i$ serves as the Kripke world that represents the logical time, and $n$ is the evaluation ``depth’’ mentioned in the last chapter.
+
 Specifically, our logical relation is close to that of $\lambda$-amor, where we drop its potential Kripke world $p$ used for amortised analysis and add another world $i$.
 Furthermore, $\lambda$-amor uses a step index as the fuel for beta reduction, which is different from our depth $n$. 
 On the other hand, \cite{cloustonGuardedLambdaCalculusProgramming2017a} 
@@ -121,36 +122,35 @@ After this, we can prove the desired property:
 
 \begin{lem}[Well-foundedness of recursive types]
 \label{lem:rec-well-founded}
-$\\$ For any recursive type $\mu\alpha.\tau$, $|\tau[\mu\alpha.\tau/\alpha]| < |\mu\alpha.\tau|$.
+$\\$ Given any recursive type $\mu\alpha.\tau$, $|\tau[\mu\alpha.\tau/\alpha]| < |\mu\alpha.\tau|$.
 \end{lem}
 \begin{proof}
-  Since $\alpha$ is guarded in $\mu\alpha.\tau$, we know $|\tau[\mu\alpha.\tau/\alpha]| \leq |\tau|$ from Lemma \ref{lem:worst-case-ty-size}.
+  Since $\alpha$ is guarded in $\mu\alpha.\tau$, we know $|\tau[\mu\alpha.\tau/\alpha]| \leq |\tau|$ from Lemma \ref{lem:worst-case-ty-size}.\
   By Definition \ref{def:worst-case-ty-size}, we have $|\tau| < (|\mu\alpha.\tau| = 1+|\tau|)$. Thus by transitivity of $<$, we get 
   $|\tau[\mu\alpha.\tau/\alpha]| < |\mu\alpha.\tau|$.
 \end{proof}
 
-\subsection{Value Relations}
-We now explain the definitions of the value relations in our model.
-The value relations define properties that need to hold for the triple $(n, i, v)$. Similar to the evaluation judgment, we write $v$ 
+\subsection{Value Relation}
+We now explain the value relations in our model, which define properties that hold for the triple $(n, i, v)$. Similar to the evaluation judgment, we write $v$ 
 as a value that depends on $n$ based on the value judgment.
 
-The value relation of the $\textbf{1}$ (unit) type has only one inhabitant $\langle\rangle$, together with any $n$ and $i$.
-Likewise, for the $\textbf{b}$ (base) type, the relation just includes the value $b$ that belongs to the set of base-typed values, denoted as $\llbracket \textbf{b} \rrbracket$.
+The value relation of the unit type $\textbf{1}$ has only one inhabitant $\langle\rangle$, together with any $n$ and $i$.
+For the base type $\textbf{b}$, the relation just includes the value $b$ that belongs to the set of base-typed values, denoted $\llbracket \textbf{b} \rrbracket$.
 The value relations for $\tau_1 \times \tau_2$ and $\tau_1 + \tau_2$ are standard, where both components of the product type need to satisfy the relation,
 and only one relation of the components needs to hold for the sum type.
 
-The relation of the list type is defined by a nested induction on its size $s$ since $s$ is a natural number constant.
-If the size is 0, the relation just contains the $nil$ value. For size $s+1$, the list is in the form of $v::l$,
+The value relation of the list type is defined by a nested induction on its size $s$ since $s$ is a natural number constant.
+If the size is 0, the relation contains the $nil$ value. For size $s+1$, the list is in the form of $v::l$,
 where both the head $v$ and the tail $l$ should satisfy their corresponding relations.
 
-The relation of the $\tau_1 \to \tau_2$ (arrow) type holds for the lambda abstraction $\lambda.e$
+The relation of the arrow type $\tau_1 \to \tau_2$ holds for the lambda abstraction $\lambda.e$
 if it receives an argument $v'$ that satisfies the value relation of $\tau_1$, and the result of their function application $e[v/x]$ 
-belongs the term relation of $\tau$. Moreover, the relations of $v'$ and $e[v/x]$ can hold at any possibly smaller depth $m$ and any later time $j$.
-The value relation of the $\forall\kappa.\tau$ is similar, while the function application happens on the type: the $e$ inside 
-the index abstraction $\forall e$ needs to satisfy the term relation of the type $\tau[I/\kappa]$ instantiated by any well-formed index $I$.
+belongs to the term relation of $\tau$. Moreover, the relations of $v'$ and $e[v/x]$ can hold at any possibly smaller depth $m$ and any later time $j$.
+The value relation of the polymorphic type $\forall\kappa.\tau$ is similar, while the function application happens on the type: the $e$ inside 
+the index abstraction $\Lambda e$ needs to satisfy the term relation of the type $\tau[I/\kappa]$, which is instantiated by any well-formed index $I$.
 
-Next comes the later type $\triangleright \tau$, which is defined inductively by $n$.\ If the depth $n$ reaches 0, then 
-the relation holds trivially for $\delay e$. If there is further $n$ left, the term inside the $\delay$ should belong to value relation of $\tau$. Notably, the value relation corresponds directly to the inductive value judgment of $\delay e$.
+Next is the later type $\triangleright \tau$, defined inductively by $n$.\ If $n$ reaches 0, then 
+the relation holds trivially for $\delay e$. Otherwise, the term $e$ inside should belong to the value relation of $\tau$ at one step later, from $n+1$ to $n$ and $i$ to $i+1$. Notably, the value relation corresponds directly to the inductive value judgment of $\delay e$.
 
 The value relation for graded monads is of particular importance.\ If a monadic value $v$ of $\tmonad{I}{\tau}$ can be further forced 
 to a pure result $v'$ with time-interpreted cost $c$, then $c$ should be bounded by the time interpretation of $I$, and the value relation should hold
@@ -161,162 +161,374 @@ In addition, the relation is well-founded by Lemma \ref{lem:rec-well-founded}.
 
 \subsection{Term Relation}
 The term relations have two forms.\ The $\erel{\tau}$ relation extends the value relation to terms by characterising their evaluation results. 
-Particularly, if a term $e$ evaluates to a value $v$ at any possibly smaller depth $m$, then then $v$ should satisfy the value relation $\vrel{\tau}$.
+Particularly, if a term $e$ evaluates to a value $v$ at any possibly smaller depth $m$, then $v$ should satisfy the value relation $\vrel{\tau}$.
 
-The substitution relation $\erel{\Gamma}$ characterises substitutions that satisfy the typing context $\Gamma$.\
-Specifically, a substitution $\gamma$ maps term variables $x$ contained in $\Gamma$ to their corresponding values.
-The relation holds for $\gamma$ if each substituted value $\gamma(x)$ satisfies the value relation of their corresponding type $\Gamma(x)$.
+The term substitution relation $\erel{\Gamma}$ characterises substitutions that satisfy the typing context $\Gamma$.
+Specifically, a substitution $\gamma$\footnote{We assume that \(\gamma\) is a standard capture-avoiding substitution.}
+maps a set of term variables $x$ contained in $\Gamma$ to their corresponding values.
+The relation holds for $\gamma$ if each substituted value $\gamma(x)$ belongs to the value relation of its corresponding type $\Gamma(x)$.
 
 \section{Auxiliary Lemmas}
 \label{sec:axu-lemma}
+In this section, we establish several lemmas related to the model of $\lambda^g_{\mathsf{worst}}$, which will be used in the proof of the fundamental property.
 
-This chapter provides general beginner's advice on writing a scientific report. It should be read once in advance before starting your work and then occasionally be used during writing as a checklist.
+First, we show that the logical relations are monotone with respect to the step index and the Kripke world.
+In particular, decreasing the depth $n$ or advancing the time $i$ preserves the value and term relations.
 
-\section{High-level Advice on Approaching Your Thesis}\label{chap:content}
-
+\begin{lem}[Monotonicity of logical relations]
+\label{lem:worst-case-mono}
+$\\$ If $m\leq n$, $j\geq i$ and $(n,i,v) \in \vrel{\tau}$, then 
 \begin{itemize}
- \item \textbf{Start early.} 
- Writing a report is hard and takes time. More than you think. \emph{Hofstadter's Law:} ``It always takes longer than you expect, even when you take into account Hofstadter's Law.'' -- \emph{So start early!} This refers especially to the writing part.
- \item \textbf{Read and check your work!} Each \LaTeX{} editor has a spellchecker. Use it!! Read your work \emph{carefully} and \emph{multiple times} before showing it to your supervisor. And \emph{please} read the next sections before doing so! I \emph{guarantee} that it explains errors that you do! Prevent them! Use the next section as checklist!
- \item \textbf{Read the section on marking.} This section gives some insights on expectations, so read it early. 
- \item \textbf{Involve your supervisor!} Don't be afraid to reach out to your supervisor(s)! It's quite literally his/her/their job to supervise you and help you succeed! :) So make sure you get what you need to be successful, don't hold back. But make it easy for them. Most academics are overworked...
+  \item $(n,i,v) \in \vrel{\tau} \implies (m,j,v) \in \vrel{\tau}$
+  \item $(n,i,e) \in \erel{\tau} \implies (m,j,e) \in \erel{\tau}$ 
+  \item $(n,i,\gamma) \in \erel{\tau} \implies (m,j,\gamma) \in \erel{\tau}$ 
 \end{itemize}
-
-
-
-\section{Capitalization Rules}\label{sec:capitalization}
-
-In scientific works there are some rules on what and how to capitalize.
-
-\begin{itemize}
-  \item \textbf{Chapter, Section, and Subsection titles.} They all must be capitalized according to specific rules. Basically everything is written capitalized except for some specific words (like in, on, the, $\dots$). Just search for these capitalization rules. You can even find ``online title capitalization tools'', which make it easy for you \emph{and} establish consistency easily.
-  \item \textbf{Figure, Table, Listing, Equation, Chapter (etc.)\ references.} Whenever you cite something that has a number, you will have to write it capitalized. This very sentence, which cites Table~\ref{tab:meatPrices} for looking great as it uses the \textsc{booktabs} package, is an example of correct usage of capitalization. Note that we only capitalize if we cite something specific. So for example, in this very sentence, which is part of the current section, ``section'' is \emph{not} capitalized although we would have to if we had written that this sentence is part of Section~\ref{sec:capitalization} -- because then we actually reference something.
-\end{itemize}
-
-
-% Curious what the optional argument means here? 
-% That's how the section name appears in your TOC (table of contents)
-% In the actual section we want the linebreak to appear (it looks better!),
-% but in the TOC it would look strange and ugly, so we don't provide it there!
-\section[General Notes on Increasing Appearance -- Don't be Careless!]{General Notes on Increasing Appearance{\ifLongThesisStyle\newline\fi} -- Don't be Careless!}
-
-Don't forget that your work isn't parsed by a robot, but read by a human being. So make it pleasant for them, i.e., optically pleasing. Some rules to follow:
-
-\begin{itemize}
-  \item \emph{Page and Line Breaks:} 
-  \begin{itemize}
-    \item If some headline ends up at the end of a page, that might look ugly. Consider adding \verb!\pagebreak! right before it to force placing it on the next page. That will likely look much nicer. 
-    \item Sometimes you might also want to enforce a linebreak, for example within section titles or even the thesis title. Just decide what looks best! For example, this section title got a line break as I believe it looks nicer like this. In \LaTeX{}, the following three commands might be useful in this context:
-    \begin{itemize}
-      \item \verb!\\! is a linebreak that will not stretch the current line. Usually, you never use this command, maybe with the exception of the thesis title. (Or done for this section title as illustration.)
-      \item \verb!\linebreak! also breaks the line, but it will stretch the entire line to the end so that the text remains in block mode.
-      \item \verb!\mbox{...}! might be useful, which prevents a linebreak of the word(s) specified as argument.
-    \end{itemize}
-  \end{itemize}
-  \item \emph{Big Gaps in the Document:} Make sure that there are no huge gaps in the middle of your report/text, e.g.:
-  \begin{itemize}
-    \item For example, make sure that a chapter doesn't end with a single line on a new page, that's just ugly and thus careless. The same applies for the table of contents: If it happens to have so many entries (sections/subsections etc.) that it jumps to a next page just because of one or two lines/entries, then just search (e.g., using stackoverflow) how to reduce the space between the lines so that it fits. Show some effort.
-    \item Also make sure that when including figures or tables that there is no huge gap before them, that may happen depending on their size.
-  \end{itemize}
-  \item \emph{Respect Boundaries!} As children, most of us had those coloring books with pictures that we had to color in without going over the lines. The same basically remains true for scientific works; yet most make it wrong. This is actually strictly forbidden in the context of publishing a paper.
-  \begin{itemize}
-    \item When including graphics and in particular tables, make sure that they do not reach into the border. 
-    \item This also (very) often happens in text, and mostly for formulae. That is ugly and careless, so rephrase to prevent that.
-  \end{itemize}
-  To find those errors easily, you can add ``draft'' as optional package argument to the documentclass (first line in the mainfile). Then, every~\hbox{verylongwordthatdoesnotbreak} (which all produce an ``overfull box'') will be shown with a black box next to it. \textbf{\emph{Try it now!}} (You will find such a box here!)
-  \item \emph{Number of subsections and their introductions:}
-  \begin{itemize}
-    \item Always have at least one line of ``glue text'' between the chapter title and the first section, i.e., anything that briefly introduces what comes next.
-    \item Never use exactly one section. If you use sections, there should be at least two -- because otherwise it's just pointless; you could (if you had just one section) just eliminate it as otherwise the chapter title should then already reflect the content.
-  \end{itemize}
-\end{itemize}
-
-Do all of this only \emph{briefly before you hand in}, as all that depends on your final layout. Adding, changing, and removing text will of course change the appearance, so do all this in a very final step. \textbf{I advise that the entire Chapters~\ref{chap:abstractAdvice} and \ref{chap:LaTeXAdvice} are used as a checklist}, but this subsection in particular should be implemented when everything is final.
-    
-
-    
-\section{Bibliography / References}
-
-There are various points that you should consider when you add a publication into your bibtex file. The first basic rule is: \textbf{\emph{never blindly copy some bibtex entry from the internet}} -- most of them are of very poor quality (or contain lots of information that's usually not included). Instead, double-check each entry by hand via trustworthy sources, such as DBLP (\url{https://dblp.org/}), the publisher's webpage, or the websites by the authors. For each entry, consider the following:
- 
-\begin{itemize}
-  \item \emph{Correctness:} Is all the data you put in correct? E.g.,
-  \begin{itemize}
-    \item is the type correct? For example, papers published in conferences should be ``inproceedings'', papers published in journals are ``article''. These are often wrong when using non-trustworthy internet sources.
-    \item is all information correct? For example, page numbers are often incorrect, the venue of publication might have some issue (e.g., it might say it's published at a specific conference, but in reality it was only accepted at one of its \emph{workshops}, which is not the same).
-    \item is everything capitalized correctly? Note that capitalization is automatically done by the used style, and often everything is written in lower-case letters. However several words have to be written according to specific capitalization rules. This is in particular true for abbreviations (e.g., ``IPC'' stands for the International Planning Competition). Just writing ``IPC'' in the bibtex will most likely however produce ``ipc'', or maybe even ``Ipc'', though both is wrong -- it \emph{has} to be ``IPC''. You can enforce this by putting curly parenthesis around the respective word. E.g., if your paper title contains ``IPC'', you would instead put ``\{IPC\}'' into the bibtex entry. Make sure to do this for all words that should be capitalized in a certain way.
-  \end{itemize}
-
-   
-  \item \emph{Completeness:} Make sure that each entry contains all fields that are required (like authors, title, booktitle etc.) but also those that are ``usually specified''. The latter is hard for a beginner, so this is the recommendation: Also provide page numbers, publisher, year. Also don't overdo ``completeness''. In particular when downloading bibtex entries from DBLP, you will often see lots of irrelevant information (like the conference venue or exact date), which one usually does not include in bibtex entries.
-  \item \emph{Consistency:} Make sure that the various entries are consistent to each other. For example, conference papers usually use acronyms. Make sure to either always add the respective acronym (preferred) or never. If you add it, add it always in the same way. E.g., don't add ``..., IJCAI-12'', ``... (IJCAI-12)'', ``... (IJCAI '13)'', ``... (IJCAI 2015)'' -- use always the same systematicity. Likewise with the conference titles. For example, do not write ``Proceedings'' for one but ``Proc.'' for another. Stay consistent.
-\end{itemize}
-    
-    
-
-
-\section{How to Cite Papers}
-
-In most cases, you place a citation right behind the respective proposition that you want to back up. Let's assume that the next citation backs up the sentence that you currently read \citep{Smith2021Wubalubadubdub}, it was thus plausible to put it exactly there -- and not at another position of this sentence.
-
-However, if for some reason you need or wish to use the \emph{paper explicitly} within your sentence, then refer to its \emph{authors} (not the paper). For example, I can claim that the work by \cite{Smith2021Wubalubadubdub} will be quite funny once it will have been done! This is just nicer than claiming that the work ``described in \citep{Smith2021Wubalubadubdub}'' will be influential. The reason is again consistency, because normally citations like the very first one (where everything is contained by parentheses, not just the year) are not objects of the sentence. So using them sometimes as objects and sometimes not would be inconsistent.
- 
-Here are a few examples:
-\begin{itemize}
-  \item This is a statement \citep{Smith2021Wubalubadubdub}, followed by another that is not backed up. \textbf{Correct}: statements are backed up by citations after the respective statement.
-  \item \cite{Smith2021Wubalubadubdub} state X. \textbf{Correct}: A group of people can state something.
-  \item \cite{Smith2021Wubalubadubdub} states X. \textbf{Wrong}: This is a group of people, so we need plural.
-  \item In \cite{Smith2021Wubalubadubdub}, X was proved. \textbf{Wrong}: This is a group of people, not a paper. Nothing was proved in this group of people. It was proved in a paper! So, you would rephrase as below.
-  \item X was proved in \cite{Smith2021Wubalubadubdub}. \textbf{Wrong}: Same as above.
-  \item X was proved in \citep{Smith2021Wubalubadubdub}. \textbf{Wrong}: This kind of citation is used at the end of a statement, and it does \emph{not} form an object one can explicitly refer to.
-  \item X was proved by \citep{Smith2021Wubalubadubdub}. \textbf{Wrong}: As explained before.
-  \item X was proved by \cite{Smith2021Wubalubadubdub}. \textbf{Correct}: X was proved by that group of people.
-\end{itemize}
-
-\LaTeX{} provides different commands for these different kinds of citations. In this template, those are \verb!\citep{}! and \verb!\cite{}!, but they may be different when using other authorkits. The command \verb!\citeauthor{}! is also sometimes useful. This just lists the author(s), but without the year. I.e., it's an alternative to \verb!\cite{}! that you should use when you want to mention the authors whereas you used similar citations before so that there is just no need to add the year again. (Make sure to never write out author names by hand! Always use a \LaTeX{} command to get them.) Finally, note that you can easily cite multiple works with one command as shown in (the code of) this sentence \citep{Cooper2015SuperfluidVacuumTheory,Smith2021Wubalubadubdub}.
-  
-    
-  
-\section{How to Provide Definitions and Theorems} 
-
-In theses or project reports in computer science or engineering you are bound to have definitions. It is at your discretion whether you provide some definition purely ``in-text'' or whether you make aware of it more prominently by using a definition environment. It's sometimes hard to judge what should go into the former and what should go into the latter, in particular for beginners. In my experience, beginners put too much into formal definitions, because they think everything is important. :) If in doubt, reach out to your supervisor early, he/she will know! My personal stance on that is that you should only use a formal definition environment if at least one of the following criteria is satisfied: The definition will be referenced/mentioned later on again (rather than just ``using'' it), or the defined concept is simply very ``important'' or ``central'' (again, it might be hard for you to judge what that means, so reach out to your supervisor if in doubt).
-  
-For a sake of providing an example for how it looks in this (PDF) document, but also so that you can see how to use the \LaTeX{} commands, I borrow from some simple concepts of AI planning.
-  
-\begin{quote}In planning, we talk about \emph{states}. States are subsets of \emph{propositions} or \emph{facts} taken from a finite set of available facts $F$ that can be used to describe our system/world. Thus, states $s\subseteq F$ are those facts which are true in the respective current world state $s$. $\dots$ The finite set of actions $A$ is given by $\dots$ A given sequence of actions $\bar{a}=a_1\dots a_n$ applied to a state $s\in 2^F$ leads to a state $s'\in 2^F$ if and only if $\dots$\end{quote}
-  
-Note that all concepts described here are of course quite foundational, but none of them seems to be ``evolved enough'' to warrant putting them into a formal definition environment. It is much more natural to simply introduce these (formal!) definitions within plain text. Some of these components introduced above together form the components of a \emph{planning problem}, which is essentially the main concept in AI planning. It thus deserves its own \emph{formal} definition, which will appear as follows:
-  
-\begin{defn}[Planning Problem]\label{def:planningProblem}A \emph{planning problem} is a 4-tuple $\langle F, A, s_0, G\rangle$ consisting of:
-    \begin{compactitem}
-      \item $F$, a finite set of \emph{facts},
-      \item $A\subseteq 2^F\times 2^F\times 2^F$, a finite set of \emph{actions},
-      \item $s_0\in 2^F$, the \emph{initial state},
-      \item $G\subseteq F$, the \emph{goal description}.
-    \end{compactitem}
-    Some text that's still part of the definition, which defines, but does \emph{not} explain.
-\end{defn}
-
-  
-You may see that sometimes it's hard to recognize where a definition ends and where the normal thesis/report text continues. For this reason I added a black box at the end of all definitions. If you don't like it, use the ``definition'' environment rather than this ``defn'' environment. Also note that your definition gets numbered! This for example is Def.~\ref{def:planningProblem}. You can configure how definition numbers are shown, e.g., whether they are simply consecutive (as it's right now) or whether these numbers are prepended by the chapter/section number to make finding them easier. Just use the \textsc{amsthm}'s package manual, stackoverflow, and of course some LLM to find out how!
-  
-Finally, but \emph{really} important for any beginner: Note that formal definitions can \emph{never} contain explanations. They only contain plain boring definitions themselves (as above). Explanations thereof must come after the respective definition, but they can't be part of it!
-  
-Depending on your work you might also need theorems such as the following one:
-\begin{thm}\label{thm:hardnessOfPlanningProblems}%
-  Let \emph{PLANEX} $:= \{\mathcal{P} \mid \mathcal{P}=\langle F, A, s_0, G\rangle$ is a planning problem and has a solution$\}$. Deciding \emph{PLANEX} is \textbf{PSPACE-complete}.
-\end{thm}
-  
-Note that you might not only need theorems, but also Propositions, Lemmata, and Corollaries. You find their definitions (i.e., environment names) as well as a very short explanation on when to use which in the macros.tex file.
-  
-Finally, every theorem (etc.) needs a proof!
-  
-\begin{proof}%
-  \emph{Membership:} We show how we can $\dots$\\
-  \emph{Hardness:} For hardness we reduce from $\dots$
+\end{lem}
+\begin{proof}
+  See Lemma \ref{appa:worst-case-val-mono}, \ref{appa:worst-case-term-mono} and \ref{appa:worst-case-context-mono}.
 \end{proof}
-  
-There is a box again! This wasn't added by me but it's already standard behavior by the respective package. A white empty box at the end of proofs is a general convention to have to indicate the respective proof's end. (You can google its origin if interested!) In older papers or maths scripts you might also find ``q.e.d.'' instead, Latin for ``quod erat demonstrandum'' (Eng.: ``what was to be shown'').
 
+These monotonicity properties allow us to reason about terms at a smaller depth and a later time, which 
+are quite useful for proving the fundamental property.
+
+
+Next, we demonstrate that the syntactic subtyping relations of $\lambda^g_{\mathsf{worst}}$ are sound with respect to the logical relations. 
+To handle recursive types, we first establish two auxiliary properties concerning type substitution and type variable occurrences:
+
+\begin{lem}[Type substitution preserves subtyping]
+\label{lem:substitute-subtyping}
+$\\$ If $\Theta;\Delta\vdash\tau<:\tau'$, then
+$\Theta;\Delta\vdash\tau[\tau_0/\alpha]<:\tau'[\tau_0/\alpha]$. 
+\end{lem}
+\begin{proof}
+  See Lemma \ref{appa:substitute-subtyping}.
+\end{proof}
+
+\begin{lem}[Subtyping variance of Substitution]
+\label{lem:subtyping-polarity}
+$\\$ If
+$\Theta;\Delta\vdash\tau_0<:\tau_1$, then
+\begin{align*}
+  &\alpha\text{ positive in }\sigma
+    \implies\Theta;\Delta\vdash
+      \sigma[\tau_0/\alpha]<:\sigma[\tau_1/\alpha],\\
+  &\alpha\text{ negative in }\sigma
+    \implies\Theta;\Delta\vdash
+      \sigma[\tau_1/\alpha]<:\sigma[\tau_0/\alpha].
+\end{align*}
+\end{lem}
+\begin{proof}
+  See Lemma \ref{appa:subtyping-polarity}.
+\end{proof}
+
+Lemma \ref{lem:substitute-subtyping} is relatively simple, it specifies that substituting the same type should be compatible to the subtyping relation.
+Lemma \ref{lem:subtyping-polarity} is more interesting, substituing a subtyping relation to the same type does not preserve the original relation.
+Particularly, the relation will be reversed if the variable being substituted occurs negatively in the type.
+
+Since both typing judgments and subtyping judgments may contain free index variables, and rely on index constraints
+we need to consider index substitutions.\ Let $\iota$ denote a capture-avoiding index substitution, mapping index variables to well-formed indices. 
+We write $\tau\iota$, $\Delta\iota$ and $\Gamma\iota$ for the corresponding substitutions into types, constraints and typing contexts.
+Additionally, the substitution should respect all the constraints, written $\cdot\models\Delta\iota$.
+
+Now we can demonstrate the subtyping property of our logical relations:
+\begin{lem}[Subtyping of Logical Relation]
+\label{lem:worst-semantic-subtyping}
+$\\$ If $\Theta;\Delta\vdash\tau<:\tau'$ and $\cdot\models\Delta\iota$, 
+  then 
+  \begin{itemize}
+    \item $(n,i,v) \in \vrel{\tau\iota} \implies (n,i,v) \in \vrel{\tau'\iota}$.
+    \item $(n,i,e) \in \erel{\tau\iota} \implies (n,i,e) \in \erel{\tau'\iota}$.
+  \end{itemize}
+\end{lem}
+\begin{proof}
+Induction on the lexicographic order $(|\tau|+|\tau'|,h)$, where $h$ is the height of the subtyping derivation.
+Full proofs can be found in Lemma \ref{appa:val-subtyping} and Lemma \ref{appa:exp-subtyping}.
+Here we present the \textsc{Sub-Rec} case for value relations. 
+\begin{itemize}
+\item Case
+\[
+  \inferrule*[right=Sub-Rec]
+    {\Theta;\Delta\vdash \tau <: \tau'
+     \quad \alpha\text{ positive in }\tau,\tau'}
+    {\Theta;\Delta\vdash \mu\alpha.\tau <: \mu\alpha.\tau'}
+\]
+Given $(n,i,\fold v) \in \vrel{\mu\alpha.\tau\iota}$, it suffices to prove 
+\[(n,i,\fold v) \in \vrel{\mu\alpha.\tau'\iota}.\]
+Unfold the goal, it remains to prove 
+\[(n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]}.\]
+Instantiate Lemma \ref{lem:substitute-subtyping} with $\Theta;\Delta\vdash\tau\iota <: \tau'\iota$ and $\mu\alpha.\tau$, we have
+\[
+  \Theta;\Delta\vdash\tau\iota[\mu\alpha.\tau\iota/\alpha]<:\tau\iota[\mu\alpha.\tau\iota/\alpha].
+\]
+Since $\iota$ only substitutes indices, we know all occurrences of $\alpha$ are positive in $\tau'\iota$. 
+Therefore, applying Lemma \ref{lem:subtyping-polarity} to 
+$\Theta;\Delta\vdash \mu\alpha.\tau\iota <:\mu\alpha.\tau'\iota$ and $\tau'\iota$ gives
+\[
+  \Theta;\Delta\vdash\tau'\iota[\mu\alpha.\tau'\iota\/\alpha]<:\tau'\iota[\mu\alpha.\tau'\iota/\alpha]
+\]
+By \textsc{Sub-Trans}, we obtain
+\[
+  \Theta;\Delta\vdash
+  \tau\iota[\mu\alpha.\tau\iota/\alpha]
+  <: \tau'\iota[\mu\alpha.\tau'\iota/\alpha] \quad (\text{S0})
+\]
+By Lemma \ref{lem:worst-case-ty-size}, we have
+\[
+  |\tau\iota[\mu\alpha.\tau\iota/\alpha]|
+    <|\mu\alpha.\tau\iota|, \quad
+  |\tau'\iota[\mu\alpha.\tau'\iota/\alpha]|<|\mu\alpha.\tau'\iota|
+\]
+Thus, instantiate the IH of $|\tau + \tau'|$ with (S0) and $(n,i,v)$, we obtain 
+\[(n,i,v) \in \vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]} \implies (n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]} \] 
+Unfold the given $(n,i,\fold v) \in \vrel{\mu\alpha.\tau\iota}$, we get $(n,i,v) \in \vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]}$, hence we know 
+$(n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]}$.
+\qedhere
+\end{itemize}
+\end{proof}
+In particular, the Sub-Rec case of the proof demonstrates the role of the positivity restriction on recursive types, 
+which ensures that the required subtyping relation is preserved under unfolding.
+
+Similarly, subtyping for term context also holds semantically:
+
+\begin{lem}[$\Gamma$ Subtyping of Logical Relation]
+\label{lem:worst-case-ctx-subtyping}
+$\\$ If $\Theta;\Delta\vdash\Gamma<:\Gamma'$ and $\cdot\models\Delta\iota$, 
+then $\erel{\Gamma\iota}\subseteq\erel{\Gamma'\iota}$. 
+\end{lem}
+\begin{proof}
+  See Lemma \ref{appa:worst-case-ctx-subtyping}.
+\end{proof}
+
+Overall, Lemma \ref{lem:worst-semantic-subtyping} and Lemma \ref{lem:worst-case-ctx-subtyping} gives the compatibility of syntactic subtyping with the logical relations.
+They will be utilised to prove cases related to subtyping for the Fundamental Theorem.
+
+\section{Fundamental Property}
+The central theorem to establish soundness is the fundamental property of logical relations.
+It states that a well-typed term belongs to the logical relation of its type, which 
+connects the syntactic type system to its semantic interpretation.
+
+\begin{thm}[Fundamental Property]
+$\\$ If $\hastype{\Theta;\Delta;\Gamma}{e}{\tau}$, $\cdot\models\Delta\iota$, and $(n,i,\gamma) \in \erel{\Gamma\iota}$, 
+then $(n,i,e\gamma)\in\erel{\tau\iota}$. 
+\label{thm:worst-case-fund}
+\end{thm}
+\begin{proof}
+  Induction on the typing derivation, pushing the term substitution $\gamma$ and the index substitution $\iota$ inside for each case.
+  Here we present several important cases, full proof can be found in Lemma \ref{appa:fundamental}.
+\begin{itemize}
+\item Case
+\[
+  \inferrule*[right=T-Next]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}{\delay e}{\triangleright\tau}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\delay(e\gamma)\Downarrow_m v'$.  It suffices to show
+\[(m,i,v')\in\vrel{\triangleright(\tau\iota)}.\] 
+We proceed by cases on $m$.
+
+  \begin{itemize}
+  \item {Subcase $m=0$.}
+  It suffices to show
+  \[(0,i,v')\in\vrel{\triangleright(\tau\iota)}\]
+  From \textsc{E-NextBase}, we have 
+  \[\delay(e\gamma)\Downarrow_m \delay(e\gamma)\]
+  Therefore, $v' = \delay(e\gamma)$, then we need to show 
+  \[(0,i,\delay(e\gamma))\in\vrel{\triangleright(\tau\iota)}\]
+  This holds directly by the definition of $\vrel{\triangleright(\tau\iota)}$.
+
+  \item {Subcase $m=k+1$.}
+  It suffices to show 
+  \[(k+1,i,v')\in\vrel{\triangleright(\tau\iota)}\]
+  From \textsc{E-NextSucc}, we have $v$ such that
+  \[
+    e\gamma\Downarrow_k v
+    \quad\text{and}\quad
+    v'=\delay v
+  \]
+  Unfold the goal, it suffices to show
+  \[ (k, i+1, v) \in \vrel{\tau\iota}\]
+  By IH, $(n, i, e\gamma) \in \erel{\tau\iota}$.
+  Since $k < m \leq n$ and $i+1 > i$, applying Lemma \ref{lem:worst-case-mono} gives 
+  \[(k,i+1,e\gamma)\in\erel{\tau\iota}\] 
+  Applying this term relation to $e\gamma\Downarrow_k v$ gives the desired:
+  \[(k,i+1,v)\in\vrel{\tau\iota}\]
+  \end{itemize}
+
+\item Case
+\[
+  \inferrule*[right=T-Bind]
+    {\hastype{\Theta;\Delta;\Gamma}{e_1}{\tmonad{ I_1}{\tau_1}}
+     \quad
+     \hastype{\Theta;\Delta;\Gamma,x:\tau_1}{e_2}{\tmonad{ I_2}{\tau_2}}}
+    {\hastype{\Theta;\Delta;\Gamma}{\bind{x}{e_1}{e_2}}
+      {\tmonad{ I_1+ I_2}{\tau_2}}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\bind{x}{e_1\gamma}{e_2\gamma}\Downarrow_m v'$. It suffices to show
+\[
+  (m,i,v')\in\vrel{\tmonad{ (I_1\iota+ I_2\iota)}{\tau_2\iota}}
+\]
+From \textsc{E-Val}, we have
+$\bind{x}{e_1\gamma}{e_2\gamma} \Downarrow_m \bind{x}{e_1\gamma}{e_2\gamma}$, hence $v' = \bind{x}{e_1\gamma}{e_2\gamma}$. 
+Unfold the goal's value relation, assume $r\leq m$, $j\geq i$ and
+$
+  \bind{x}{e_1\gamma}{e_2\gamma}
+  \Downarrow^c_{r,j}v''
+$,
+It suffices to show
+\[
+  c\leq(I_1\iota +I_2 \iota)(j),
+  \quad
+  (r,j,v'')\in\vrel{\tau_2\iota}
+\]
+From \textsc{E-Bind}, we have some $c_1,c_2, v_1, v_1', v_2, v_2'$ such that
+\[
+  \bind{x}{e_1\gamma}{e_2\gamma} \Downarrow^{c_1+c_2}_{r,j}v_2', \quad 
+  e_1\gamma \Downarrow_r v_1,
+  \quad
+  v_1 \Downarrow^{c_1}_{r,j}v_1',
+  \quad
+  (e_2\gamma)[v_1'/x] \Downarrow_r v_2
+  \quad
+  v_2 \Downarrow^{c_2}_{r,j}v_2'
+\]
+Therefore, $v'' = v_2'$ and $c = c_1+c_2$, then we need to show 
+\[ c_1+c_2 \leq(I_1\iota +I_2 \iota)(j),
+  \quad
+  (r,j,v_2')\in\vrel{\tau_2\iota} \]
+Since $r \leq m$ and $j \ge i$,  apply IH1 and Lemma \ref{lem:worst-case-mono}, we have
+\[(r,j,e_1\gamma)\in\erel{\tmonad{ I_1}{\tau_1}\iota}\]
+Apply this term relation to $e_1\gamma \Downarrow_r v_1$, we have 
+\[(r, j, v_1) \in \vrel{\tmonad{ I_1}{\tau_1}\iota}\]
+Applying this value relation to $v_1 \Downarrow^{c_1}_{r,j}v_1'$ gives
+\[
+  c_1\leq (I_1\iota)(j),
+  \quad
+  (r,j,v_1')\in\vrel{\tau_1\iota}.
+\]
+Lemma \ref{lem:worst-case-mono} also gives
+$(r,j,\gamma)\in\erel{\Gamma\iota}$. From the definition of the substitution relation, we konw
+\[
+  (r,j,\gamma[x\mapsto v_1'])
+  \in\erel{(\Gamma,x:\tau_1)\iota}.
+\]
+Therefore, applying IH2 gives
+\[
+  (r,j,(e_2\gamma[x\mapsto v_1')])
+  \in\erel{\tmonad{I_2}{\tau_2}\iota}
+\]
+Since $e_2\gamma[x\mapsto v_1'] = e_2\gamma[v_1'/x]$, we have 
+\[
+  (r,j,e_2\gamma[v_1'/x])
+  \in\erel{\tmonad{I_2}{\tau_2}\iota}
+\]
+Unfold and apply this term relation to $(e_2\gamma)[v_1'/x] \Downarrow_r v_2$, we get one of the goal:
+\[(r, j, v_2) \in \vrel{\tmonad{I_2}{\tau_2\iota}}\]
+Applying this value relation to $v_2 \Downarrow^{c_2}_{r,j}v_2'$ gives
+\[
+  c_2\leq (I_2\iota)(j)
+  \quad
+  (r,j,v_2')\in\vrel{\tau_2\iota}.
+\]
+By Definition \ref{def:time-indices}, we know $(I_1\iota)(j)+ (I_2\iota)(j) =(I_1\iota +I_2 \iota)(j)$.
+Since $c_1 \leq (I_1\iota)(j)$ and $c_2\leq (I_2\iota)(j)$, we have the desired:
+\[
+  c_1+c_2 \leq ((I_1+I_2)\iota)(j)
+\]
+
+\item Case
+\[
+  \inferrule*[right=T-Prepay]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\triangleright\tmonad{ I}{\tau}}}
+    {\hastype{\Theta;\Delta;\Gamma}{\pull e}
+      {\tmonad{\mathsf{S}( I)}{\triangleright\tau}}}.
+\]
+Unfold the goal's term relation, assume $m\leq n$ and
+$\pull(e\gamma) \Downarrow_m v'$.  It suffices to show
+\[(m,i,v')\in\vrel{\tmonad{\mathsf{S}(I\iota)}{(\triangleright\tau\iota)}}\]
+From \textsc{E-Val}, we have $\pull(e\gamma) \Downarrow \pull(e\gamma)$, hence $v' = \pull(e\gamma)$.
+
+Unfold the goal, assume $r\leq m$, $j\geq i$, and
+$\pull(e\gamma)\Downarrow^c_{r,j}v''$.  It suffices to show
+\[
+  c \leq \mathsf{S}(I\iota)(j),
+  \quad
+  (r,j,v'')\in\vrel{\triangleright\tau\iota}
+\]
+From
+\textsc{E-Prepay}, we have $p+1,v_0$ and $v_0'$ such that
+\[
+  r = p+1, \quad
+  \pull (e\gamma) \Downarrow_{p+1,j}^{c} \delay v_0', \quad 
+  e\gamma\Downarrow_{p+1}\delay v_0,
+  \quad
+  v_0 \Downarrow^c_{p,j+1}v_0'
+\]
+Therefore, $v''=\delay v_0'$.
+Since $p+1 \leq m\leq n$ and $j\geq i$, applying IH and Lemma \ref{lem:worst-case-mono} gives
+\[(p+1,j,e\gamma) \in \erel{\triangleright(\tmonad{ I\iota}{\tau\iota})}.\]
+Unfolding and applying this term relation to $e\gamma\Downarrow_{p+1}\delay v_0$ gives
+\[
+  (p+1,j,\delay v_0)
+  \in\vrel{\triangleright(\tmonad{I\iota}{\tau\iota})}
+\]
+Unfold this relation, we have
+\[(p,j+1,v_0)\in\vrel{\tmonad{I\iota}{\tau\iota}}\]
+Apply this value relation to
+$v_0 \Downarrow^c_{p,j+1}v_0'$, we have
+\[
+  c\leq (I\iota)(j+1)=\mathsf{S}(I\iota)(j),
+  \quad
+  (p,j+1,v_0')\in\vrel{\tau\iota}.
+\]
+By the definition of $\vrel{\triangleright \tau\iota}$, 
+\[(p+1,j,\delay v_0')\in\vrel{\triangleright\tau\iota}.\]
+Since $r=p+1$ and $v''=\delay v_0'$, we have shown the desired.
+
+\item Case
+\[
+  \inferrule*[right=T-Sub]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau} \quad \Theta;\Delta\vdash\tau<:\tau'}
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau'}}.
+\]
+It suffices to show 
+\[(n,i,e\gamma)\in\erel{\tau'\iota}\]
+From the IH, we have 
+\[(n,i,e\gamma)\in\erel{\tau\iota}\] 
+Applying Lemma \ref{lem:worst-semantic-subtyping} to this, we get the desired.
+
+\item Case
+\[
+\inferrule*[right=T-Weaken]
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau}
+     \quad\Theta;\Delta\vdash\Gamma'<:\Gamma}
+    {\hastype{\Theta;\Delta;\Gamma'}{e}{\tau}}.
+\]
+Given $(n, i, \gamma) \in \erel{\Gamma'\iota}$, it suffices to prove
+\[(n, i, e\gamma) \in \erel{\tau}\] 
+Since $\Theta;\Delta\vdash\Gamma'<:\Gamma$, applying Lemma \ref{lem:worst-case-ctx-subtyping} to $(n, i, \gamma) \in \erel{\Gamma'\iota}$, we have 
+\[(n, i, \gamma) \in \erel{\Gamma\iota}\]
+Therefore, we can apply the IH with $\gamma$, which gives the desired.
+\qedhere
+\end{itemize}
+\end{proof}
+
+\subsection{Soundness}
+Finally, the soundness theorem follows from the Fundamental Property:
+
+\begin{thm}[Soudness of $\lambda^g_{\mathsf{worst}}$]
+\label{thm:worst-case-soundness1}
+$\\$ For any $n, i \in \mathbb{N}$, if $\,\hastype{}{e}{\tmonad{ I}{\tau}}$, $e \Downarrow_n v$ 
+and $v \Downarrow^c_{n, i} v'$, then $c \leq  I(i).$ 
+\end{thm}
+\begin{proof}
+  From Theorem \ref{thm:worst-case-fund}, we have 
+  \[(n, i, e) \in \erel{\tmonad{ I}{\tau}}\]
+  Unfold this term relation, and apply it to $e \Downarrow_n v$, we obtain 
+  \[(n, i, v) \in \vrel{\tmonad{ I}{\tau}}\]
+  Applying this value relation to $v \Downarrow^c_{n, i} v'$ gives the desired:
+  \[c \leq  I(i), \qquad (n, i, v') \in \vrel{\tau}\]
+\end{proof}
 \clearpage
 \endgroup
