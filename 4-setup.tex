@@ -158,7 +158,7 @@ For any two indices $I$ and $J$, we define
       \mid \mu\alpha.\tau
       \mid \triangleright \tau
       \mid \tmonad{I}{\tau}
-      \mid L^I \tau
+      \mid L^n \tau
       \mid \forall\kappa:S.\tau
       \\[6pt]
     &\text{Expressions}
@@ -235,7 +235,7 @@ The next section shows how this relation is used for type formations.
 \subsection{Types}
 $\lambda^g_{\mathsf{worst}}$ contains types in ordinary simply-typed lambda calculus:\ unit, base, function,
 product and sum types. Following $\lambda$-amor, we also include types that contain quantitative information.
-The list type $L^I \tau$ carries an index $I$, representing its finite length. Furthermore, the length index is
+The list type $L^n \tau$ carries an index $I$, representing its finite length. Furthermore, the length index is
 restricted to be a natural number constant for correctness. The graded monad $\tmonad{I}{\tau}$, as previously mentioned, denotes computations returning data of type $\tau$, producing $I$ units of symbolic cost.
 The polymorphic type $\forall\kappa\,{:}S.\tau$ allows types to be parameterised by indices, such as a cost-polymorphic monad
 $\forall \kappa:\mathbb{N}.\;\tmonad{\kappa}{\tau}$.
@@ -327,16 +327,16 @@ In this section, we present the typing judgments of $\lambda^g_{\mathsf{worst}}$
   \\
 
   \inferrule*[right=S-Sum]
-      {\Theta;\Delta\vdash J:\mathbb{N} \quad
+      {\Theta;\Delta\vdash n:\mathbb{N} \quad
        \Theta,\kappa:\mathbb{N};\Delta, \kappa < J\vdash I:S \quad
-       \Theta;\Delta\models J = \mathsf{S}(J)}
-      {\Theta;\Delta\vdash\textstyle{\sum}_{\kappa<J}I:S}
+       \Theta;\Delta\models n = \mathsf{S}(n)}
+      {\Theta;\Delta\vdash\textstyle{\sum}_{\kappa<n}I:S}
   \\
 
   \inferrule*[right=S-Shift]
-      {\Theta;\Delta\vdash I: S \quad \Theta;\Delta\vdash J:\mathbb{N}
-        \quad \Theta;\Delta\models J = \mathsf{S(J)}}
-      {\Theta;\Delta\vdash \mathsf{S}^J(I):S}
+      {\Theta;\Delta\vdash I: S \quad \Theta;\Delta\vdash n:\mathbb{N}
+        \quad \Theta;\Delta\models n = \mathsf{S(n)}}
+      {\Theta;\Delta\vdash \mathsf{S}^n(I):S}
 \end{mathpar} 
   \caption{Sort typing rules for indices}
   \label{defn:worst-case-sort-rule}
@@ -346,7 +346,7 @@ The judgment for indices is in the form $\Theta;\Delta\vdash I: S$, where $\Thet
 $\Delta$ is the context that contains constraints about indices as mentioned previously. Constraints in $\Delta$ may refer to variables in $\Theta$, we thus need to use them together.
 
 Figure \ref{defn:worst-case-sort-rule} presents the sort rules for indices. The \textsc{S-Var, S-Nat}  and \textsc{S-Real} rules should be self-explanatory. 
-The $\mathsf{clk}$ expression is treated as a natural number, representing the logical time. The \textsc rule allows a natural number index to be used as a nonnegative real number with the same value. 
+The $\mathsf{clk}$ expression is treated as a natural number, representing the logical time. The \textsc{S-Real1} rule allows a natural number index to be used as a nonnegative real number with the same value. 
 For ordinary arithmetic operations, we require
 both arguments to have the same sort. Since indices cannot be negative according to all the sorts ($\mathbb{N}, \mathbb{R}_{\ge0}$), the subtraction $I - J$ needs to
 ensure that $J \leq I$. Here we write $J \leq I$ as the disjunction between $J < I$ and $J = I$. Similarly, in \text{S-Sum}, we ensure the index variable is smaller than the bound $I$ when checking 
@@ -402,7 +402,7 @@ ensuring that the shift only increments a fixed amount of time.
       {\Psi;\Theta;\Delta\vdash\tau \quad 
       \Theta;\Delta\vdash I:\mathbb{N}
       \quad \Theta;\Delta\models I = \mathsf{S}(I)}
-      {\Psi;\Theta;\Delta\vdash L^I\tau}
+      {\Psi;\Theta;\Delta\vdash L^n\tau}
   \\
 
   \inferrule*[right=WF-Rec]
@@ -462,7 +462,7 @@ Figure \ref{def:worst-case-subtyping} gives the subtyping rules.
 
   \inferrule*[right=Sub-List]
       {\Theta;\Delta\vdash \tau <: \tau'}
-      {\Theta;\Delta\vdash L^I\tau <: L^I\tau'}
+      {\Theta;\Delta\vdash L^n\tau <: L^n\tau'}
   \\
 
   \inferrule*[right=Sub-IndexPoly]
@@ -620,14 +620,14 @@ record type variables.
   \inferrule*[right=T-Cons]
     {
     \hastype{\Theta;\Delta;\Gamma}{e_1}{\tau}
-     \quad \hastype{\Theta;\Delta;\Gamma}{e_2}{L^s\tau}}
-    {\hastype{\Theta;\Delta;\Gamma}{e_1::e_2}{L^{s+1}\tau}}
+     \quad \hastype{\Theta;\Delta;\Gamma}{e_2}{L^n\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}{e_1::e_2}{L^{n+1}\tau}}
   \\
 
   \inferrule*[right=T-Match]
-    {\hastype{\Theta;\Delta,I > 0;\Gamma,h:\tau,t:L^{I-1}\tau}{e_2}{\tau'}
-     \\\\ \hastype{\Theta;\Delta;\Gamma}{e}{L^s\tau}
-     \quad \hastype{\Theta;\Delta,I=0;\Gamma}{e_1}{\tau'}}
+    {\hastype{\Theta;\Delta,n > 0;\Gamma,h:\tau,t:L^{n-1}\tau}{e_2}{\tau'}
+     \\\\ \hastype{\Theta;\Delta;\Gamma}{e}{L^n\tau}
+     \quad \hastype{\Theta;\Delta,n=0;\Gamma}{e_1}{\tau'}}
     {\hastype{\Theta;\Delta;\Gamma}{\lmatch{e}{e_1}{h}{t}{e_2}}{\tau'}}
   \\
 
@@ -1257,7 +1257,7 @@ and never stop. On the other hand, we can also express (primitive) recursions th
 help of indexed types.
 
 Firstly, we can derive a size-indexed natural number type using lists: 
-\[\mathsf{Nat}(I) \triangleq L^I\textbf{1}\]
+\[\mathsf{Nat}(I) \triangleq L^n\textbf{1}\]
 The natural number type is just a list of units, where the data stored is irrelevant. 
 
 Next, we define the $\mathsf{Colist}$ type, which represents a possibly infinite guarded list:

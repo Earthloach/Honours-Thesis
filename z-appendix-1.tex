@@ -526,8 +526,8 @@ $(m,j,v') \in \vrel {\tau'\iota}$, and we are done.
     {\Theta;\Delta\vdash \tau <: \tau'}
     {\Theta;\Delta\vdash L^s\tau <: L^s\tau'}
 \]
-Given $(n,i,v) \in \vrel{L^{s\iota}(\tau\iota)}$, it suffices to show
-\[(n,i,v) \in \vrel{L^{s\iota}(\tau'\iota)}.\]
+Given $(n,i,v) \in \vrel{L^{n\iota}(\tau\iota)}$, it suffices to show
+\[(n,i,v) \in \vrel{L^{n\iota}(\tau'\iota)}.\]
 We proceed by structural induction on $v$.
 
 \begin{itemize}
@@ -1320,13 +1320,14 @@ Trivial.
 \item Case
 \[
 \inferrule*[right=T-Cons]
-    {\hastype{\Theta;\Delta;\Gamma}{e_1}{\tau}
-     \quad\hastype{\Theta;\Delta;\Gamma}{e_2}{L^s\tau}} 
-    {\hastype{\Theta;\Delta;\Gamma}{e_1::e_2}{L^{s+1}\tau}}.
+    {
+    \hastype{\Theta;\Delta;\Gamma}{e_1}{\tau}
+     \quad \hastype{\Theta;\Delta;\Gamma}{e_2}{L^n\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}{e_1::e_2}{L^{n+1}\tau}}.
 \]
 Unfold the definition of the goal's term relation, assume $m\leq n$ and
 $e_1\gamma::e_2\gamma \Downarrow_m v$. It suffices to show
-\[(m, i, v) \in \vrel{L^{s+1}\tau\;\iota}.\]
+\[(m, i, v) \in \vrel{L^{n+1}\tau\;\iota}.\]
 From \textsc{E-Cons}, we have 
 \[
 v = v'::l, \quad 
@@ -1334,7 +1335,7 @@ e_1\gamma\Downarrow_m v', \quad
 e_2\gamma\Downarrow_m l.
 \]
 Unfold and apply the value relation to this, it remains to show 
-\[(m, i, v') \in \vrel{\tau \iota}, \quad (m, i, l) \in \vrel{L^{s}\tau\;\iota}.\]
+\[(m, i, v') \in \vrel{\tau \iota}, \quad (m, i, l) \in \vrel{L^{n}\tau\;\iota}.\]
 Since $m \leq n$, applying IH1 to $e_1\gamma\Downarrow_m v'$ and IH2 
 to $e_2\gamma\Downarrow_m l$ gives the desired.
 
@@ -1342,8 +1343,8 @@ to $e_2\gamma\Downarrow_m l$ gives the desired.
 \[
 \inferrule*[right=T-Match]
     {\hastype{\Theta;\Delta;\Gamma}{e}{L^s\tau}
-     \\ \hastype{\Theta;\Delta,s=0;\Gamma}{e_1}{\tau'}
-     \\ \hastype{\Theta;\Delta,s\geq1;\Gamma,h:\tau,t:L^{s-1}\tau}{e_2}{\tau'}}
+     \\ \hastype{\Theta;\Delta,n=0;\Gamma}{e_1}{\tau'}
+     \\ \hastype{\Theta;\Delta,n > 0;\Gamma,h:\tau,t:L^{n-1}\tau}{e_2}{\tau'}}
     {\hastype{\Theta;\Delta;\Gamma}{\lmatch{e}{e_1}{h}{t}{e_2}}{\tau'}}.
 \]
 Unfold the definition of the goal's term relation, assume $m\leq n$ and
@@ -1362,10 +1363,10 @@ Since $m\leq n$, applying IH2 to this gives the desired.
 From \textsc{E-MatchCons}, we have $e_2\gamma[v_f/h][l/t]\Downarrow_m v$.
 Let $\gamma' = \gamma[h\mapsto v_f][t\mapsto l]$, then we get $e_2\gamma'\Downarrow_m v$.
 Applying IH1 to $e\gamma \Downarrow_m v'$ gives
-\[(m, i,v_f::l) \in \vrel{L^{s\iota}\tau\;\iota}.\]
+\[(m, i,v_f::l) \in \vrel{L^{n\iota}\tau\;\iota}.\]
 Unfold this value relation, we have 
-\[(m,i,v_f) \in \vrel{\tau \iota},\quad (m,i,v_f) \in \vrel{L^{s\iota-1}\tau\;\iota}.\]
-Therefore, we know $(m, i,\gamma') \in \erel{(\Gamma, h:\tau,t:L^{s-1})\iota}$ from the definition of the substitution relation.
+\[(m,i,v_f) \in \vrel{\tau \iota},\quad (m,i,v_f) \in \vrel{L^{n\iota-1}\tau\;\iota}.\]
+Therefore, we know $(m, i,\gamma') \in \erel{(\Gamma, h:\tau,t:L^{n-1})\iota}$ from the definition of the substitution relation.
 Now applying IH3's term relation to $e_2\gamma'\Downarrow_m v$ gives the desired.
 
 
