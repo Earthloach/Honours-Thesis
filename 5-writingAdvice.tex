@@ -242,8 +242,7 @@ $\\$ If $\Theta;\Delta\vdash\tau<:\tau'$ and $\cdot\models\Delta\iota$,
 \end{lem}
 \begin{proof}
 Induction on the lexicographic order $(|\tau|+|\tau'|,h)$, where $h$ is the height of the subtyping derivation.
-Full proofs can be found in Lemma \ref{appa:val-subtyping} and Lemma \ref{appa:exp-subtyping}.
-Here we present the \textsc{Sub-Rec} case for value relations. 
+Here we present the \textsc{Sub-Rec} case for value relations, full proofs can be found in Lemma \ref{appa:val-subtyping} and Lemma \ref{appa:exp-subtyping}.
 \begin{itemize}
 \item Case
 \[
@@ -253,12 +252,12 @@ Here we present the \textsc{Sub-Rec} case for value relations.
     {\Theta;\Delta\vdash \mu\alpha.\tau <: \mu\alpha.\tau'}
 \]
 Given $(n,i,\fold v) \in \vrel{\mu\alpha.\tau\iota}$, it suffices to prove 
-\[(n,i,\fold v) \in \vrel{\mu\alpha.\tau'\iota}.\]
-Unfold the goal, it remains to prove 
-\[(n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]}.\]
+\[(n,i,\fold v) \in \vrel{\mu\alpha.\tau'\iota}\]
+Unfold the definition of this relation, it remains to prove 
+\[(n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]}\]
 Instantiate Lemma \ref{lem:substitute-subtyping} with $\Theta;\Delta\vdash\tau\iota <: \tau'\iota$ and $\mu\alpha.\tau$, we have
 \[
-  \Theta;\Delta\vdash\tau\iota[\mu\alpha.\tau\iota/\alpha]<:\tau\iota[\mu\alpha.\tau\iota/\alpha].
+  \Theta;\Delta\vdash\tau\iota[\mu\alpha.\tau\iota/\alpha]<:\tau\iota[\mu\alpha.\tau\iota/\alpha]
 \]
 Since $\iota$ only substitutes indices, we know all occurrences of $\alpha$ are positive in $\tau'\iota$. 
 Therefore, applying Lemma \ref{lem:subtyping-polarity} to 
@@ -278,7 +277,7 @@ By Lemma \ref{lem:worst-case-ty-size}, we have
     <|\mu\alpha.\tau\iota|, \quad
   |\tau'\iota[\mu\alpha.\tau'\iota/\alpha]|<|\mu\alpha.\tau'\iota|
 \]
-Thus, instantiate the IH of $|\tau + \tau'|$ with (S0) and $(n,i,v)$, we obtain 
+Thus, instantiate the IH of $|\tau + \tau'|$ with (S0) and $(n,i,v)$, we have
 \[(n,i,v) \in \vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]} \implies (n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]} \] 
 Unfold the given $(n,i,\fold v) \in \vrel{\mu\alpha.\tau\iota}$, we get $(n,i,v) \in \vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]}$, hence we know 
 $(n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]}$.
@@ -288,12 +287,11 @@ $(n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]}$.
 In particular, the Sub-Rec case of the proof demonstrates the role of the positivity restriction on recursive types, 
 which ensures that the required subtyping relation is preserved under unfolding.
 
-Similarly, subtyping for term context also holds semantically:
+Similarly, subtyping for the term context $\Gamma$ holds for the term substitution relation:
 
 \begin{lem}[$\Gamma$ Subtyping of Logical Relation]
 \label{lem:worst-case-ctx-subtyping}
-$\\$ If $\Theta;\Delta\vdash\Gamma<:\Gamma'$ and $\cdot\models\Delta\iota$, 
-then $\erel{\Gamma\iota}\subseteq\erel{\Gamma'\iota}$. 
+$\\$ If $\Theta;\Delta\vdash\Gamma<:\Gamma', \cdot\models\Delta\iota$, and $(n,i,\gamma) \in \erel{\Gamma\iota}$, then $(n,i,\gamma) \in \erel{\Gamma'\iota}$
 \end{lem}
 \begin{proof}
   See Lemma \ref{appa:worst-case-ctx-subtyping}.
@@ -313,7 +311,7 @@ then $(n,i,e\gamma)\in\erel{\tau\iota}$.
 \label{thm:worst-case-fund}
 \end{thm}
 \begin{proof}
-  Induction on the typing derivation, pushing the term substitution $\gamma$ and the index substitution $\iota$ inside for each case.
+  Induction on the typing derivation, pushing $\gamma$ and $\iota$ inside for each case.
   Here we present several important cases, full proof can be found in Lemma \ref{appa:fundamental}.
 \begin{itemize}
 \item Case
@@ -322,38 +320,39 @@ then $(n,i,e\gamma)\in\erel{\tau\iota}$.
     {\hastype{\Theta;\Delta;\Gamma}{e}{\tau}}
     {\hastype{\Theta;\Delta;\Gamma}{\delay e}{\triangleright\tau}}.
 \]
-Unfold the goal's term relation, assume $m\leq n$ and
-$\delay(e\gamma)\Downarrow_m v'$.  It suffices to show
-\[(m,i,v')\in\vrel{\triangleright(\tau\iota)}.\] 
+Unfold the definition of the goal's term relation, assume $m\leq n$ and
+$\delay(e\gamma)\Downarrow_m v'$, it suffices to show
+\[(m,i,v')\in\vrel{\triangleright(\tau\iota)}\] 
 We proceed by cases on $m$.
 
-  \begin{itemize}
-  \item {Subcase $m=0$.}
-  It suffices to show
-  \[(0,i,v')\in\vrel{\triangleright(\tau\iota)}\]
-  From \textsc{E-NextBase}, we have 
-  \[\delay(e\gamma)\Downarrow_m \delay(e\gamma)\]
-  Therefore, $v' = \delay(e\gamma)$, then we need to show 
-  \[(0,i,\delay(e\gamma))\in\vrel{\triangleright(\tau\iota)}\]
-  This holds directly by the definition of $\vrel{\triangleright(\tau\iota)}$.
+\begin{itemize}
+\item {Subcase $m=0$.}
+It suffices to show
+\[(0,i,v')\in\vrel{\triangleright(\tau\iota)}\]
+From \textsc{E-NextBase}, we know that $v' = \delay(e\gamma)$.
+Now we need to show 
+\[(0,i,\delay(e\gamma))\in\vrel{\triangleright(\tau\iota)}\]
+This holds directly by the definition of $\vrel{\triangleright(\tau\iota)}$.
 
-  \item {Subcase $m=k+1$.}
-  It suffices to show 
-  \[(k+1,i,v')\in\vrel{\triangleright(\tau\iota)}\]
-  From \textsc{E-NextSucc}, we have $v$ such that
-  \[
-    e\gamma\Downarrow_k v
-    \quad\text{and}\quad
-    v'=\delay v
-  \]
-  Unfold the goal, it suffices to show
-  \[ (k, i+1, v) \in \vrel{\tau\iota}\]
-  By IH, $(n, i, e\gamma) \in \erel{\tau\iota}$.
-  Since $k < m \leq n$ and $i+1 > i$, applying Lemma \ref{lem:worst-case-mono} gives 
-  \[(k,i+1,e\gamma)\in\erel{\tau\iota}\] 
-  Applying this term relation to $e\gamma\Downarrow_k v$ gives the desired:
-  \[(k,i+1,v)\in\vrel{\tau\iota}\]
-  \end{itemize}
+\item {Subcase $m=k+1$.}
+It suffices to show 
+\[(k+1,i,v')\in\vrel{\triangleright(\tau\iota)}\]
+From \textsc{E-NextSucc}, there is some $v$ such that
+\[
+  e\gamma\Downarrow_k v
+  \quad\text{and}\quad
+  v'=\delay v
+\]
+Thus, we need to show 
+\[(k+1,i,\delay v)\in\vrel{\triangleright(\tau\iota)}\]
+Unfold the definition of this relation, it suffices to show
+\[ (k, i+1, v) \in \vrel{\tau\iota}\]
+By IH, $(n, i, e\gamma) \in \erel{\tau\iota}$.
+Since $k < m \leq n$ and $i+1 > i$, applying Lemma \ref{lem:worst-case-mono} gives 
+\[(k,i+1,e\gamma)\in\erel{\tau\iota}\] 
+Unfold this term relation and instantiate it with $e\gamma\Downarrow_k v$, we have 
+$(k, i+1, v) \in \vrel{\tau\iota}$, and we are done.
+\end{itemize}
 
 \item Case
 \[
@@ -364,44 +363,45 @@ We proceed by cases on $m$.
     {\hastype{\Theta;\Delta;\Gamma}{\bind{x}{e_1}{e_2}}
       {\tmonad{ I_1+ I_2}{\tau_2}}}.
 \]
-Unfold the goal's term relation, assume $m\leq n$ and
+Unfold the definition of the goal's term relation, assume $m\leq n$ and
 $\bind{x}{e_1\gamma}{e_2\gamma}\Downarrow_m v'$. It suffices to show
 \[
   (m,i,v')\in\vrel{\tmonad{ (I_1\iota+ I_2\iota)}{\tau_2\iota}}
 \]
 From \textsc{E-Val}, we have
 $\bind{x}{e_1\gamma}{e_2\gamma} \Downarrow_m \bind{x}{e_1\gamma}{e_2\gamma}$, hence $v' = \bind{x}{e_1\gamma}{e_2\gamma}$. 
-Unfold the goal's value relation, assume $r\leq m$, $j\geq i$ and
+Unfold the definition of the goal's value relation, assume $r\leq m$, $j\geq i$ and
 $
   \bind{x}{e_1\gamma}{e_2\gamma}
   \Downarrow^c_{r,j}v''
 $,
-It suffices to show
+it suffices to show
 \[
   c\leq(I_1\iota +I_2 \iota)(j),
   \quad
   (r,j,v'')\in\vrel{\tau_2\iota}
 \]
-From \textsc{E-Bind}, we have some $c_1,c_2, v_1, v_1', v_2, v_2'$ such that
+From \textsc{E-Bind}, there exist $c_1,c_2, v_1, v_1', v_2, v_2'$ such that
 \[
-  \bind{x}{e_1\gamma}{e_2\gamma} \Downarrow^{c_1+c_2}_{r,j}v_2', \quad 
   e_1\gamma \Downarrow_r v_1,
   \quad
   v_1 \Downarrow^{c_1}_{r,j}v_1',
   \quad
-  (e_2\gamma)[v_1'/x] \Downarrow_r v_2
+  (e_2\gamma)[v_1'/x] \Downarrow_r v_2,
   \quad
-  v_2 \Downarrow^{c_2}_{r,j}v_2'
+  v_2 \Downarrow^{c_2}_{r,j}v_2',
+  \quad 
+   v'' = v_2
 \]
-Therefore, $v'' = v_2'$ and $c = c_1+c_2$, then we need to show 
+Therefore, we need to show 
 \[ c_1+c_2 \leq(I_1\iota +I_2 \iota)(j),
   \quad
   (r,j,v_2')\in\vrel{\tau_2\iota} \]
 Since $r \leq m$ and $j \ge i$,  apply IH1 and Lemma \ref{lem:worst-case-mono}, we have
 \[(r,j,e_1\gamma)\in\erel{\tmonad{ I_1}{\tau_1}\iota}\]
-Apply this term relation to $e_1\gamma \Downarrow_r v_1$, we have 
+Unfold this term relation and instantiate it with $e_1\gamma \Downarrow_r v_1$, we have 
 \[(r, j, v_1) \in \vrel{\tmonad{ I_1}{\tau_1}\iota}\]
-Applying this value relation to $v_1 \Downarrow^{c_1}_{r,j}v_1'$ gives
+Instantiating this value relation with $v_1 \Downarrow^{c_1}_{r,j}v_1'$ gives
 \[
   c_1\leq (I_1\iota)(j),
   \quad
@@ -423,9 +423,9 @@ Since $e_2\gamma[x\mapsto v_1'] = e_2\gamma[v_1'/x]$, we have
   (r,j,e_2\gamma[v_1'/x])
   \in\erel{\tmonad{I_2}{\tau_2}\iota}
 \]
-Unfold and apply this term relation to $(e_2\gamma)[v_1'/x] \Downarrow_r v_2$, we get one of the goal:
+Instantiate this term relation with $(e_2\gamma)[v_1'/x] \Downarrow_r v_2$, we get one of the goal:
 \[(r, j, v_2) \in \vrel{\tmonad{I_2}{\tau_2\iota}}\]
-Applying this value relation to $v_2 \Downarrow^{c_2}_{r,j}v_2'$ gives
+Instantiating this value relation with $v_2 \Downarrow^{c_2}_{r,j}v_2'$ gives
 \[
   c_2\leq (I_2\iota)(j)
   \quad
@@ -444,13 +444,13 @@ Since $c_1 \leq (I_1\iota)(j)$ and $c_2\leq (I_2\iota)(j)$, we have the desired:
     {\hastype{\Theta;\Delta;\Gamma}{\pull e}
       {\tmonad{\mathsf{S}( I)}{\triangleright\tau}}}.
 \]
-Unfold the goal's term relation, assume $m\leq n$ and
+Unfold the definition of the goal's term relation, assume $m\leq n$ and
 $\pull(e\gamma) \Downarrow_m v'$.  It suffices to show
 \[(m,i,v')\in\vrel{\tmonad{\mathsf{S}(I\iota)}{(\triangleright\tau\iota)}}\]
 From \textsc{E-Val}, we have $\pull(e\gamma) \Downarrow \pull(e\gamma)$, hence $v' = \pull(e\gamma)$.
 
 Unfold the goal, assume $r\leq m$, $j\geq i$, and
-$\pull(e\gamma)\Downarrow^c_{r,j}v''$.  It suffices to show
+$\pull(e\gamma)\Downarrow^c_{r,j}v''$, it suffices to show
 \[
   c \leq \mathsf{S}(I\iota)(j),
   \quad
@@ -460,30 +460,31 @@ From
 \textsc{E-Prepay}, we have $p+1,v_0$ and $v_0'$ such that
 \[
   r = p+1, \quad
-  \pull (e\gamma) \Downarrow_{p+1,j}^{c} \delay v_0', \quad 
+  \quad 
   e\gamma\Downarrow_{p+1}\delay v_0,
   \quad
-  v_0 \Downarrow^c_{p,j+1}v_0'
+  v_0 \Downarrow^c_{p,j+1}v_0',
+  \quad 
+  v'' = \delay v_0'
 \]
-Therefore, $v''=\delay v_0'$.
 Since $p+1 \leq m\leq n$ and $j\geq i$, applying IH and Lemma \ref{lem:worst-case-mono} gives
 \[(p+1,j,e\gamma) \in \erel{\triangleright(\tmonad{ I\iota}{\tau\iota})}.\]
-Unfolding and applying this term relation to $e\gamma\Downarrow_{p+1}\delay v_0$ gives
+Unfolding this term relation and instantiating it with $e\gamma\Downarrow_{p+1}\delay v_0$ gives
 \[
   (p+1,j,\delay v_0)
   \in\vrel{\triangleright(\tmonad{I\iota}{\tau\iota})}
 \]
-Unfold this relation, we have
+Unfold the definition of this relation, we have
 \[(p,j+1,v_0)\in\vrel{\tmonad{I\iota}{\tau\iota}}\]
-Apply this value relation to
+Instantiate this value relation with
 $v_0 \Downarrow^c_{p,j+1}v_0'$, we have
 \[
   c\leq (I\iota)(j+1)=\mathsf{S}(I\iota)(j),
   \quad
-  (p,j+1,v_0')\in\vrel{\tau\iota}.
+  (p,j+1,v_0')\in\vrel{\tau\iota}
 \]
 By the definition of $\vrel{\triangleright \tau\iota}$, 
-\[(p+1,j,\delay v_0')\in\vrel{\triangleright\tau\iota}.\]
+\[(p+1,j,\delay v_0')\in\vrel{\triangleright\tau\iota}\]
 Since $r=p+1$ and $v''=\delay v_0'$, we have shown the desired.
 
 \item Case
@@ -514,8 +515,8 @@ Therefore, we can apply the IH with $\gamma$, which gives the desired.
 \end{itemize}
 \end{proof}
 
-\subsection{Soundness}
-Finally, the soundness theorem follows from the Fundamental Property:
+\section{Soundness}
+Lastly, the soundness theorem follows from the Fundamental Property:
 
 \begin{thm}[Soudness of $\lambda^g_{\mathsf{worst}}$]
 \label{thm:worst-case-soundness1}
@@ -523,12 +524,13 @@ $\\$ For any $n, i \in \mathbb{N}$, if $\,\hastype{}{e}{\tmonad{ I}{\tau}}$, $e 
 and $v \Downarrow^c_{n, i} v'$, then $c \leq  I(i).$ 
 \end{thm}
 \begin{proof}
-  From Theorem \ref{thm:worst-case-fund}, we have 
+  Apply Theorem \ref{thm:worst-case-fund} to $\hastype{}{e}{\tmonad{I}{\tau}}$, we have 
   \[(n, i, e) \in \erel{\tmonad{ I}{\tau}}\]
   Unfold this term relation, and apply it to $e \Downarrow_n v$, we obtain 
   \[(n, i, v) \in \vrel{\tmonad{ I}{\tau}}\]
   Applying this value relation to $v \Downarrow^c_{n, i} v'$ gives the desired:
   \[c \leq  I(i), \qquad (n, i, v') \in \vrel{\tau}\]
+  \qedhere
 \end{proof}
 \clearpage
 \endgroup
