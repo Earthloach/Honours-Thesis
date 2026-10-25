@@ -22,8 +22,8 @@ Its central tool is a semantic model of the type system based on a technique of 
 In particular, the model gives interpretations to the types and can be used to prove the soundness of the type system. 
 
 We begin by presenting the model in Section \ref{sec:worst-case-model}, 
-followed by auxiliary lemmas derived from it in Section \ref{sec:axu-lemma}.\ 
-Finally,\ Section X.3 proves the fundamental property of the underlying logical relation, from which the soundness theorem follows.
+followed by auxiliary lemmas derived from it in Section \ref{sec:axu-lemma}.
+Finally, Section \ref{sec:worst-case-fund} demonstrates the fundamental property of the underlying logical relation, from which the soundness theorem follows.
 
 
 \section{Model}
@@ -31,16 +31,16 @@ Finally,\ Section X.3 proves the fundamental property of the underlying logical 
 The model of $\lambda^g_{\mathsf{worst}}$ is constructed using a step-indexed Kripke logical relation \citep{ahmed2004semantics}.
 Figure \ref{fig:worst-case-logical-relation} gives the formalisation of our model, which consists of two
 mutually recursive relations indexed by well-formed types:\ the value relation $\vrel{}$ and the term/expression relation $\erel{}$.
-Essentially, such relations are a family of sets of the triple $(n, i, e)$, where $e$ is a usual term in our calculus,
+Essentially, such relations are a family of sets of the triple $(n, i, e)$, where $e$ is a usual term in the calculus,
 the index $i$ serves as the Kripke world that represents the logical time, and $n$ is the evaluation ``depth’’ mentioned in the last chapter.
 
 Specifically, our logical relation is close to that of $\lambda$-amor, where we drop its potential Kripke world $p$ used for amortised analysis and add another world $i$.
 Furthermore, $\lambda$-amor uses a step index as the fuel for beta reduction, which is different from the $n$ used by us. 
-On the other hand, \cite{cloustonGuardedLambdaCalculusProgramming2017a} 
-and \cite{guattoGeneralizedModalityRecursion2018d} present logical relations of their calculi that uses a step index similar to ours.
+On the other hand, work in guarded recursion 
+\citep{cloustonGuardedLambdaCalculusProgramming2017a, guattoGeneralizedModalityRecursion2018d} present logical relations that use step-indices similar to ours.
 
 The logical relations are well-founded by the lexicographic order $(n, |\tau|, \text{value} < \text{term})$.
-The order of $n$ is the standard one for natural numbers, and $\text{value} < \text{term}$ means
+The order of $n$ is the standard one for natural numbers, and $\text{value} < \text{term}$ means that
 value relations are considered smaller than term relations. The order $|\tau|$ is more involved, it represents the size of types, defined
 as follows:
 
@@ -125,7 +125,7 @@ After this, we can prove the desired property:
 $\\$ Given any recursive type $\mu\alpha.\tau$, $|\tau[\mu\alpha.\tau/\alpha]| < |\mu\alpha.\tau|$.
 \end{lem}
 \begin{proof}
-  Since $\alpha$ is guarded in $\mu\alpha.\tau$, we know $|\tau[\mu\alpha.\tau/\alpha]| \leq |\tau|$ from Lemma \ref{lem:worst-case-ty-size}.\
+  Since $\alpha$ is guarded in $\mu\alpha.\tau$, we know $|\tau[\mu\alpha.\tau/\alpha]| \leq |\tau|$ from Lemma \ref{lem:worst-case-ty-size}.
   By Definition \ref{def:worst-case-ty-size}, we have $|\tau| < (|\mu\alpha.\tau| = 1+|\tau|)$. Thus by transitivity of $<$, we get 
   $|\tau[\mu\alpha.\tau/\alpha]| < |\mu\alpha.\tau|$.
 \end{proof}
@@ -149,10 +149,10 @@ belongs to the term relation of $\tau$. Moreover, the relations of $v'$ and $e[v
 The value relation of the polymorphic type $\forall\kappa.\tau$ is similar, while the function application happens on the type: the $e$ inside 
 the index abstraction $\Lambda e$ needs to satisfy the term relation of the type $\tau[I/\kappa]$, which is instantiated by any well-formed index $I$.
 
-Next is the later type $\triangleright \tau$, defined inductively by $n$.\ If $n$ reaches 0, then 
+Next is the later type $\triangleright \tau$, defined inductively by $n$. If $n$ reaches 0, then 
 the relation holds trivially for $\delay e$. Otherwise, the term $e$ inside should belong to the value relation of $\tau$ at one step later, from $n+1$ to $n$ and $i$ to $i+1$. Notably, the value relation corresponds directly to the inductive value judgment of $\delay e$.
 
-The value relation for graded monads is of particular importance.\ If a monadic value $v$ of $\tmonad{I}{\tau}$ can be further forced 
+The value relation for graded monads is of particular importance. If a monadic value $v$ of $\tmonad{I}{\tau}$ can be further forced 
 to a pure result $v'$ with time-interpreted cost $c$, then $c$ should be bounded by the time interpretation of $I$, and the value relation should hold
 for $v'$. Note that the forcing evaluation can take place at any later time $j$, the semantic cost is always bounded by $I(j)$.
 
@@ -160,7 +160,7 @@ Lastly, recursive types are interpreted by unfolding: $\fold v$ satisfies the va
 In addition, the relation is well-founded by Lemma \ref{lem:rec-well-founded}.
 
 \subsection{Term Relation}
-The term relations have two forms.\ The $\erel{\tau}$ relation extends the value relation to terms by characterising their evaluation results. 
+The term relations have two forms. The $\erel{\tau}$ relation extends the value relation to terms by characterising their evaluation results. 
 Particularly, if a term $e$ evaluates to a value $v$ at any possibly smaller depth $m$, then $v$ should satisfy the value relation $\vrel{\tau}$.
 
 The term substitution relation $\erel{\Gamma}$ characterises substitutions that satisfy the typing context $\Gamma$.
@@ -170,7 +170,7 @@ The relation holds for $\gamma$ if each substituted value $\gamma(x)$ belongs to
 
 \section{Auxiliary Lemmas}
 \label{sec:axu-lemma}
-In this section, we establish several lemmas related to the model of $\lambda^g_{\mathsf{worst}}$, which will be used in the proof of the fundamental property.
+In this section, we establish several lemmas related to the model of $\lambda^g_{\mathsf{worst}}$, which will be used in the proof of the Fundamental Property.
 
 First, we show that the logical relations are monotone with respect to the step index and the Kripke world.
 In particular, decreasing the depth $n$ or advancing the time $i$ preserves the value and term relations.
@@ -225,12 +225,12 @@ Lemma \ref{lem:substitute-subtyping} is relatively simple, it specifies that sub
 Lemma \ref{lem:subtyping-polarity} is more interesting, substituing a subtyping relation to the same type does not preserve the original relation.
 Particularly, the relation will be reversed if the variable being substituted occurs negatively in the type.
 
-Since both typing judgments and subtyping judgments may contain free index variables, and rely on index constraints
-we need to consider index substitutions.\ Let $\iota$ denote a capture-avoiding index substitution, mapping index variables to well-formed indices. 
+Since both typing and subtyping judgments may contain free index variables, and rely on index constraints,
+we need to consider index substitutions. Let $\iota$ denote a capture-avoiding index substitution, mapping index variables to well-formed indices. 
 We write $\tau\iota$, $\Delta\iota$ and $\Gamma\iota$ for the corresponding substitutions into types, constraints and typing contexts.
-Additionally, the substitution should respect all the constraints, written $\cdot\models\Delta\iota$.
+Additionally, the substitution should respect all existing constraints, written $\cdot\models\Delta\iota$.
 
-Now we can demonstrate the subtyping property of our logical relations:
+Now we can show the subtyping properties of our logical relations:
 \begin{lem}[Subtyping of Logical Relation]
 \label{lem:worst-semantic-subtyping}
 $\\$ If $\Theta;\Delta\vdash\tau<:\tau'$ and $\cdot\models\Delta\iota$, 
@@ -298,9 +298,10 @@ $\\$ If $\Theta;\Delta\vdash\Gamma<:\Gamma', \cdot\models\Delta\iota$, and $(n,i
 \end{proof}
 
 Overall, Lemma \ref{lem:worst-semantic-subtyping} and Lemma \ref{lem:worst-case-ctx-subtyping} gives the compatibility of syntactic subtyping with the logical relations.
-They will be utilised to prove cases related to subtyping for the Fundamental Theorem.
+They will be utilised to prove cases related to subtyping for the Fundamental Property.
 
 \section{Fundamental Property}
+\label{sec:worst-case-fund}
 The central theorem to establish soundness is the fundamental property of logical relations.
 It states that a well-typed term belongs to the logical relation of its type, which 
 connects the syntactic type system to its semantic interpretation.
@@ -413,7 +414,7 @@ $(r,j,\gamma)\in\erel{\Gamma\iota}$. From the definition of the substitution rel
   (r,j,\gamma[x\mapsto v_1'])
   \in\erel{(\Gamma,x:\tau_1)\iota}.
 \]
-Therefore, applying IH2 gives
+Therefore, instantiating IH2 with this gives
 \[
   (r,j,(e_2\gamma[x\mapsto v_1')])
   \in\erel{\tmonad{I_2}{\tau_2}\iota}
@@ -468,7 +469,7 @@ From
   v'' = \delay v_0'
 \]
 Since $p+1 \leq m\leq n$ and $j\geq i$, applying IH and Lemma \ref{lem:worst-case-mono} gives
-\[(p+1,j,e\gamma) \in \erel{\triangleright(\tmonad{ I\iota}{\tau\iota})}.\]
+\[(p+1,j,e\gamma) \in \erel{\triangleright(\tmonad{ I\iota}{\tau\iota})}\]
 Unfolding this term relation and instantiating it with $e\gamma\Downarrow_{p+1}\delay v_0$ gives
 \[
   (p+1,j,\delay v_0)

@@ -28,7 +28,7 @@ When you open the book, there are three borders of equal size~$n$. This however 
    \alpha\mid\textbf{1}\mid\textbf{b}\mid\tau_1\multimap\tau_2
    \mid\tau_1\otimes\tau_2\mid\tau_1\;\&\;\tau_2\mid\tau_1\oplus\tau_2\\
  &&&&&\mid\mu\alpha.\tau\mid\triangleright\tau\mid\tmonad{I}{\tau}
-   \mid L^n\tau\mid\forall\kappa:S.\tau\mid[p]\tau\mid\,!\tau\\[.6ex]
+   \mid L^s\tau\mid\forall\kappa:S.\tau\mid[s]\tau\mid\,!\tau\\[.6ex]
  &\text{Expressions} &&e &\;::={}&\langle\rangle\mid b \mid x \mid \tlam{x}{e}\mid e_1e_2
    \mid\fold e\mid\unfold e\mid e_1\circledast e_2\\
  &&&&&\mid\delay e\mid\ttuple{e_1}{e_2} \mid \tuple{e_1}{e_2}
@@ -39,7 +39,7 @@ When you open the book, there are three borders of equal size~$n$. This however 
  &&&&&\mid\lete{!x}{e_1}{e_2}\mid\lete{\ttuple{x}{y}}{e_1}{e_2}\\[.6ex]
  &&&&&\mid\ret e\mid\tick{I}\mid\bind{x}{e_1}{e_2}\mid\pull e\\
  &&&&&\mid\store e\mid\release{x}{e_1}{e_2}\\[.6ex]
- &\text{Indices} &&I,J,n,p&\;::={}&\kappa\mid N\mid R\mid\clk\mid I+J\mid I-J\\
+ &\text{Indices} &&I,J,s&\;::={}&\kappa\mid N\mid R\mid\clk\mid I+J\mid I-J\\
  &&&&&\mid\textstyle{\sum}_{\kappa<n}I\mid\mathsf{S}^n(I)\\[.6ex]
  &\text{Sorts} &&S &\;::={}&\mathbb N\mid\mathbb R_{\ge0} \\
  &\text{Constraints} &&C &\;::={}&I\leq J\mid I=J\\[.6ex]
@@ -159,10 +159,10 @@ When you open the book, there are three borders of equal size~$n$. This however 
 
     \inferrule*[right=WF-Pot]
       {\Psi;\Theta;\Delta\vdash\tau \quad 
-        \Theta;\Delta\vdash p:\mathbb{R}_{\ge0}
-        \quad \Theta;\Delta \models p=\mathsf{S}(p) 
+        \Theta;\Delta\vdash s:\mathbb{R}_{\ge0}
+        \quad \Theta;\Delta \models s=\mathsf{S}(s) 
         }
-      {\Psi;\Theta;\Delta\vdash[p]\tau}
+      {\Psi;\Theta;\Delta\vdash[s]\tau}
 
     \inferrule*[right=WF-Exp]
       {\Psi;\Theta;\Delta\vdash\tau}
@@ -323,13 +323,13 @@ When you open the book, there are three borders of equal size~$n$. This however 
 
 \inferrule*[right=T-Store]
   {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau}
-    \quad\Theta;\Delta\vdash p:\mathbb{R}_{\ge0}}
-  {\hastype{\Theta;\Delta;\Omega;\Gamma}{\store e}{\tmonad{p}{([p]\tau)}}}
+    \quad\Theta;\Delta\vdash n:\mathbb{R}_{\ge0}}
+  {\hastype{\Theta;\Delta;\Omega;\Gamma}{\store e}{\tmonad{n}{([s]\tau)}}}
 
 \inferrule*[right=T-Release]
-  {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{[p]\tau_1}
+  {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{[s]\tau_1}
     \quad\hastype{\Theta;\Delta;\Omega;\Gamma_2,x:\tau_1}{e_2}
-      {\tmonad{(p+I)}{\tau_2}}}
+      {\tmonad{(s+I)}{\tau_2}}}
   {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}
     {\release{x}{e_1}{e_2}}{\tmonad{I}{\tau_2}}}
 
@@ -384,8 +384,8 @@ When you open the book, there are three borders of equal size~$n$. This however 
       {\Theta;\Delta\vdash \mu\alpha.\tau <: \mu\alpha.\tau'}
 
     \inferrule*[right=Sub-Pot]
-      {\Theta;\Delta\vdash\tau<:\tau'\quad\Theta;\Delta\models p'\leq p}
-      {\Theta;\Delta\vdash[p]\tau<:[p']\tau'}
+      {\Theta;\Delta\vdash\tau<:\tau'\quad\Theta;\Delta\models s'\leq s}
+      {\Theta;\Delta\vdash[s]\tau<:[s']\tau'}
 
     \inferrule*[right=Sub-Exp]
       {\Theta;\Delta\vdash\tau<:\tau'}
@@ -610,10 +610,11 @@ When you open the book, there are three borders of equal size~$n$. This however 
       {e\Downarrow_n v}
       {\store e\Downarrow_{n,i}^{0}v}
 
-    \inferrule*[right=E-Release]
-      {e_2[v_1/x]\Downarrow_n v_2 \quad
-       e_1\Downarrow_n v_1\quad v_2\Downarrow_{n,i}^{c}v}
-      {\release{x}{e_1}{e_2}\Downarrow_{n,i}^{c}v}
+  \inferrule*[right=E-Release]
+    { e_1\Downarrow_n v_1 \quad
+      e_2[v_1/x]\Downarrow_n v_2 
+      \quad v_2\Downarrow_{n,i}^{c}v}
+    {\release{x}{e_1}{e_2}\Downarrow_{n,i}^{c}v}
     \end{mathpar}
   \caption{Forcing Evaluation judgement}
 \end{figure}
@@ -624,20 +625,20 @@ When you open the book, there are three borders of equal size~$n$. This however 
   &|\tau_1\multimap\tau_2|=|\tau_1\otimes\tau_2|=|\tau_1\;\&\;\tau_2|=|\tau_1\oplus\tau_2|
     =1+|\tau_1|+|\tau_2|, \\
   &|L^s\tau|=|\forall\kappa.\tau|=|\mu\alpha.\tau|=|\tmonad{ I}{\tau}|
-    =|!\tau|=|[p]\tau|=1+|\tau|.
+    =|!\tau|=|[s]\tau|=1+|\tau|.
 \end{align*}
 \end{appbdef}
 
 \pagebreak
 \section{Proofs}
 
-\begin{appblem}[Downward closure of values]
+\begin{appblem}[Value Monotonicity]
 \label{lem:amortized-value-downward}
-$//$ If $\isval{e}{n}$ and $m\leq n$, then $\isval{e}{m}$.
+$\\ $ If $\isval{e}{n}$ and $m\leq n$, then $\isval{e}{m}$.
 \end{appblem}
 \begin{proof}
 Induction on the derivation of $\isval{e}{n}$.
-The \textsc{V-Constant} case is immediate; the cons, tensor, inl, inr, exp, and
+The \textsc{V-Constant} case is immediate; the cons, tensor, with, inl, inr, exp, and
 fold cases follow by the IH. For \textsc{V-NextBase}, necessarily $m=0$.
 For \textsc{V-NextInd}, let $n=k+1$ and $e=\delay e_0$, with
 $\isval{e_0}{k}$. If $m=0$, apply \textsc{V-NextBase}; otherwise
@@ -673,14 +674,14 @@ $\Theta;\Delta\vdash\tau_0<:\tau_1$, then
 \end{align*}
 \end{appblem}
 
-\begin{appblem}[Value monotonicity]
+\begin{appblem}[Value Monotonicity of Logical Relation]
 \label{lem:amortized-value-monotonicity}
 $\\$ If $(p,n,i,v)\in\vrel{\tau}$, $p\leq q$, $m\leq n$, and $j\geq i$, then
 $(q,m,j,v)\in\vrel{\tau}$.
 \end{appblem}
 \begin{proof}
 Induction on the lexicographic order $(n,|\tau|)$ and case analysis on $\tau$, 
-we apply \ref{lem:amortized-value-downward} to show $v \in \mathsf{Val}_m$ required by the goal for each case.
+we apply Lemma \ref{lem:amortized-value-downward} to show $\isval{v}{m}$ required by the goal for each case.
 \paragraph{Case $\tau = \textbf{b}$.}
 Directly from the definition of $\vrel{\textbf{b}}$.
 
@@ -688,7 +689,7 @@ Directly from the definition of $\vrel{\textbf{b}}$.
 Directly from the definition of $\vrel{\textbf{1}}$.
 
 \paragraph{Case $\tau = \tau_1\otimes\tau_2$.}
-Unfold the goal, it suffices to prove that there exists $v_1, v_2, q_1, q_2$ such that
+Unfold the definition of the goal, it suffices to prove that there exist $v_1, v_2, q_1, q_2$ such that
 \[
   v = \ttuple{v_1}{v_2} \land q_1+q_2\leq q 
   \land (q_1, m, j, v_1) \in \vrel{\tau_1} 
@@ -706,7 +707,7 @@ it remains to prove
 By the inner IH, we get the desired.
 
 
-\paragraph{Case $\tau = \tau_1\;\&\;\tau_2$.} Unfold the goal, it suffices to prove 
+\paragraph{Case $\tau = \tau_1\;\&\;\tau_2$.} Unfold the definition of the goal, it suffices to prove 
 \[
   v = \tuple{v_1}{v_2} \land
   (q, m, j, v_1) \in \vrel{\tau_1} \land 
@@ -733,14 +734,14 @@ $(p,n,i,v_1)\in\vrel{\tau_1}$; By the inner IH, we have $(q, m, j, v_1) \in \vre
 The proof is symmetric to the first subcase.
 
 \paragraph{Case $\tau = \tau_1\multimap\tau_2$.}
-Unfold the assumption, we know $v = \lambda x.e$. Unfold the goal, assume 
+Unfold the assumption, we know $v = \lambda x.e$. Unfold the definition of the goal, assume 
 $r \leq m$, $\ell \geq j$, $q'$ and $(q',r, \ell, v') \in \vrel{\tau_1}$,
 it suffices to show 
 \[(q+q',r, \ell, e[v'/x]) \in \erel{\tau_2}.\]
 Since $r\leq m\leq n$ and $\ell\geq j\geq i$, instantiating the assumption $(n, i, v) \in \vrel{\tau_1 \to \tau_2}$ with
 $q', r, \ell$ and $(q',r, \ell, v') \in \vrel{\tau_1}$ gives
 \[(p+q',r, \ell, e[v'/x]) \in \erel{\tau_2}.\]
-Since $p \leq q$, we know $p+q'\leq q+q'$, by \ref{lem:amortized-expression-monotonicity}, we get the desired.
+Since $p \leq q$, we know $p+q'\leq q+q'$, by Lemma \ref{lem:amortized-expression-monotonicity}, we get the desired.
 
 \paragraph{Case $\tau=\triangleright\tau'$.}
 We proceed by cases on $m$
@@ -758,15 +759,15 @@ Since $k \leq r$ and $j+1\geq i+1$, applying the outer IH gives
 \[(q, k,j+1,v')\in\vrel{\tau'}.\]
 Therefore we have $(q, k+1,j,\delay v') \in \vrel{\triangleright\tau'}$ by the definition of $\vrel{\triangleright \tau}$.
 
-\paragraph{Case $\tau=!\tau'$.} Unfold the goal, it suffices to prove
+\paragraph{Case $\tau=!\tau'$.} Unfold the definition of the goal, it suffices to prove
 \[(0, m, j,v) \in \vrel{\tau}.\]
 Unfold the assumption, we have $(0, n, i, v) \in \vrel{\tau}$.
 By the inner IH, we get the desired.
 
-\paragraph{Case $\tau=[p]\tau'$.}
-Unfold the goal, it suffices to prove that there exists $q'$ such that
+\paragraph{Case $\tau=[s]\tau'$.}
+Unfold the definition of the goal, it suffices to prove that there exists $q'$ such that
 \[q'+I(j) \leq q \land (q', m, j, v) \in \vrel{\tau}.\]
-Unfold the assumption, there exists $p'$ such that 
+Unfold the assumption, there exists a $p'$ such that 
 \[p'+ I(i) \leq p \land (p', n, i, v) \in \vrel{\tau}.\]
 Since $I$ is a constant and $p \leq q$, we know $p' + I(j) \leq p \leq q$.
 Instantiate the goal with $p'$, it remains to prove 
@@ -789,11 +790,11 @@ $(q, m,j,\fold v')\in\vrel{\mu\alpha.\tau'}$, which is the desired.
 
 \paragraph{Case $\tau = \forall\kappa.\tau$.}
 Unfold the assumption, we have $v = \Lambda.e$.
-Unfold the goal, given some $I$, it suffices to prove
+Unfold the definition of the goal, given some $I$, it suffices to prove
 \[(q, m,j,e) \in \erel{\tau[I/\kappa]}.\]
 Unfold and instantiate the assumption's relation with $I$, we have 
 \[(p, n,i,e) \in \erel{\tau[I/\kappa]}.\]
-By \ref{lem:amortized-expression-monotonicity}, we get the desired.
+By Lemma \ref{lem:amortized-expression-monotonicity}, we get the desired.
 
 \paragraph{Case $\tau = L^s \tau$.}
 We proceed by cases on $s$.
@@ -808,7 +809,7 @@ We proceed by cases on $s$.
   (n, i, l) \in \vrel{L^s\tau} \land
   (n, i, v') \in \vrel{\tau}.
 \]
-Unfold the goal, it suffices to prove that there exists $q1, q2$ such that
+Unfold the definition of the goal, it suffices to prove that there exist $q1, q2$ such that
 \[
   q_1 + q_2 \leq q \land
   (q_1,m, j, l) \in \vrel{L^s\tau} \land
@@ -821,50 +822,50 @@ Since $|L^s\tau| < |L^{s+1}\tau|$ and $|\tau| < |L^{s+1}\tau|$,
 by the inner IH, we get the desired.
 
 \paragraph{Case $\tau = \tmonad{I}{\tau'}$.}
-Unfold the goal, assume $r \leq m$, $\ell \geq j$, $v'$, and $c$
-with $v\Downarrow^c_{r,\ell}v'$. It suffices to show that there exists $q'$ such that
+Unfold the definition of the goal, assume $r \leq m$, $\ell \geq j$, $v'$, and $c$
+with $v\Downarrow^c_{r,\ell}v'$. It suffices to show that there exist a $q'$ such that
 \[c+q' \leq I(\ell)+q \land (q',r, \ell, v') \in \vrel{\tau'}.\]
 Since $r\leq m\leq n$ and $\ell\geq j\geq i$, unfolding and instantiating the assumption $(p, n, i, v) \in 
-\vrel{\tmonad{ I}{\tau'}}$ with $r, \ell$ and $v\Downarrow^c_{r,\ell}v'$ gives that there exists $p'$ such that
+\vrel{\tmonad{ I}{\tau'}}$ with $r, \ell$ and $v\Downarrow^c_{r,\ell}v'$ gives that there exist a $p'$ such that
 \[c+p' \leq I(\ell)+p \land (p',r, \ell, v') \in \vrel{\tau'}.\]
 Since $p \leq q$, we know $c+p' \leq I(\ell) + q$. Therefore, instantiating the goal with $p'$ gives the desired.
 \end{proof}
 
-\begin{appblem}[Expression monotonicity]
+\begin{appblem}[Term Monotonicity of Logical Relation]
 \label{lem:amortized-expression-monotonicity}
 $\\$ If $(p,n,i,e)\in\erel{\tau}$, $p\leq q$, $m\leq n$, and $j\geq i$, then
 $(q,m,j,e)\in\erel{\tau}$.
 \end{appblem}
 \begin{proof}
-Unfold the goal, assume $r \leq m$ and $e \Downarrow_r v$, it suffices to show 
+Unfold the definition of the goal, assume $r \leq m$ and $e \Downarrow_r v$, it suffices to show 
 \[(q, r, j, v) \in \vrel{\tau}.\] 
 Since $r \leq m \leq n$, instantiating the assumption $(p,n, i, e) \in \erel{\tau}$ with 
 $r$ and $e \Downarrow_r v$ gives
 \[(p,r,i,v) \in \vrel{\tau}.\]
-Since $q \ge p$ and $j \ge i$, we get the desired by instantiating \ref{lem:amortized-value-monotonicity} with $q, r, j, v$.
+Since $q \ge p$ and $j \ge i$, we get the desired by  Lemma \ref{lem:amortized-value-monotonicity}.
 \end{proof}
 
-\begin{appblem}[$\Gamma$ monotonicity]
+\begin{appblem}[$\Gamma$ monotonicity of Logical Relation]
 \label{lem:rcontext-monotonicity}
 $\\$ If $(p,n,i,\gamma) \in \erel{\Gamma}, p\leq q$, $m\leq n$, and $j\geq i$, then
 $(q,m,j,\gamma)\in\erel\Gamma$.
 \end{appblem}
 \begin{proof}
-Unfold the assumption relation, we have $f$ such that for $x \in dom(\Gamma)$
+Unfold the assumption's relation, there exist a $f$ such that for $x \in dom(\Gamma)$
 \[
   (f(x), n,i,\gamma(x)) \in \vrel{\Gamma(x)} 
   \land (\textstyle{\sum}_{x\in dom(\Gamma)}f(x)) \leq p.
 \]
-Unfolding and applying the goal to $f$, it suffices to prove 
+Instantiating the goal with $f$, it suffices to prove 
 \[
   (f(x), m,j,\gamma(x)) \in \vrel{\Gamma(x)} 
   \land (\textstyle{\sum}_{x\in dom(\Gamma)}f(x)) \leq q.
 \]
 Since $p \leq q$, we know $(\textstyle{\sum}_{x\in dom(\Gamma)}f(x)) \leq q$,
-by \ref{lem:amortized-value-monotonicity}, we get the desired.
+by Lemma \ref{lem:amortized-value-monotonicity}, we get the desired.
 \end{proof}
 
-\begin{appblem}[$\Omega$ monotonicity]
+\begin{appblem}[$\Omega$ monotonicity of Logical Relation]
 \label{lem:ucontext-monotonicity}
 $\\$ If $(0,n,i,\sigma) \in \erel{\Omega}$, $m\leq n$, and $j\geq i$, then
 $(0,m,j,\sigma)\in\erel\Omega$.
@@ -873,20 +874,14 @@ $(0,m,j,\sigma)\in\erel\Omega$.
   Similar to Lemma \ref{lem:rcontext-monotonicity}.
 \end{proof}
 
-\begin{appblem}[Value inclusion]
-\label{lem:amortized-value-inclusion}
-If $(p,n,i,v)\in\vrel{\tau}$, then $(p,n,i,v)\in\erel{\tau}$.
+\begin{appblem}[Value Subtyping of Logical Relation]
+\label{appb:val-subtyping}
+$\\$ If $\Theta;\Delta\vdash\tau<:\tau'$, $\cdot\models\Delta\iota$ and $(p,n,i,v) \in \vrel{\tau\iota}$, then $(p,n,i,v) \in \vrel{\tau'\iota}$.
 \end{appblem}
 
-\begin{appblem}[Value and expression subtyping inclusion]
-\label{lem:amortized-subtyping}
-If $\Theta;\Delta\vdash \tau<:\tau'$, $\iota:\Theta$, and
-$\cdot\models\Delta\iota$, then
-\[
-  \vrel{\tau\iota}\subseteq\vrel{\tau'\iota}
-  \qquad\text{and}\qquad
-  \erel{\tau\iota}\subseteq\erel{\tau'\iota}.
-\]
+\begin{appblem}[Term Subtyping of Logical Relation]
+\label{appb:term-subtyping}
+$\\$ If $\Theta;\Delta\vdash\tau<:\tau'$, $\cdot\models\Delta\iota$ and $(p,n,i,e) \in \erel{\tau\iota}$, then $(p,n,i,e) \in \erel{\tau'\iota}$.
 \end{appblem}
 
 \begin{appblem}[$\Gamma$ Subtyping: domain containment]
@@ -926,14 +921,15 @@ Induction on the derivation of $\Theta;\Delta\vdash\Gamma<:\Gamma'$.
 \begin{appbthm}[Fundamental property]
 \label{thm:amortized-fundamental}
 $\\$ If $\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau}$, 
-$(p_l,n,i,\gamma)\in\erel{\Gamma\iota}$, $(0,n,i,\delta)\in\erel{\Omega\iota}$, 
+$(p,n,i,\gamma)\in\erel{\Gamma\iota}$, $(0,n,i,\delta)\in\erel{\Omega\iota}$, 
 and $\cdot\models\Delta\iota$, then
-\[(p_l,n,i,e\gamma\delta)\in\erel{\tau\iota}.\]
+\[(p,n,i,e\gamma\delta)\in\erel{\tau\iota}.\]
 \end{appbthm}
 \begin{proof}
   Induction on the typing derivation.
 
-\paragraph{{\textsc{T-Var1}}}
+\begin{itemize}
+\item Case
 \[
   \inferrule*[right=T-Var1]
     { }
@@ -941,21 +937,20 @@ and $\cdot\models\Delta\iota$, then
 \]
 Unfold the definition of the goal's term relation, assume $m \leq n$ and $\gamma(x) \Downarrow_m v$, 
 it suffices to prove
-\[(p_l, m,i,v)\in\vrel{(\Gamma,x:\tau)\iota(x)}\]
-Since $\isval{\gamma(x)}{v}$, therefore we know $v = \gamma(x)$ from \textsc{E-Val}.
+\[(p, m,i,v)\in\vrel{(\Gamma,x:\tau)\iota(x)}\]
+By \textsc{V-Constant}, $\isval{\gamma(x)}{m}$, therefore we know $v = \gamma(x)$ from \textsc{E-Val}.
 Therefore, we need to show
-\[(p_l, m,i,\gamma(x))\in\vrel{\tau \iota}\]
+\[(p, m,i,\gamma(x))\in\vrel{\tau \iota}\]
 From the assumption we know
-$(p_l,n,i,\gamma)\in\erel{(\Gamma,x:\tau)\iota}$. Since $(\Gamma,x:\tau)\iota(x)=\tau\iota$, 
+$(p,n,i,\gamma)\in\erel{(\Gamma,x:\tau)\iota}$. Since $(\Gamma,x:\tau)\iota(x)=\tau\iota$, 
 unfolding this substitution relation gives
 \[
   \exists f.\;(f(x), n,i,\gamma(x))\in\vrel{(\tau\iota)}
-  \land f(x) \leq p_l
+  \land f(x) \leq p
 \]  
-By Lemma \ref{lem:amortized-value-monotonicity}, we have $(p_l,n,i,\gamma(x))\in\vrel{\tau\iota}$, which the desired.
+By Lemma \ref{lem:amortized-value-monotonicity}, we have $(p,n,i,\gamma(x))\in\vrel{\tau\iota}$, which the desired.
 
-
-\paragraph{{\textsc{T-Var2}}}
+\item Case
 \[
 \inferrule*[right=T-Var2]
   { }
@@ -963,44 +958,43 @@ By Lemma \ref{lem:amortized-value-monotonicity}, we have $(p_l,n,i,\gamma(x))\in
 \]
 Unfold the definition of the goal's term relation, assume $m \leq n$ and $\delta(x) \Downarrow_m v$
 It sffices to prove
-\[(p_l,n,i,v)\in\vrel{\tau\iota}\]
-Since $\isval{\delta(x)}{v}$, therefore we know $v = \delta(x)$ from \textsc{E-Val}.
+\[(p,n,i,v)\in\vrel{\tau\iota}\]
+By \textsc{V-Constant}, $\isval{\delta(x)}{m}$, therefore we know $v = \delta(x)$ from \textsc{E-Val}.
 Therefore, we need to show 
-\[(p_l,n,i,\delta(x))\in\vrel{\tau\iota}\]
+\[(p,n,i,\delta(x))\in\vrel{\tau\iota}\]
 From the assumption, we know $(0,n,i,\delta)\in\erel{(\Omega,x:\tau)\iota}$,
 Since $(\Omega, x:\tau)\iota(x) = \tau\iota$, unfolding this substitution relation gives
 \[(0, n, i, \delta(x)) \in \vrel{\tau\iota}\]
-Since $0 \leq p_l$, by Lemma \ref{lem:amortized-value-monotonicity}, we have $(p_l,n, i,\delta(x)) \in \vrel{\tau\iota}$, which is the
+Since $0 \leq p$, by Lemma \ref{lem:amortized-value-monotonicity}, we have $(p,n, i,\delta(x)) \in \vrel{\tau\iota}$, which is the
 desired.
 
-
-\paragraph{{\textsc{T-Unit}}}
+\item Case
 \[
 \inferrule*[right=T-Unit]
   { }
   {\hastype{\Theta;\Delta;\Omega;\Gamma}{\langle \rangle}{\textbf{1}}}
 \]
-Unfold the goal, assume $m\leq n$ and
+Unfold the definition of the goal, assume $m\leq n$ and
 $\langle\rangle\Downarrow_m v$, it suffices to show
-\[(p_l, m,i,v)\in\vrel{\textbf{1}}.\]
+\[(p, m,i,v)\in\vrel{\textbf{1}}.\]
 From \textsc{V-Constant}, we know $\langle\rangle\;\mathsf{val}_m$.
 Therefore, by \textsc{E-Val}, we have $v=\langle\rangle$. 
 Unfold the value relation required by the goal, we get the desired directly.
 
-\paragraph{{\textsc{T-Nil}}}
+\item Case
 \[
   \inferrule*[right=T-Nil]
       { }
       {\hastype{\Theta;\Delta;\Omega;\Gamma}{nil}{L^0\tau}}
 \]
-Unfold the goal, assume $m \leq n$ and
+Unfold the definition of the goal, assume $m \leq n$ and
 $nil \Downarrow_m v$.  It suffices to show
-\[(p_1, m, i, v) \in \vrel{L^0\tau}.\]
+\[(p, m, i, v) \in \vrel{L^0\tau}.\]
 From \textsc{V-Constant}, we know $nil\;\mathsf{val}_m$.
-Therefore, by \textsc{E-Val}, we have $v=nil$.
+By \textsc{E-Val}, we have $v=nil$.
 Unfold the value relation required by the goal, we get the desired directly.
 
-\paragraph{{\textsc{T-Cons}}}
+\item Case
 \[
 \inferrule*[right=T-Cons]
   {
@@ -1009,37 +1003,37 @@ Unfold the value relation required by the goal, we get the desired directly.
     \quad \Theta;\Delta\vdash n:\mathbb{N}}
   {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{e_1::e_2}{L^{n+1}\tau}}
 \]
-Unfold the goal, assume $m\leq n$ and
+Unfold the definition of the goal, assume $m\leq n$ and
 $e_1\gamma\delta::e_2\gamma\delta \Downarrow_m v$. It suffices to show
-\[(p_l,m, i, v) \in \vrel{L^{s\iota+1}\tau\;\iota}.\]
+\[(p,m, i, v) \in \vrel{L^{s\iota+1}\tau\;\iota}\]
 From \textsc{E-Cons}, we have 
 \[
   v = v'::l, \quad 
   e_1\gamma\delta\Downarrow_m v', \quad
-  e_2\gamma\delta\Downarrow_m l.
+  e_2\gamma\delta\Downarrow_m l
 \]
-unfold and apply the value relation to $v'::l$, it suffices to prove that
+Unfold and value relation of the goal and instantiate it with $v'::l$, it suffices to prove that
 \[
-  \exists p_1,p_2.\;p_1+p_2\leq p_l \land 
+  \exists p_1,p_2.\;p_1+p_2\leq p \land 
   (p_2,m, i, v') \in \vrel{\tau \iota}
   \land (p_2,m, i, l) \in \vrel{L^{s\iota}\tau\;\iota}.\quad(2)
 \]
-From the definition of the affine substitution relation and the definition of $\Gamma_1+\Gamma_2$, 
+From the definition of the affine substitution relation, 
 we have 
 \[
-  \exists p_{l_1}, p_{l_2}.\;p_{l_1} + p_{l_2}= p_l \land 
- (p_{l_1},n,i,\gamma) \in \erel{\Gamma_1\iota} \land
- (p_{l_2},n, i, \gamma) \in \erel{\Gamma_2\iota}.
+  \exists p_1, p_2.\;p_1 + p_2= p \land 
+ (p_1,n,i,\gamma) \in \erel{\Gamma_1\iota} \land
+ (p_2,n, i, \gamma) \in \erel{\Gamma_2\iota}.
 \]
-Instantiate (2) with $p_{l_1}, p_{l_2}$, it remains to prove
-\[(p_{l_1}, m, i, v') \in \vrel{\tau \iota} \land (p_{l_2},m, i, l) \in \vrel{L^{s\iota}\tau\;\iota}.\]
-By IH1, we have $(p_{l_1},n, i, e_1\gamma\delta) \in \erel{\tau\iota}$.
-Unfolding and applying this expression relation to $e_1\gamma\Downarrow_m v'$, we have 
-$(p_{l_1}, m, i, v') \in \vrel{\tau \iota}$. Likewise,we have $(p_{l_2},n, i, e_2\gamma\delta) \in \erel{\tau\iota}$
-by IH2. Applying this expression relation to $e_2\gamma\Downarrow_m l$, we have $(p_{l_2},m, i, l) \in \vrel{L^{s\iota}\tau\;\iota}$.
+Instantiate (2) with $p_1, p_2$, it remains to prove
+\[(p_1, m, i, v') \in \vrel{\tau \iota} \land (p_2,m, i, l) \in \vrel{L^{s\iota}\tau\;\iota}.\]
+By IH1, we have $(p_1,n, i, e_1\gamma\delta) \in \erel{\tau\iota}$.
+Unfolding and applying this term relation to $e_1\gamma\Downarrow_m v'$, we have 
+$(p_1, m, i, v') \in \vrel{\tau \iota}$. Likewise,we have $(p_2,n, i, e_2\gamma\delta) \in \erel{\tau\iota}$
+by IH2. Applying this term relation to $e_2\gamma\Downarrow_m l$, we have $(p_2,m, i, l) \in \vrel{L^{s\iota}\tau\;\iota}$.
 , and we are done.
 
-\paragraph{{\textsc{T-Match}}}
+\item Case
 \[
 \inferrule*[right=T-Match]
     {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e}{L^n\tau}
@@ -1049,52 +1043,199 @@ by IH2. Applying this expression relation to $e_2\gamma\Downarrow_m l$, we have 
       }
     {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{\lmatch{e}{e_1}{h}{t}{e_2}}{\tau'}}
 \]
-Unfold the goal, assume $m\leq n$ and
+Unfold the definition of the goal, assume $m\leq n$ and
 $(\lmatch{e\gamma\delta}{e_1\gamma\delta}{h}{t}{e_2\gamma\delta})\Downarrow_m v$. It suffices to show
-\[(p_l,m, i,v) \in \vrel{\tau'\iota}.\]
-From the definition of the affine substitution relation and the definition of $\Gamma_1+\Gamma_2$, 
+\[(p,m, i,v) \in \vrel{\tau'\iota}.\]
+From the definition of the affine substitution relation,
 we have 
 \[
-  \exists p_{l_1}, p_{l_2}.\;p_{l_1} + p_{l_2}= p_l \land 
- (p_{l_1},n,i,\gamma) \in \erel{\Gamma_1\iota} \land
- (p_{l_2},n, i, \gamma) \in \erel{\Gamma_2\iota}. \quad (3)
+  \exists p_1, p_2.\;p_1 + p_2= p \land 
+ (p_1,n,i,\gamma) \in \erel{\Gamma_1\iota} \land
+ (p_2,n, i, \gamma) \in \erel{\Gamma_2\iota}. \quad (3)
 \]
 From \textsc{E-MatchNil} and \textsc{E-MatchCons}, we know there is some 
 $v'$ such that $e\gamma\delta \Downarrow_m v'.$ 
 We proceed by cases on $v'$.
 
-\smallskip
-\noindent\emph{Subcase $v'= nil$.}
+\begin{itemize}
+  \item {Subcase $v'= nil$}.
 From \textsc{E-MatchNil}, we have $e_1\gamma\delta \Downarrow_m v$.
-By IH2, we have $(p_{l_2},n, i, e_1\gamma\delta) \in \erel{\tau'\iota}$.
-Apply this expression relation to $e_1\gamma\delta \Downarrow_m v$ gives 
-\[(p_{l_2},m, j, v) \in \vrel{\tau'\iota}.\]
-By \ref{lem:amortized-value-monotonicity}, we have 
-\[(p_{l_1}+p_{l_2},m, j, v) \in \vrel{\tau'\iota},\]
-Since $p_{l_1}+p_{l_2} = p_l$, we have the desired.
+By IH2, we have $(p_2,n, i, e_1\gamma\delta) \in \erel{\tau'\iota}$.
+Instantiating this term relation with $e_1\gamma\delta \Downarrow_m v$ gives 
+\[(p_2,m, j, v) \in \vrel{\tau'\iota}.\]
+By Lemma \ref{lem:amortized-value-monotonicity}, we have 
+\[(p_1+p_2,m, j, v) \in \vrel{\tau'\iota},\]
+Since $p_1+p_2 = p$, we have the desired.
 
-\smallskip
-\noindent\emph{Subcase $v'= v_f::l$.}
+\item Subcase $v'= v_f::l$.
 From \textsc{E-MatchCons}, we have $e_2\gamma\delta[v_f/h][l/t]\Downarrow_m v$.
-Let \[\gamma' = \gamma[h\mapsto v_f][t\mapsto l],\] by (Subst1), we have $e_2\gamma'\delta\Downarrow_m v$.
-By IH1, we have $(p_{l_1},n,i,e_1\gamma\delta) \in \erel{\Gamma_1\iota}$.
-Apply this to $e\gamma\delta\Downarrow_m v'$, we have 
-\[ (p_{l_1},m, i,v_f::l) \in \vrel{L^{s\iota}\tau\;\iota}.\]
-Unfold this value relation, we have 
+Let \[\gamma' = \gamma[h\mapsto v_f][t\mapsto l]\] Thus, we have $e_2\gamma'\delta\Downarrow_m v$.
+By IH1, we have $(p_1,n,i,e_1\gamma\delta) \in \erel{\Gamma_1\iota}$.
+Instantiate this with $e\gamma\delta\Downarrow_m v'$, we have 
+\[ (p_1,m, i,v_f::l) \in \vrel{L^{s\iota}\tau\;\iota}.\]
+Unfold the definition of this relation, we have 
 \[
-  \exists p_1',p_2'.\;p_1'+p_2' \leq p_{l_1} \land
+  \exists p_1',p_2'.\;p_1'+p_2' \leq p_1 \land
   (p_1',m,i,v_f) \in \vrel{\tau \iota} \land
   (p_2',m,i,l) \in \vrel{L^{s\iota-1}\tau\;\iota}.
 \]
-Therefore, let $f(h) =p_1', f(t)=p_2'$, then we know $(p_{l_2}+p_{l_1}, n, i, \gamma') \in 
-\erel{(\Gamma_2,h:\tau,t:L^{s-1})\iota}$ by (3) and the definition of the substitution relation.
+Unfold the definition of $(p_2,n, i, \gamma) \in \erel{\Gamma_2\iota}$, there exists a $f$ such that 
+\[
+  \forall x\in{dom}(\Gamma_2).\;(f(x),n,i,\gamma(x))\in\vrel{\Gamma_2(x)} \land
+        (\textstyle\sum_{x\in dom(\Gamma_2)}f(x)\leq p_2)
+\]
+Let $f' = f[h \mapsto p_1'][t \mapsto p_2']$, then we know 
+\[\textstyle\sum_{x\in dom((\Gamma_2, h:\tau, t:L^{s-1}\iota))}f'(x)\leq p_2\]
+By the definition of $\erel{(\Gamma_2, h:\tau, t:L^{s-1})\iota}$, 
+\[ 
+  (p_2+p_1, n, i, \gamma') \in \erel{(\Gamma_2,h:\tau,t:L^{s-1})\iota}
+\] 
 Apply IH3 to this, we have 
-\[(p_{l_1}+p_{l_2}, n, i, e_2\gamma'\delta) \in \erel{\tau'\iota}.\]
-Unfold and apply this relation to $e_2\gamma'\delta \Downarrow_m v$, we have 
-\[(p_{l_1}+p_{l_2}, m, i, v) \in \erel{\tau'\iota}.\]
-Since $p_{l_1}+p_{l_2}=p_l$, we have the desired.
+\[(p_1+p_2, n, i, e_2\gamma'\delta) \in \erel{\tau'\iota}.\]
+Instantiate this relation with $e_2\gamma'\delta \Downarrow_m v$, we have 
+\[(p_1+p_2, m, i, v) \in \erel{\tau'\iota}.\]
+Since $p_1+p_2=p$, we obtain the desired.
+\end{itemize}
 
+\item Case
+\[
+  \inferrule*[right=T-Bind]
+    {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\tmonad{ I_1}{\tau_1}}
+      \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2,x:\tau_1}{e_2}{\tmonad{ I_2}{\tau_2}}}
+    {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{\bind{x}{e_1}{e_2}}{\tmonad{( I_1 + I_2)}{\tau_2}}}
+\]
 
+Unfold the definition of the goal, assume $m\leq n$ and $(\bind{x}{e_1\gamma\delta}{e_2\gamma\delta}) \Downarrow_m v$, it suffices to prove
+\[(p, m, i, v) \in \vrel{\tmonad{(I_1\iota+I_2\iota)}{\tau_2\iota}} \]
+From \text{V-Constant}, we know $\isval{(\release{x}{e_1\gamma\delta}{e_2\gamma\delta})}{m}$.
+Therefore, we know $v= (\bind{x}{e_1\gamma\delta}{e_2\gamma\delta})$ from \textsc{E-Val}, then we need to prove 
+\[
+(p, m, i, \bind{x}{e_1\gamma\delta}{e_2\gamma\delta}) \in \vrel{\tmonad{(I_1\iota+I_2\iota)}{\tau_2\iota}}
+\]
+Unfold the definition of this relation, assume $r \leq m$, $j\ge i$ and $\bind{x}{e_1\gamma\delta}{e_2\gamma\delta} \Downarrow^{c}_{r, j} v'$, it suffices to prove
+\[\exists p'. c+p' \leq p+I_1\iota(j) + I_2\iota(j) \land (p', r, j, v') \in \vrel{{\tau_2\iota}} \quad (\text{B0})\]
+From \textsc{E-Bind}, there exist $v_1, v_1',v_2, v_2', c_1,c_2$ such that 
+\[e_1\gamma\delta \Downarrow_r v_1, \quad v_1 \Downarrow^{c_1}_{r,j}v_1', \quad e_2\gamma\delta[v_1'/x] \Downarrow_r v_2, \quad v_2 \Downarrow^{c_2}_{r,j} v_2',\quad c=c_1+c_2,
+\quad v' = v_2'\]
+Since we are given $(p,n,i, \gamma) \in \erel{\Gamma_1\iota + \Gamma_2\iota}$, from the definition of the affine substitution relation, we know 
+\[ \exists p_1.\, p_2. p_1+p_2 = p \land (p_1,n,i, \gamma) \in \erel{\Gamma_1\iota} \land (p_2,n,i, \gamma) \in \erel{\Gamma_2\iota}\]
+From IH1, we have $(p_1, n, i, e_1\gamma\delta) \in \erel{\tmonad{I_1\iota}{\tau_1\iota}}$.
+Instantiate this relation with $e_1\gamma\delta \Downarrow_r v_1$, we obtain $(p_1,n,i,v_1) \in \vrel{\tmonad{I_1\iota}{\tau_1\iota}}$.
+Instantiate this relation with $v_1 \Downarrow^{c_1}_{r,j}v_1'$, we have 
+\[\exists p_1'. c_1 + p_1' \leq p_1 + I_1\iota(j) \land (p_1', n, i, v_1) \in \vrel{\tau_1\iota} \quad (\text{B1})\]
+Let $\gamma' = \gamma[x\mapsto v_1']$, then we know $e_2\gamma'\delta \Downarrow_r v_2$ from $e_2\gamma\delta[v_1'/x] \Downarrow_r v_2$.
+From the definition of the affine substitution relation and (\text{B1}), we have 
+\[(p_2+p_1', n, i, \gamma') \in \erel{\Gamma_2\iota, x:\tau_1\iota}\]
+Instantiate IH2 with this gives
+\[(p_2+p_1', n, i, e_2\gamma'\delta) \in \erel{\tmonad{I_2\iota}{\tau_2\iota}}\]
+Instantiate this relation with $e_2\gamma'\delta \Downarrow_r v_2$, we get 
+\[(p_2+p_1', r, i, v_2) \in \vrel{\tmonad{I_2\iota}{\tau_2\iota}}\]
+Instantiate this relation with $v_2 \Downarrow^{c_2}_{r,j} v_2'$, we have 
+\[\exists p_2'.\,c_2+p_2' \leq p_2+p_1'+ I_2\iota(j) \land (p_2', r, j, v_2') \in \vrel{\tau_2\iota} \quad (\text{B2})\]
+
+To prove (B0), we choose $p_2'$ to be $p'$, then it suffices to show 
+\begin{itemize}
+  \item (1) $c+p_2' \leq p+I_1\iota(j) + I_2\iota(j)$.
+
+  From (B2), we know $c_2+p_2' \leq p_2+p_1'+ I_2\iota(j)$.
+
+  Adding $c_1$ on both side gives $c_1+c_2+p_2' \leq p_2+c_1+p_1'+ I_2\iota(j)$.
+
+  From (B1), we know $c_1 + p_1' \leq p_1 + I_1\iota(j)$. 
+
+  Therefore, we further get $c_1+c_2+p_2' \leq p_1+ p_2+ I_1\iota(j) + I_2\iota(j)$.
+
+  Since $c = c_1+c_2$ and $p=p_1+p_2$, we obtain the desired.
+
+  \item (2) $(p_2', r, j, v') \in \vrel{{\tau_2\iota}}$.
+
+  Since $v' = v_2'$, we obtain the desired from (B2).
+
+\end{itemize}
+
+\item Case
+\[
+  \inferrule*[right=T-Store]
+  {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau}
+    \quad\Theta;\Delta\vdash s:\mathbb{R}_{\ge0}}
+  {\hastype{\Theta;\Delta;\Omega;\Gamma}{\store e}{\tmonad{s}{([s]\tau)}}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and $\store e\gamma \Downarrow_m v$, it suffices to prove
+\[(p, m, i, v) \in \vrel{\tmonad{s\iota}{[s\iota]\tau\iota}}\]
+From \text{V-Constant}, we know $\isval{\store e\gamma}{m}$.
+Therefore, we know $v= \store e\gamma$ from \textsc{E-Val}, then we need to prove 
+\[(p, m, i, \store e\gamma) \in \vrel{\tmonad{s\iota}{[s\iota]\tau\iota}}\]
+Since $s\iota$ is a constant, unfold the definition of this relation, assume $r \leq m$, $j \ge i$ and $\store e\gamma \Downarrow^c_{r, j} v'$, it suffices to prove 
+\[\exists p'.\;c+p'\leq p+s\iota \land
+       (p',r,j,v')\in\vrel{[s\iota]\tau\iota} \]
+From \textsc{E-Store}, there exist $v'',c$ such that 
+\[ e\gamma \Downarrow_r v'', \quad c = 0,\quad v' = v''\]
+Therefore, we choose $p$ + $s\iota$ to be $p'$, then we need to prove 
+\[(p+s\iota,r,j,v'')\in\vrel{[s\iota]\tau\iota}\]
+Unfold the definition of this relation, it suffices to prove 
+\[\exists p''.\;p''+s\iota \leq p+s\iota \land
+      (p'',r,j,v'')\in\vrel{\tau\iota}\]
+Choose $p$ to be $p''$, it remains to show 
+\[(p,r,j,v')\in\vrel{\tau\iota}\]
+By IH, we have 
+\[ (p, n, i, e\gamma) \in \erel{\tau\iota} \]
+Unfold the definition of this relation and instantiate it with $e\gamma \Downarrow_r v''$, we have 
+\[(p,r,i,v'') \in \vrel{\tau\iota}\]
+Since $j \ge i$, applying Lemma \ref{lem:amortized-value-monotonicity} gives the desired.
+
+\item Case
+\[
+  \inferrule*[right=T-Release]
+  {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{[s]\tau_1}
+    \quad\hastype{\Theta;\Delta;\Omega;\Gamma_2,x:\tau_1}{e_2}
+      {\tmonad{(s+I)}{\tau_2}}}
+  {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}
+    {\release{x}{e_1}{e_2}}{\tmonad{I}{\tau_2}}}
+\]
+
+Unfold the definition of the goal, assume $m\leq n$ and $(\release{x}{e_1\gamma\delta}{e_2\gamma\delta}) \Downarrow_m v$, it suffices to prove
+\[(p, m, i, v) \in \vrel{\tmonad{I\iota}{\tau_2 \iota}} \]
+From \text{V-Constant}, we know $\isval{(\release{x}{e_1\gamma\delta}{e_2\gamma\delta})}{m}$.
+Therefore, we know $v= (\release{x}{e_1\gamma\delta}{e_2\gamma\delta})$ from \textsc{E-Val}, then we need to prove 
+\[
+(p, m, i, \release{x}{e_1\gamma\delta}{e_2\gamma\delta}) \in \vrel{\tmonad{I\iota}{\tau_2\iota}}
+\]
+Unfold the definition of this relation, assume $r \leq m$, $j\ge i$ and $\release{x}{e_1\gamma\delta}{e_2\gamma\delta} \Downarrow^{c}_{r, j} v'$, it suffices to prove
+\[\exists p'. c+p' \leq p+I\iota(j) \land (p', r, j, v') \in \vrel{{\tau_2\iota}} \quad (\text{R0})\]
+From \textsc{E-Release}, there exist $v_1, v_2, v_2'$ such that 
+\[e_1\gamma\delta \Downarrow_r v_1, \quad e_2\gamma\delta[v_1/x] \Downarrow_r v_2, \quad v_2 \Downarrow^c_{r,j} v_2',
+\quad v' = v_2'\]
+Since we are given $(p,n,i, \gamma) \in \erel{\Gamma_1\iota + \Gamma_2\iota}$, from the definition of the affine substitution relation, we know 
+\[ \exists p_1.\, p_2. p_1+p_2 = p \land (p_1,n,i, \gamma) \in \erel{\Gamma_1\iota} \land (p_2,n,i, \gamma) \in \erel{\Gamma_2\iota}\]
+From IH1, we have $(p_1, n, i, e_1\gamma\delta) \in \erel{[s\iota]\tau_1\iota}$. Instantiate this relation with $e_1\gamma\delta \Downarrow_r v_1$, we obtain $(p_1,n,i,v_1) \in \vrel{[s\iota]\tau_1\iota}$.
+Unfold the definition of this relation, we have 
+\[\exists p_1'. s\iota + p_1' \leq p_1 \land (p_1', n, i, v_1) \in \vrel{\tau_1\iota} \quad (\text{R1})\]
+Let $\gamma' = \gamma[x\mapsto v_1]$, then we know $e_2\gamma'\delta \Downarrow_r v_2$ from $e_2\gamma\delta[v_1/x] \Downarrow_r v_2$.
+From the definition of the affine substitution relation and (\text{R1}), we have 
+\[(p_2+p_1', n, i, \gamma') \in \erel{\Gamma_2\iota, x:\tau_1\iota}\]
+Instantiate IH2 with this gives
+\[(p_2+p_1', n, i, e_2\gamma'\delta) \in \erel{\tmonad{s\iota+I\iota}{\tau_2\iota}}\]
+Instantiate this relation with $e_2\gamma'\delta \Downarrow_r v_2$, we get 
+\[(p_2+p_1', n, i, v_2) \in \vrel{\tmonad{s\iota+I\iota}{\tau_2\iota}}\]
+Instantiate this relation with $v_2 \Downarrow^c_{r,j} v_2'$, we have 
+\[\exists p_2'.\,c+p_2' \leq p_2+p_1'+ s\iota + I\iota(j) \land (p_2', r, j, v_2') \in \vrel{\tau_2\iota} \quad (\text{R2})\]
+
+To prove (R0), we choose $p_2'$ to be $p'$, then it suffices to show 
+\begin{itemize}
+  \item (1) $c+p_2' \leq p+I\iota(j)$.
+
+  From (R1), we know $s\iota + p_1' \leq p_1$. 
+
+  Therefore, we have $c+p_2' \leq p_2+p_1 +s\iota +I\iota(j)$ from (R2).
+
+  Since $p=p_1+p_2$, we obtain the desired.
+
+  \item (2) $(p_2', r, j, v') \in \vrel{{\tau_2\iota}}$.
+
+  Since $v' = v_2'$, we obtain the desired from (R2).
+
+\end{itemize}
+\end{itemize}
 \end{proof}
 
 \begin{appbthm}[Soundness 1]

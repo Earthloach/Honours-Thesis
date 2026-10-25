@@ -421,7 +421,7 @@ Figure \ref{def:worst-case-type-well-form} shows the type well-formedness rules;
 $\Psi$ is the context that contains a set of type variables.  When checking a recursive type $\mu\alpha.\tau$, the context is extended with $\alpha$ to ensure that occurrences of this variable in $\tau$ are well-formed.
 We also need the contexts $\Theta$ and $\Delta$ to check sorts and constraints since types can mention indices.
 In particular, the \textsc{WF-Monad} rule requires the cost index to be a nonnegative real number; in the \textsc{WF-List} rule, we need to ensure that the 
-length of the list remains fixed across time by the constraint $I = \mathsf{S}(I)$ described before.
+length of a list remains fixed across time by the constraint $I = \mathsf{S}(I)$ described before.
 
 \textsc{WF-Rec} is a crucial rule in the type system. A type variable $\alpha$ is \emph{guarded} in a type $\tau$ if each
 occurrence of it in $\tau$ is beneath a later modality. This brings guarded recursion, where all self-references in the recursive type need to be 
@@ -703,7 +703,7 @@ The \textsc{T-Match} rule also adds more assumptions to refine existing constrai
 Likewise, the term-level index instantiation $e\;[\,]$ requires substituting index variable as the result type $\tau [I/\kappa]$.
 
 The rules for cost analysis are more interesting. $\ret e$ lifts a pure term $e$ typed $\tau$ into a monadic computation,
-it does not modify $e$ and incur any cost, hence the type is $\tmonad{0}{\tau}$. 
+it does not modify $e$ and incur any cost, and hence the type is $\tmonad{0}{\tau}$. 
 The monadic bind sequences two computations and sums their costs, as described by the \textsc{T-Bind} rule.
 \textsc{T-Tick} is the rule for the $\tick{I}$ operation, it returns a result of the unit type and produces the cost $I$.
 The \textsc{T-Pull} rule type-checks the $\pull e$ term, it distributes the later modality and the graded monad, pulling the 
@@ -753,12 +753,12 @@ prefix of a possibly infinite result.
 
 Figure \ref{def:values} gives the value judgments. The judgments of most constructors are defined compositionally by their components. 
 For instance, \textsc{V-Pair} states that $\tuple{e_1}{e_2}$ is a value when both $e_1$ and $e_2$ are values. \textsc{V-Constant} specifies terms that are considered directly as values no matter the value of $n$.
-Monads are lazy, hence their constructors are treated as values directly.
+Monads are lazy, and hence their constructors are treated as values directly.
 
 The judgment for $\mathsf{next}\,e$ is defined by induction on $n$: at depth $0$,
 $\mathsf{next}\,e$ is a value for any term $e$, and at depth $n+1$
 it is a value when $e$ is a value at depth $n$. Once the depth reaches
-$0$, terms inside a $\delay$ are considered as being suspended, hence they are accepted as values without inspecting their content.
+$0$, terms inside a $\delay$ are considered as being suspended, and they are accepted as values without inspecting their content.
 
 \begin{figure}[!htbp]
   \small
@@ -1288,15 +1288,15 @@ For example:
 \end{flalign*}
 
 The $\mathsf{takeC}$ function copies the first $J$ elements of the input stream into a co-list. It forces each element and stores their results,
-hence the final type is a monad that sums all the costs and returns a pure co-list. 
+and hence the final type is a monad that sums all the costs and returns a pure co-list. 
 
 Since $\mathsf{Nat}(J)$ is indeed a list, we can pattern match on 
-it to achieve the effect of recursion on natural numbers. In the base ($nil$) case, the function returns $null$ to end the co-list; $\mathsf{ret}$ gives cost 0, which is consistent with the type signature since 
+it to achieve the effect of recursion on natural numbers. In the base ($nil$) case, the function returns $null$ to end the co-list. $\mathsf{ret}$ gives cost 0, which is consistent with the type signature since 
 $\textstyle\sum_{\kappa<0}\mathsf{S}^\kappa I = 0$. In the recursive case, we use $\pull$ to access the recursive call that is originally guarded, 
 bind its result and the head computation to construct the final co-list. Note that the recursive call's type is also polymorphic, the natural number's size is instantiated with $J-1$.
 As a result, the cost of the $\pull$ is $\mathsf{S}(\textstyle{\sum}_{\kappa<(J-1)}\mathsf{S}^{\kappa} I)$, and the final cost is $\mathsf{S}(\textstyle{\sum}_{\kappa<(J-1)}\mathsf{S}^\kappa I) + I$.
 
-From the sort rule of bounded sum, we know $J$ is a time-independent natural number, then we can rewrite the cost to match that presented in the type signature:
+Since we know $J$ is a time-independent natural number, then we can rewrite the cost to match that presented in the type signature:
 \[
 \begin{aligned}
 \mathsf{S}\Bigl(\sum_{\kappa<J-1}\mathsf{S}^\kappa I\Bigr) + I 
@@ -1308,7 +1308,7 @@ From the sort rule of bounded sum, we know $J$ is a time-independent natural num
 
 Overall, indexed types such as $\mathrm{Nat}(I)$ let us process a finite prefix
 of an infinite type like the guarded stream, and the total cost is a finite sum. Since
-a stream cannot end, the results are collected in a type that can terminate,
+a stream cannot end, the results are collected in a data structure that can terminate,
 such as a co-list, which also agrees with the structure of guarded recursive types.
 
 % Common cost analysis program examples that process inductive data structures like indexed lists can be found in \cite{rajaniUnifyingTypetheoryHigherordera}

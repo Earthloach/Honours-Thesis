@@ -1,145 +1,200 @@
-\chapter{Some Rules on how to use \LaTeX{} Correctly}\label{chap:LaTeXAdvice}
+\chapter{From Worst-Case to Amortised Analysis}
+\label{chap: chap6}
 
-This chapter provides advice specifically on \LaTeX{}. Even if you are strong in \LaTeX{} already, you should carefully read this chapter because you might still make many errors that are explained in here -- many of them are still done even by actual scientists, so please don't skip this section. You should also use it as a checklist before you submit your work (or better yet: before you show it your supervisor(s)).
+In this chapter, we introduce $\lambda^g_{\mathsf{amor}}$, an extension of $\lambda^g_{\mathsf{worst}}$ that supports amortised cost analysis of guarded recursive programs. 
+Following $\lambda$-amor, the extended calculus incorporates an \emph{affine} type system and a \emph{graded potential} modal type. 
+Together, these features let types store potential and use it to offset costs, enabling type-based amortised analysis.
 
-
-\section{Special Care with Dots that don't end Sentences}
-
-You need to ``escape'' all blanks following a dot that does not end a sentence. E.g., ``This is 6 pt.\ project.''\ needs to be coded ``\verb!This is 6 pt.\ project.!'' as otherwise it looks as follows: ``This is 6 pt. project.''\ -- you see that in here the spacing after ``pt.''\ is way too large. This is because \LaTeX{} interprets each dot (with a following space) as one that ends a sentence -- after which more space is allocated. An escaped space in contrast produces a fixed space that doesn't get stretched. (Fun fact: when (mechanical) typewriters were still a thing, authors were hitting the space twice after each ``sentence-ending dot'' to produce exactly the behavior that \LaTeX{} does automatically.)
-
-Interestingly, \LaTeX{} even adds this extra space if a dot is within a closing parenthesis (like here.) I assume this is because in such cases one is not supposed to add another dot after the parenthesis to end the sentence, so it interprets this dot as ending the sentence although it's placed within a parenthesis. If this is not the case in your context, you will have to protect the space following the parenthesis, as in ``\verb!Figure, Table, Listing, Equation,! \verb!Chapter (etc.)\ references!'', as otherwise, as shown in ``Figure, Table, Listing, Equation, Chapter (etc.) references'', the space will be slightly too large.
-
-
-\section{Use the right Dashes}
-
-In \LaTeX, there are three kinds of dashes/hyphens:
-\begin{compactitem}
-  \item - (in \LaTeX: \verb!-!), hyphen: This hyphen is \emph{only} used to concatenate words, e.g., when you write ``state-of-the-art approach''. (A spelling rule often done wrong is that we still have to write ``this approach is state of the art'', although it would be ``this is a state-of-the-art approach''.)
-  \item -- (in \LaTeX: \verb!--!), en dash: This is a dash and usually used to depict ranges, e.g., instead to writing ``on pages 23 to 42'' we could write ``on pages 23--42''.
-  \item --- (in \LaTeX: \verb!---!), em dash: This longer dash is usually used to set off some information. For example, I hope that adding this section leads towards no student using a hyphen where a dash would be required --- although I assume that many will still do this wrong. :(
-\end{compactitem}
-
-The most important message here is that you should basically never use the hyphen where a dash is required. Whether you use the en dash or the em dash is however not of major importance as long as you stay consistent.
+We first present the extensions to the syntax, types, and semantics in Section~X.1.
+In Section~X.2 we discuss the restriction to time-independent potential grades and illustrate the calculus with program examples. 
+Finally, the extended model and soundness theorem of $\lambda^g_{\mathsf{amor}}$ are described in Section~X. 3.
 
 
-\section{Use the right Quotation Marks}
+\section{Overview of $\lambda^g_{\mathsf{amor}}$}
+The formalisation of $\lambda^g_{\mathsf{amor}}$ builds upon that of $\lambda^g_{\mathsf{worst}}$ presented in Chapter\ref{chap:4}. Rather than repeating the complete specification, we introduce the new and modified constructs. 
+The full formalisation is provided in Appendix~B.
 
-An error extremely often done in \LaTeX{}, is using the wrong quotation marks. These are ``correct quotation marks'', whereas these are "wrong ones". Just remember that correct quotation marks are always ``66/99'', whereas many students/\LaTeX{} beginners often incorrectly use "99/99". In \LaTeX{} code, this looks like:
-\begin{itemize}
-  \item 66/99, ``correct quotation marks''; keyboard symbols: \textasciigrave and \textquotesingle, so it's \textasciigrave\textasciigrave$\dots$\textquotesingle\textquotesingle
-  \item 99/99, ''\textbf{wrong} pair of quotation marks''; \textquotesingle\textquotesingle$\dots$\textquotesingle\textquotesingle{} or \verb!"!$\dots$\verb!"! in the code.
-  \item 66/66, ``another \textbf{wrong} pair of quotation marks``; \textasciigrave\textasciigrave$\dots$\textasciigrave\textasciigrave{} in the code.
-\end{itemize} 
-In fact, when somebody makes this error, it's most likely because they use the keyboard symbol \verb!"! both on the left and on the right, but on the left you need a different symbol, i.e., use \verb!`! twice! On the right, it does not matter whether you use the symbol \textquotesingle{} twice or the symbol \verb!"! once as both produce the same symbol in the PDF.
+\subsection{Affine Types and Potential}
+Based on $\lambda$-amor, we add the potential modality $[s] \tau$, this type carries $s$ units of potential, which can be used to cancel out the cost of subsequent computations.
+
+An important requirement is that stored potential cannot be duplicated arbitrarily, 
+since this would allow the same amount of potential to offset multiple costs.
+To enforce this restriction, we follow $\lambda$-amor to adopt affine types.
+Specifically, variables in an affine type system are used at most once, and hence term contexts cannot be 
+copied either. For example, consider the following two typing rules for function application:
+\begin{mathpar}
+  \inferrule*
+    {\hastype{\Gamma}{e_1}{\tau_1 \to \tau_2} \quad \hastype{\Gamma,x:\tau_1}{e_2}{\tau_2}}
+    { \Gamma \vdash e_1e_2 : \tau_2 }
+  \and
+  \inferrule*
+    {\hastype{\Gamma_1}{e_1}{\tau_1 \multimap \tau_2} \quad \hastype{\Gamma_2,x:\tau_1}{e_2}{\tau_2}}
+    { \Gamma_1+\Gamma_2 \vdash e_1e_2 : \tau_2 }
+\end{mathpar}
+The left rule is for a usual structural type system, while the right is for an affine type system, where the arrow type is written $\multimap$. Specifically, 
++ denotes the disjoint union between two contexts in the right rule, and the context must be split 
+into two separate parts $\Gamma_1$ and $\Gamma_2$ to ensure no variables is used more than once.
+
+To allow unrestricted use of variables when necessary, affine type systems employ the exponential modality $!\tau$, meaning that 
+a term of type $!\tau$ can be used arbitrarily many times. This is commonly achieved by separating the typing context into an affine context and an unrestricted context.
+
+Following this approach, the term typing judgment of $\lambda^g_{\mathsf{amor}}$ takes the form
+\[
+\Theta;\Delta;\Omega;\Gamma\vdash e:\tau
+\]
+$\Omega$ is the typing context that contains variables with unbounded usage.
+
+\subsubsection{Terms and Typing judgment}
+Figure \ref{fig:amor-typing-rules} shows selected typing rules of $\lambda^g_{\mathsf{amor}}$, which gives 
+an overview of its syntactic extensions compared to $\lambda^g_{\mathsf{worst}}$.
+
+$!e$ and $\lete{!x}{e_1}{e_2}$ are introduction and elimination constructs for the exponential type.
+In particular, the introduction rule \textsc{T-ExpI} requires the affine context to be empty, ensuring that a term promoted to the exponential type does not depend on affine resources.
+The elimination rule T-ExpE then allows the underlying term to be introduced into the unrestricted context, where it can be used multiple times.
+ 
+The ordinary product type $\times$ is replaced by two types: $\otimes$ and $\&$.
+The tensor pair $\ttuple{e_1}{e_2}$ typed $\tau_1 \otimes \tau_2$ can be introduced by the \textsc{T-TensorI} rule, which requires type-checking both
+$e_1$ and $e_2$ by splitting the affine context. This condition is captured by its elimination form $\lete{\ttuple{x}{y}}{e_1}{e_2}$ and the \textsc{T-TensorE} rule,
+where both $x$ and $y$ can be used inside the continuation $e_2$. Dually, \textsc{T-WithI} checks the ``with'' pair $\tuple{e_1}{e_2}$ typed $\tau_1\, \& \,\tau_2$ with the same affine context 
+on both sides, this means using one of the components may consume all the variables in the context, and
+only one side can be projected by either $\mathsf{fst}$ or $\mathsf{snd}$.
+
+We now turn to the graded potential modality \([s]\tau\) and its associated operations. $\store e$ is the atomic operation 
+that introduces potential. Potential cannot be created freely, its typing rule \textsc{E-Store} gives the result type 
+$\tmonad{s}{[s]\tau}$, requiring us to first pay for the resources we want to store.
+Finally, $\release{x}{e_1}{e_2}$ releases the potential stored in $e_1$ to offset the cost of the subsequent monadic computation $e_2$.
+Based on its typing rule \textsc{T-Release}, $e_1$ is a pure term typed $[s] \tau$, and the stored $s$ units pay for the same amount of 
+cost in $e_2$, then the final typed cost transforms from $s+I$ to $I$. Note that there is no term constructor for the pure type $[s]\tau$, we must first bind the monadic computation $\store e$ to obtain the inner potential.
+
+\begin{figure}[H]
+\begin{mathpar}
+ \inferrule*[right=T-Lam]
+      {\hastype{\Theta;\Delta;\Omega;\Gamma, x:\tau_1}{e}{\tau_2}}
+      {\hastype{\Theta;\Delta;\Omega;\Gamma}{\tlam{x}{e}}{\tau_1 \multimap \tau_2}}
+
+\inferrule*[right=T-App]
+      {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\tau_1 \multimap \tau_2}
+       \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2}{e_2}{\tau_1}}
+      {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{e_1e_2}{\tau_2}}
+
+\inferrule*[right=T-ExpI]
+  {\hastype{\Theta;\Delta;\Omega;\cdot}{e}{\tau}}
+  {\hastype{\Theta;\Delta;\Omega;\cdot}{!e}{!\tau}}
+
+\inferrule*[right=T-ExpE]
+  {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{!\tau_1}
+    \quad\hastype{\Theta;\Delta;\Omega,x:\tau_1;\Gamma_2}{e_2}{\tau_2}}
+  {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}
+    {\lete{!x}{e_1}{e_2}}{\tau_2}}
+
+\inferrule*[right=T-TensorI]
+      {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\tau_1}
+       \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2}{e_2}{\tau_2}}
+      {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{\ttuple{e_1}{e_2}}{\tau_1\otimes\tau_2}}
+
+\inferrule*[right=T-TensorE]
+  {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\tau_1\otimes\tau_2}
+    \quad\hastype{\Theta;\Delta;\Omega;\Gamma_2,x:\tau_1,y:\tau_2}{e_2}{\tau}}
+  {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}
+    {\lete{\ttuple{x}{y}}{e_1}{e_2}}{\tau}} 
+
+\inferrule*[right=T-WithI]
+      {\hastype{\Theta;\Delta;\Omega;\Gamma}{e_1}{\tau_1}
+       \quad \hastype{\Theta;\Delta;\Omega;\Gamma}{e_2}{\tau_2}}
+      {\hastype{\Theta;\Delta;\Omega;\Gamma}{\tuple{e_1}{e_2}}{\tau_1\;\&\;\tau_2}}
+
+\inferrule*[right=T-Fst]
+      {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau_1\;\&\;\tau_2}}
+      {\hastype{\Theta;\Delta;\Omega;\Gamma}{\mathsf{fst}\,e}{\tau_1}}
+
+\inferrule*[right=T-Snd]
+      {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau_1\;\&\;\tau_2}}
+      {\hastype{\Theta;\Delta;\Omega;\Gamma}{\mathsf{snd}\,e}{\tau_2}}
+
+\inferrule*[right=T-Store]
+  {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau}
+    \quad\Theta;\Delta\vdash s:\mathbb{R}_{\ge0}}
+  {\hastype{\Theta;\Delta;\Omega;\Gamma}{\store e}{\tmonad{s}{([s]\tau)}}}
+
+\inferrule*[right=T-Release]
+  {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{[s]\tau_1}
+    \quad\hastype{\Theta;\Delta;\Omega;\Gamma_2,x:\tau_1}{e_2}
+      {\tmonad{(s+I)}{\tau_2}}}
+  {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}
+    {\release{x}{e_1}{e_2}}{\tmonad{I}{\tau_2}}}
+\end{mathpar} 
+\caption{Selected typing rules for $\lambda^g_{\mathsf{amor}}$}
+\label{fig:amor-typing-rules}
+\end{figure}
+
+\subsubsection{Type Formations and Subtyping}
+The well-formedness and subtyping rules of $\lambda^g_{\mathsf{amor}}$ largely follow those of $\lambda^g_{\mathsf{worst}}$ presented in Section~\ref{sec:worst-case-type-system},
+with standard extensions for the new types added. 
+The notable rules are type formation and subtyping for the potential type, presented in Figure \ref{fig:amor-wellform-sub}.
+
+Intuitively, the potential index $s$ is required to be a real number and consistent with the cost grades of monads.
+However, we also restrict it to be time-independent by the familiar constraint $s = \mathsf{S}(s)$.
+The intuition of this is similar to that of affine typing: potential should not be created arbitrarily. 
+For example, the index $\clk$ that carries $i$ units of potential at time $i$ will be regarded as carrying $i+1$ units one step later, 
+without any additional potential being stored. Specifically, using time-dependent potential will lead to unsoundness of the type system, we wiil
+show a corresponding program example in the next section.
+\begin{figure}[H]
+\begin{mathpar}
+    \inferrule*[right=WF-Pot]
+      {\Psi;\Theta;\Delta\vdash\tau \quad 
+        \Theta;\Delta\vdash s:\mathbb{R}_{\ge0}
+        \quad \Theta;\Delta \models s=\mathsf{S}(s) 
+        }
+      {\Psi;\Theta;\Delta\vdash[s]\tau}
+
+    \inferrule*[right=Sub-Pot]
+    {\Theta;\Delta\vdash\tau<:\tau'\quad\Theta;\Delta\models s'\leq s}
+    {\Theta;\Delta\vdash[s]\tau<:[s']\tau'}
+\end{mathpar}
+\caption{Type Well-formedness and Subtyping rules for potential}
+\label{fig:amor-wellform-sub}
+\end{figure}
+The \textsc{Sub-Pot} rule allows excess potential to be discarded: a term having $s$ units of potential can be treated as carrying any smaller amount $s'$. 
+This is dual to \textsc{Sub-Monad}, which allows cost upper bounds to be increased.
+
+\subsection{Semantics}
+The operational semantics of $\lambda^g_{\mathsf{amor}}$ is akin to that of $\lambda^g_{\mathsf{worst}}$, 
+with additional rules for the new constructs. Here, we focus on the forcing evaluation rules for terms related to the potential type, presented in Figure \ref{fig:amor-forcing}.
+
+Although $\store e$ is statically assigned a cost accounting for the potential stored, its forcing evaluation incurs zero operational cost.
+The $\mathsf{release}$ operation resembles $\mathsf{bind}$, which just sequences two computations with the cost of the second.
+The semantics is sound since storing potential costs nothing, and hence releasing it to a computation does not decrease the cost.
+
+This reveals the ``ghost'' nature of potential, where it has no runtime manifestation, and the type system ensures that 
+it is used soundly.
+
+\begin{figure}[H]
+\begin{mathpar}
+  \inferrule*[right=E-Store]
+  {e\Downarrow_n v}
+  {\store e\Downarrow_{n,i}^{0}v}
+
+\inferrule*[right=E-Release]
+  { e_1\Downarrow_n v_1 \quad
+    e_2[v_1/x]\Downarrow_n v_2 
+    \quad v_2\Downarrow_{n,i}^{c}v}
+  {\release{x}{e_1}{e_2}\Downarrow_{n,i}^{c}v}
+\end{mathpar}
+\caption{Forcing evaluation rules for $\store$ and $\mathsf{release}$}
+\label{fig:amor-forcing}
+\end{figure}
+
+An unsound example: 
+$ \\
+\mathsf{releaseClk}: \tmonad{\mathsf{clk}}{\textbf{1}} \\
+\mathsf{releaseClk} \triangleq \bind{p}{\store-}{\pull}(
+\delay (\release{-}{p}{\tick{\mathsf{clk}}})) \\
+\mathsf{releaseClk} \Downarrow^{\mathsf{clk}(i+1)}_{n+1,i} \delay\langle\rangle  \\
+$
 
 
 
-\section{Variable Names}
-
-Very often, variable names will not be single letters, but \emph{words}, such as \emph{pre} for precondition or \emph{eff} for \emph{effects}. Since variables are often used in math mode, there's the temptation to just write them in math mode, e.g., \verb!$\langle pre,eff\rangle$!, resulting in ``$\langle pre,eff\rangle$''. You hopefully see that this looks incredibly ugly -- because \LaTeX{} sets the text incorrectly. Instead, you should put it into math italics. To save you effort, you should define a new macro:
-\begin{center}
-  \verb!\newcommand{\Pre} {\ensuremath{\mathit{pre}}}!\\
-  \verb!\newcommand{\Eff} {\ensuremath{\mathit{eff}}}!
-\end{center}
-  
-With this you can now simply write \verb!$\langle \Pre,\Eff\rangle$!, which now results into $\langle \Pre,\Eff\rangle$, which looks exactly as it should. (This template includes the file macros.tex, which you can use for all your macros.)
-
-
-
-\section{Using Graphics/Plots/Tables/Pictures correctly}
-
-% the figures are put in here so that it can be moved around in the document more easily
-% (since this way it's one line to move, otherwise it might be a large block of code)
-\input{figures/6-exampleGraphics}
-
-\begin{itemize}
-  \item Graphics ``float''. \LaTeX{} decides where they should be placed, not you. You can of course still influence that a bit (via the arguments for the figure environment, cf.~\url{https://tex.stackexchange.com/questions/39017/how-to-influence-the-position-of-float-environments-like-figure-and-table-in-lat}), depending on where you put the source code that includes the graphics, but \LaTeX{} will have the final word on where \emph{exactly} it will appear. Still, please make sure that your graphics appear at reasonable places so that reading the document remains being a pleasure. That means that you will have to reference each graphic. Thus, the reader will take a look at a graphic (i.e., figure) exactly when you reference it in the text, not when it's ``being seen''. (This also means that graphics/figures that are not referenced could and should be deleted from your work.)
-  \item In Figure~\ref{fig:graphicCaptionBelow} you see an example figure with its caption below -- which looks very ugly. Do that if the graphic is centered and wide enough. In contrast, Figure~\ref{fig:graphicCaptionAside} provides the caption next to the figure -- which in this case looks quite good since the graphic is portrait rather than landscape, i.e., now there is no lost space.
-\end{itemize}
-
-
-
-\section{Tables}
-
-Standard \LaTeX{} tables don't look particularly pleasing. Thus, it's generally recommended to use the \verb!booktabs! package, which was designed to produce aesthetically pleasing tables. Table~\ref{tab:meatPrices} provides an example, taken from the official manual (slightly adapted). One of the most important rules: Do not use vertical lines. Note that the table caption appears on top. This is set on purpose to align with several publishers, who demand that captions for tables are \emph{above} tables, whereas those for figures (i.e., everything else: graphics, plots etc.)\ are \emph{below}.
-  
-\begin{table}[!ht]
-  \begin{tabular}{llr}
-    \toprule
-    \multicolumn{2}{c}{\textbf{Item}} \\
-    \cmidrule(r){1-2}
-    \textbf{Animal} & \textbf{Description} & \textbf{Price} (\$)\\
-    \midrule
-    Gnat            & per gram             & 13.65      \\
-                    & each                 & 0.01       \\
-    Gnu             & stuffed              & 92.50      \\
-    Emu             & stuffed              & 33.33      \\
-    Armadillo       & frozen               & 8.99       \\
-    \bottomrule
-  \end{tabular}
-  \caption{This table lists prices for different kinds of animal meat.\label{tab:meatPrices}}
-\end{table}
 
 
 
 
-\section{Colored Links}
-
-By default you will see that all hyperlinks (e.g., to figures like Figure \ref{fig:graphicCaptionAside}, citations like by \cite{Smith2115Wubalubadubdub}, etc.) are colored. Personally, I (the author of this template) find that easier to read in the PDF than the alternative. The alternative is that hyperlinks are indicated by colored boxes that surround them (where the text itself remains black). You can choose between the two by the setting the option \verb!colorlinks = true! or \verb!colorlinks = false! in the hyperref definitions (where \verb!true! colors the words, whereas \verb!false! produces the box). Note a major difference between the two: The box is an annotation, so it's not visible when printing. If the text itself is colored then that's an actual text color, so it will appear as you see it in the PDF also in the printout. You can of course also change the colors.
-
-
-
-
-\section{Math environments}
-
-Just a very few very short notes on math environments. Very short since this is not supposed to be a \LaTeX{course}! Please use google to find tutorials etc.\ if needed.
-
-\begin{compactitem}
-  \item Inline math like $\sum\limits_{i=1}^n i=\frac{1}{2}(n\cdot (n+1))$ can be set using \verb!$!\emph{math stuff}\verb!$!.
-  \item To have something appear in its own new line and centered like the following:
-  \[\sum\limits_{i=1}^n i=\frac{1}{2}(n\cdot (n+1))\]
-  For this you have to use \verb!\[!\emph{math stuff}\verb!\]!. Note that \verb!$$!\emph{math stuff}\verb!$$! technically works as well, but this is actually \emph{wrong}! Just never use this syntax. If curious why (although it seems to work as well), just google it.
-  \item If you want to show several equations or a sequence thereof, there are useful environments like ``align'' or ``align$^*$'' (where the latter suppresses equation numbers). Again, just google it! But here's one example:
-  \begin{align}
-    \sum\limits_{i=1}^n i &= 1+2+3+4+\dots+n\\
-    \text{fibonacci series:}   &= 1\ 1\ 2\ 3\ 5\ 8 \dots
-  \end{align}
-  If your thesis is math-heavy, I strongly recommend to read through the \textsc{amsmath} package documentation or google related tutorials.
-\end{compactitem}
-
-
-
-\section{Algorithms}
-
-The following is a short example code using the \verb!algorithm2e! package. There are other packages for this, but this is one of the most frequently used ones.
-
-\begin{algorithm}[H]
-  \DontPrintSemicolon  % Don't print semicolon
-  \KwData{Your input data}
-  \KwResult{Result of the algorithm}
-  \SetKwFunction{FMain}{Main}
-  \SetKwProg{Fn}{Function}{:}{}
-  \Fn{\FMain{}}{
-      \tcc{initialize variables}
-      $\mathit{sum} \leftarrow 0$\; \label{alg:line:sumInit}
-      \For{$i\leftarrow 1$ \KwTo $n$}{
-          \tcc{process each element}
-          $\mathit{sum} \leftarrow \mathit{sum} + i$\;
-      }
-      \KwRet $\mathit{sum}$\;
-  }
-  \caption{Example algorithm using algorithm2e \label{alg:exampleAlg}}
-\end{algorithm}
-
-When you look into the \LaTeX{} code of Algorithm \ref{alg:exampleAlg}, you see that you can define labels for individual lines. This has been done as example for Line \ref{alg:line:sumInit}. It is very important to always use dynamic references (i.e., labels), in this case also for line numbers. This is because your algorithm might still change, and then your numbers would get outdated.
-
-
-
-\section{Further \LaTeX{} Issues or Questions?}
-
-In case your document doesn't compile, check out the log file and search for ``error'', often that points towards the problem quickly. I also recommend the following sources:
-\begin{itemize}
-  \item If you are a \LaTeX{} beginner, you might also want to take a look at a well-known \LaTeX{} introduction \citep{Oetiker2021LatexIntroduction}, which in the current version -- according to \citeauthor{Oetiker2021LatexIntroduction} -- takes ``only'' a bit more than two hours to work through.
-  \item ChatGPT/Claude/etc.\ can analyze your code, error messages, and even write code. Try it!
-  \item If that doesn't help, use \url{https://tex.stackoverflow.com/}. 
-\end{itemize}

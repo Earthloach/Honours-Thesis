@@ -268,7 +268,7 @@ Applying \textsc{Sub-Rec} gives the desired.
 \end{itemize}
 \end{proof}
 
-\begin{appalem}[Value Monotonicity]
+\begin{appalem}[Value Monotonicity of Logical Relation]
 \label{appa:worst-case-val-mono}
 $\\$ If $m \leq n, j \geq i$, and $(n,i,v)\in\vrel{\tau}$, then $(m,j,v)\in\vrel{\tau}$.
 \end{appalem}
@@ -378,7 +378,7 @@ Since $r\leq m\leq n$ and $\ell\geq j\geq i$, instantiating the assumption $(n, 
 \end{itemize}
 \end{proof}
 
-\begin{appalem}[Term Monotonicity]
+\begin{appalem}[Term Monotonicity of Logical Relation]
 \label{appa:worst-case-term-mono}
 $\\$ If $m \leq n, j \geq i$, and $(n,i,e)\in\erel{\tau}$, then $(m,j,e)\in\erel{\tau}$.
 \end{appalem}
@@ -386,7 +386,7 @@ $\\$ If $m \leq n, j \geq i$, and $(n,i,e)\in\erel{\tau}$, then $(m,j,e)\in\erel
   Unfold the definition of the term relation and apply Lemma \ref{appa:worst-case-val-mono}.
 \end{proof}
 
-\begin{appalem}[$\Gamma$ monotonicity] 
+\begin{appalem}[$\Gamma$ Monotonicity of Logical Relation] 
 \label{appa:worst-case-context-mono}
 $\\$ If $m\leq n$, $j\geq i$, and
 $(n,i,\gamma)\in\erel{\Gamma}$, then $(m,j,\gamma)\in\erel{\Gamma}$.
@@ -613,7 +613,7 @@ $(n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]}$.
 \end{itemize}
 \end{proof}
 
-\begin{appalem}[Expression subtyping Lemma]
+\begin{appalem}[Term Subtyping of Logical Relation]
 \label{appa:exp-subtyping}
 $\\$ If $\Theta;\Delta\vdash\tau<:\tau'$ and $\cdot\models\Delta\iota$, then $\erel{\tau\iota}\subseteq\erel{\tau'\iota}$.
 \end{appalem}
@@ -1235,7 +1235,7 @@ $(r,j,\gamma)\in\erel{\Gamma\iota}$. From the definition of the substitution rel
   (r,j,\gamma[x\mapsto v_1'])
   \in\erel{(\Gamma,x:\tau_1)\iota}.
 \]
-Therefore, applying IH2 gives
+Therefore, instantiating IH2 with this gives
 \[
   (r,j,(e_2\gamma[x\mapsto v_1')])
   \in\erel{\tmonad{I_2}{\tau_2}\iota}
