@@ -247,7 +247,7 @@ In addition, $\lambda$-amor incorporates constraint types to ensure certain cons
 However, we find that using constraints for type and subtype formations is enough for $\lambda^g_{\mathsf{worst}}$.
 
 \subsection{Terms}
-Expressions defined in Figure \ref{def:worst-case-syntax} covers all forms of terms in $\lambda^g_{\mathsf{worst}}$.
+Expressions defined in Figure~\ref{def:worst-case-syntax} covers all forms of terms in $\lambda^g_{\mathsf{worst}}$.
 Most terms are common in simply-typed lambda calculus and should be familiar. 
 $\delay$ and $\circledast$ are the applicative functor operations of the later type \citep{mcbrideP08}.
 The $\delay$ constructor introduces a term of the later type, and the $\circledast$ operator composes two terms of later type as a function application.
@@ -268,7 +268,7 @@ further discuss it in the next section.
 
 \section{Type System}
 \label{sec:worst-case-type-system}
-In this section, we present the typing judgments of $\lambda^g_{\mathsf{worst}}$. Figure \ref{fig:worst-case-judgments} lists all the judgment forms that constitute the type system.
+In this section, we present the typing judgments of $\lambda^g_{\mathsf{worst}}$. Figure~\ref{fig:worst-case-judgments} lists all the judgment forms that constitute the type system.
 
 \begin{figure}[!htbp]
   \centering
@@ -345,7 +345,7 @@ In this section, we present the typing judgments of $\lambda^g_{\mathsf{worst}}$
 The judgment for indices is in the form $\Theta;\Delta\vdash I: S$, where $\Theta$ is the context that maps index variables $\kappa$ to their sorts $S$, and 
 $\Delta$ is the context that contains constraints about indices as mentioned previously. Constraints in $\Delta$ may refer to variables in $\Theta$, we thus need to use them together.
 
-Figure \ref{defn:worst-case-sort-rule} presents the sort rules for indices. The \textsc{S-Var, S-Nat}  and \textsc{S-Real} rules should be self-explanatory. 
+Figure~\ref{defn:worst-case-sort-rule} presents the sort rules for indices. The \textsc{S-Var, S-Nat}  and \textsc{S-Real} rules should be self-explanatory. 
 The $\mathsf{clk}$ expression is treated as a natural number, representing the logical time. The \textsc{S-Real1} rule allows a natural number index to be used as a nonnegative real number with the same value. 
 For ordinary arithmetic operations, we require
 both arguments to have the same sort. Since indices cannot be negative according to all the sorts ($\mathbb{N}, \mathbb{R}_{\ge0}$), the subtraction $I - J$ needs to
@@ -417,7 +417,7 @@ ensuring that the shift only increments a fixed amount of time.
   \caption{Well-formedness rules for types}
   \label{def:worst-case-type-well-form}
 \end{figure}
-Figure \ref{def:worst-case-type-well-form} shows the type well-formedness rules; these rules specify how types are formed correctly in $\lambda^g_{\mathsf{worst}}$.
+Figure~\ref{def:worst-case-type-well-form} shows the type well-formedness rules; these rules specify how types are formed correctly in $\lambda^g_{\mathsf{worst}}$.
 $\Psi$ is the context that contains a set of type variables.  When checking a recursive type $\mu\alpha.\tau$, the context is extended with $\alpha$ to ensure that occurrences of this variable in $\tau$ are well-formed.
 We also need the contexts $\Theta$ and $\Delta$ to check sorts and constraints since types can mention indices.
 In particular, the \textsc{WF-Monad} rule requires the cost index to be a nonnegative real number; in the \textsc{WF-List} rule, we need to ensure that the 
@@ -429,7 +429,7 @@ guarded.
 
 \subsection{Subtyping}
 Subtyping is an important part of our type system, in particular, it allows a cost bound to be weakened in our type system. 
-Figure \ref{def:worst-case-subtyping} gives the subtyping rules.
+Figure~\ref{def:worst-case-subtyping} gives the subtyping rules.
 
 \begin{figure}[!htbp]
   \centering
@@ -694,7 +694,7 @@ record type variables.
 \label{def:worst-case-typing-judgment}
 \end{figure}
 
-The typing rules are presented in Figure \ref{def:worst-case-typing-judgment}. Most rules are standard, corresponding to the introduction and elimination rules for the respective type constructors.
+The typing rules are presented in Figure~\ref{def:worst-case-typing-judgment}. Most rules are standard, corresponding to the introduction and elimination rules for the respective type constructors.
 \textsc{T-Nil} is the rule for the term $nil$ that introduces an empty list, thus, the type is $L^0 \tau$.
 \textsc{T-Cons} describes the typing for the cons (::) expression which pushes a new element in front of a list, and the length index of the resulting list 
 needs to increase by one. Consequently, pattern matching on a list has two branches, where the list is either $nil$ or cons.
@@ -711,7 +711,7 @@ delayed monad out and keeps the inner result available in the future. Since we i
 the cost becomes $\mathsf{S}(I)$, here we write $\mathsf{S}(I)$ as $\mathsf{S}^1(I)$, meaning that it is calculated by shifting the time forward once.
 
 In the end, \textsc{T-Sub} connects subtyping with terms, and the \textsc{T-Weaken} rule uses the subtyping relation $<:$ between typing contexts.
-The subtyping judgment $\Theta;\Delta\vdash \Gamma <: \Gamma$ is defined inductively, where the rules are listed in Figure \ref{def:worst-case-context-sub}, where
+The subtyping judgment $\Theta;\Delta\vdash \Gamma <: \Gamma$ is defined inductively, where the rules are listed in Figure~\ref{def:worst-case-context-sub}, where
 $\cdot$ represents the empty context in the base case. As a result, a context $\Gamma'$ can be replaced by another context $\Gamma$ that 
 may contain extra variables with possibly their subtypes, which is analogous to record subtyping.
 
@@ -751,7 +751,7 @@ $\mathsf{next}$ constructors it may enter by a natural number $n$.
 A value at depth $n$ is thus a finite
 prefix of a possibly infinite result.
 
-Figure \ref{def:values} gives the value judgments. The judgments of most constructors are defined compositionally by their components. 
+Figure~\ref{def:values} gives the value judgments. The judgments of most constructors are defined compositionally by their components. 
 For instance, \textsc{V-Pair} states that $\tuple{e_1}{e_2}$ is a value when both $e_1$ and $e_2$ are values. \textsc{V-Constant} specifies terms that are considered directly as values no matter the value of $n$.
 Monads are lazy, and hence their constructors are treated as values directly.
 
@@ -836,7 +836,7 @@ The pure evaluation judgment is defined as $e \Downarrow_n v$, evaluating a pure
 Operationally, one can also think of the index $n$ as the amount of fuel
 available to an interpreter: evaluation may unfold recursive definitions at most $n$ times. 
 
-Figure \ref{def:worst-case-pure-eval} lists the rules of pure evaluation, they are conventional rules that can be found in most call-by-value calculi.
+Figure~\ref{def:worst-case-pure-eval} lists the rules of pure evaluation, they are conventional rules that can be found in most call-by-value calculi.
 Similar to the value judgment, the evaluations of $\delay e$ are defined inductively, where 
 we evaluate inside the constructor recursively. If $n$ is $0$, $\delay e$ then becomes a "thunk" that rejects further evaluation.
 Meanwhile, the rules for the $\circledast$ operator follow the same pattern, creating a thunk for function application at depth 0.
@@ -993,7 +993,7 @@ We can give $\delay(\delay(\mathsf{id}\,\langle\rangle))$ a larger $n$ to furthe
 The forcing evaluation judgment $e \Downarrow^{c}_{n,i} v$ relates a term $e$ of type $\tmonad{I}{\tau}$
 to a value $v$ of type $\tau$, it is indexed additionally by the time $i$ to interpret the cost of evaluation from a symbolic cost to a real cost $c$.
 
-Figure \ref{def:worst-case-forcing-eval} gives all the forcing evaluation rules. In particular, only constructors of monads have forcing evaluation. \textsc{E-Tick} gives the time interpretation of
+Figure~\ref{def:worst-case-forcing-eval} gives all the forcing evaluation rules. In particular, only constructors of monads have forcing evaluation. \textsc{E-Tick} gives the time interpretation of
 $I$ in the term $\tick{I}$ and reduces it to $\langle \rangle$, hence the evaluation costs $I(i)$. The \textsc{E-Return} rule specifies that $\ret e$ just gives the pure evaluation result of 
 $e$ with 0 cost. \textsc{E-Bind} composes two monadic computations $e_1$ and $e_2$ and sums the costs, it first evaluates $e_1$ purely to reach its monadic constructor, then 
 continues to force it, and similarly for $e_2$. Of greater interest is the $\text{E-Prepay}$ rule, evaluating $\pull e$ requires at least one amount of "fuel" to reduce inside the 
@@ -1065,7 +1065,7 @@ The proof of this theorem will be discussed in the next chapter.
 
 \FloatBarrier
 
-\section{Program Examples}
+\section{Example Programs}
 \label{sec:worst-case-program-examples}
 In this section, we present several programs in $\lambda^g_{\mathsf{worst}}$ that demonstrate the expressiveness of the 
 calculus and its type-based cost analysis features.
@@ -1269,10 +1269,10 @@ Next, we define the $\mathsf{Colist}$ type, which represents a possibly infinite
 \begin{align*}
   (::) &\triangleq \tlam{x}{\tlam{s}{\fold(\mathsf{inr}(\tuple{x}{s}))}}
   &&: \tau\to\triangleright\colist{\tau}\to\colist{\tau}, \\
-  (null) &\triangleq \fold(\mathsf{inl}\,\langle\rangle)
+  (\mathsf{null}) &\triangleq \fold(\mathsf{inl}\,\langle\rangle)
   &&: \colist{\tau}
 \end{align*}
-A co-list is almost the same as a guarded stream, except that it can terminate with a unit value, represented by the ``$null$'' constructor.
+A co-list is almost the same as a guarded stream, except that it can terminate with a unit value, represented by the ``$\mathsf{null}$'' constructor.
 Similar to stream, we also use the notation (::) as the cons constructor.
 
 After constructing the two types, we can use them to define functions that consume a fixed-length prefix of a stream.
@@ -1282,7 +1282,7 @@ For example:
   \to \tmonad{(\textstyle\sum_{\kappa<J}\mathsf{S}^\kappa I)}{\colist{\tau}} &&\\
 &\quad\mathsf{takeC} \triangleq \fix \lambda f.\Lambda.\Lambda.\lambda n.\lambda s. &&\\
 &\qquad\mathsf{match}\;n\;\mathsf{with} &&\\
-&\qquad\mid\;nil \mapsto \ret (null) &&\\
+&\qquad\mid\;nil \mapsto \ret (\mathsf{null}) &&\\
 &\qquad\mid\;-::n'\mapsto \bind{t}{\pull((f\;[\,]\;[\,])\circledast\tail s\circledast\delay n')}{} &&\\
 &\qquad\qquad\bind{h}{\head s}{}\ret(h::t) &&
 \end{flalign*}
@@ -1291,7 +1291,7 @@ The $\mathsf{takeC}$ function copies the first $J$ elements of the input stream 
 and hence the final type is a monad that sums all the costs and returns a pure co-list. 
 
 Since $\mathsf{Nat}(J)$ is indeed a list, we can pattern match on 
-it to achieve the effect of recursion on natural numbers. In the base ($nil$) case, the function returns $null$ to end the co-list. $\mathsf{ret}$ gives cost 0, which is consistent with the type signature since 
+it to achieve the effect of recursion on natural numbers. In the base ($nil$) case, the function returns $\mathsf{null}$ to end the co-list. $\mathsf{ret}$ gives cost 0, which is consistent with the type signature since 
 $\textstyle\sum_{\kappa<0}\mathsf{S}^\kappa I = 0$. In the recursive case, we use $\pull$ to access the recursive call that is originally guarded, 
 bind its result and the head computation to construct the final co-list. Note that the recursive call's type is also polymorphic, the natural number's size is instantiated with $J-1$.
 As a result, the cost of the $\pull$ is $\mathsf{S}(\textstyle{\sum}_{\kappa<(J-1)}\mathsf{S}^{\kappa} I)$, and the final cost is $\mathsf{S}(\textstyle{\sum}_{\kappa<(J-1)}\mathsf{S}^\kappa I) + I$.

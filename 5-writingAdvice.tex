@@ -23,13 +23,13 @@ In particular, the model gives interpretations to the types and can be used to p
 
 We begin by presenting the model in Section \ref{sec:worst-case-model}, 
 followed by auxiliary lemmas derived from it in Section \ref{sec:axu-lemma}.
-Finally, Section \ref{sec:worst-case-fund} demonstrates the fundamental property of the underlying logical relation, from which the soundness theorem follows.
+Finally, Section \ref{sec:worst-case-fund} demonstrates the Fundamental Property of the underlying logical relation, from which the soundness theorem follows.
 
 
 \section{Model}
 \label{sec:worst-case-model}
 The model of $\lambda^g_{\mathsf{worst}}$ is constructed using a step-indexed Kripke logical relation \citep{ahmed2004semantics}.
-Figure \ref{fig:worst-case-logical-relation} gives the formalisation of our model, which consists of two
+Figure~\ref{fig:worst-case-logical-relation} gives the formalisation of our model, which consists of two
 mutually recursive relations indexed by well-formed types:\ the value relation $\vrel{}$ and the term/expression relation $\erel{}$.
 Essentially, such relations are a family of sets of the triple $(n, i, e)$, where $e$ is a usual term in the calculus,
 the index $i$ serves as the Kripke world that represents the logical time, and $n$ is the evaluation ``depth’’ mentioned in the last chapter.
@@ -134,29 +134,29 @@ $\\$ Given any recursive type $\mu\alpha.\tau$, $|\tau[\mu\alpha.\tau/\alpha]| <
 We now explain the value relations in our model, which define properties that hold for the triple $(n, i, v)$. Similar to the evaluation judgment, we write $v$ 
 as a value that depends on $n$ based on the value judgment.
 
-The value relation of the unit type $\textbf{1}$ has only one inhabitant $\langle\rangle$, together with any $n$ and $i$.
-For the base type $\textbf{b}$, the relation just includes the value $b$ that belongs to the set of base-typed values, denoted $\llbracket \textbf{b} \rrbracket$.
+The value relation of the unit type ($\textbf{1}$) has only one inhabitant $\langle\rangle$, together with any $n$ and $i$.
+For the base type $(\textbf{b})$, the relation just includes the value $b$ that belongs to the set of base-typed values, denoted $\llbracket \textbf{b} \rrbracket$.
 The value relations for $\tau_1 \times \tau_2$ and $\tau_1 + \tau_2$ are standard, where both components of the product type need to satisfy the relation,
 and only one relation of the components needs to hold for the sum type.
 
-The value relation of the list type is defined by a nested induction on its size $s$ since $s$ is a natural number constant.
+The value relation of the list type ($L^s$) is defined by a nested induction on its size $s$ since $s$ is a natural number constant.
 If the size is 0, the relation contains the $nil$ value. For size $s+1$, the list is in the form of $v::l$,
 where both the head $v$ and the tail $l$ should satisfy their corresponding relations.
 
-The relation of the arrow type $\tau_1 \to \tau_2$ holds for the lambda abstraction $\lambda.e$
+The relation of the arrow type $(\tau_1 \to \tau_2)$ holds for the lambda abstraction $\lambda.e$
 if it receives an argument $v'$ that satisfies the value relation of $\tau_1$, and the result of their function application $e[v/x]$ 
 belongs to the term relation of $\tau$. Moreover, the relations of $v'$ and $e[v/x]$ can hold at any possibly smaller depth $m$ and any later time $j$.
-The value relation of the polymorphic type $\forall\kappa.\tau$ is similar, while the function application happens on the type: the $e$ inside 
+The value relation of the polymorphic type ($\forall\kappa.\tau$) is similar, while the function application happens on the type: the $e$ inside 
 the index abstraction $\Lambda e$ needs to satisfy the term relation of the type $\tau[I/\kappa]$, which is instantiated by any well-formed index $I$.
 
-Next is the later type $\triangleright \tau$, defined inductively by $n$. If $n$ reaches 0, then 
+Next is the later type $(\triangleright \tau)$, defined inductively by $n$. If $n$ reaches 0, then 
 the relation holds trivially for $\delay e$. Otherwise, the term $e$ inside should belong to the value relation of $\tau$ at one step later, from $n+1$ to $n$ and $i$ to $i+1$. Notably, the value relation corresponds directly to the inductive value judgment of $\delay e$.
 
 The value relation for graded monads is of particular importance. If a monadic value $v$ of $\tmonad{I}{\tau}$ can be further forced 
 to a pure result $v'$ with time-interpreted cost $c$, then $c$ should be bounded by the time interpretation of $I$, and the value relation should hold
 for $v'$. Note that the forcing evaluation can take place at any later time $j$, the semantic cost is always bounded by $I(j)$.
 
-Lastly, recursive types are interpreted by unfolding: $\fold v$ satisfies the value relation if the unfolded $v$ belongs to the value relation of the unfolded type.
+Lastly, recursive types are interpreted by unfolding: $\fold v$ satisfies the value relation if the unfolded value $v$ belongs to the value relation of the unfolded type.
 In addition, the relation is well-founded by Lemma \ref{lem:rec-well-founded}.
 
 \subsection{Term Relation}
@@ -177,11 +177,11 @@ In particular, decreasing the depth $n$ or advancing the time $i$ preserves the 
 
 \begin{lem}[Monotonicity of logical relations]
 \label{lem:worst-case-mono}
-$\\$ If $m\leq n$, $j\geq i$ and $(n,i,v) \in \vrel{\tau}$, then 
+$\\$ If $m\leq n$ and $j\geq i$, then 
 \begin{itemize}
   \item $(n,i,v) \in \vrel{\tau} \implies (m,j,v) \in \vrel{\tau}$
   \item $(n,i,e) \in \erel{\tau} \implies (m,j,e) \in \erel{\tau}$ 
-  \item $(n,i,\gamma) \in \erel{\tau} \implies (m,j,\gamma) \in \erel{\tau}$ 
+  \item $(n,i,\gamma) \in \erel{\Gamma} \implies (m,j,\gamma) \in \erel{\Gamma}$ 
 \end{itemize}
 \end{lem}
 \begin{proof}
@@ -189,7 +189,7 @@ $\\$ If $m\leq n$, $j\geq i$ and $(n,i,v) \in \vrel{\tau}$, then
 \end{proof}
 
 These monotonicity properties allow us to reason about terms at a smaller depth and a later time, which 
-are quite useful for proving the fundamental property.
+are quite useful for proving the Fundamental Property.
 
 
 Next, we demonstrate that the syntactic subtyping relations of $\lambda^g_{\mathsf{worst}}$ are sound with respect to the logical relations. 
@@ -302,7 +302,7 @@ They will be utilised to prove cases related to subtyping for the Fundamental Pr
 
 \section{Fundamental Property}
 \label{sec:worst-case-fund}
-The central theorem to establish soundness is the fundamental property of logical relations.
+The central theorem to establish soundness is the Fundamental Property of logical relations.
 It states that a well-typed term belongs to the logical relation of its type, which 
 connects the syntactic type system to its semantic interpretation.
 
@@ -517,6 +517,7 @@ Therefore, we can apply the IH with $\gamma$, which gives the desired.
 \end{proof}
 
 \section{Soundness}
+\label{sec:worst-case:soundness}
 Lastly, the soundness theorem follows from the Fundamental Property:
 
 \begin{thm}[Soudness of $\lambda^g_{\mathsf{worst}}$]
@@ -527,10 +528,9 @@ and $v \Downarrow^c_{n, i} v'$, then $c \leq  I(i).$
 \begin{proof}
   Apply Theorem \ref{thm:worst-case-fund} to $\hastype{}{e}{\tmonad{I}{\tau}}$, we have 
   \[(n, i, e) \in \erel{\tmonad{ I}{\tau}}\]
-  Unfold this term relation, and apply it to $e \Downarrow_n v$, we obtain 
+  Unfold the definition of this term relation and instantiate it with $e \Downarrow_n v$, we obtain 
   \[(n, i, v) \in \vrel{\tmonad{ I}{\tau}}\]
-  Applying this value relation to $v \Downarrow^c_{n, i} v'$ gives the desired:
-  \[c \leq  I(i), \qquad (n, i, v') \in \vrel{\tau}\]
+  Instantiating this value relation to $v \Downarrow^c_{n, i} v'$ gives the desired: $c \leq  I(i)$.
   \qedhere
 \end{proof}
 \clearpage

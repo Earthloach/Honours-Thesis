@@ -595,13 +595,14 @@ When you open the book, there are three borders of equal size~$n$. This however 
       {\tick{I}\Downarrow_{n,i}^{I(i)}\langle\rangle}
 
     \inferrule*[right=E-Bind]
-      {e_2[v_1'/x]\Downarrow_n v_2 \quad
+      {
        e_1\Downarrow_n v_1\quad
        v_1\Downarrow_{n,i}^{c_1}v_1'\quad
+       e_2[v_1'/x]\Downarrow_n v_2  \quad
        v_2\Downarrow_{n,i}^{c_2}v_2'}
       {\bind{x}{e_1}{e_2}\Downarrow_{n,i}^{c_1+c_2}v_2'}
 
-    \inferrule*[right=E-Pull]
+    \inferrule*[right=E-Prepay]
       {e\Downarrow_{n+1}\delay v\quad
        v\Downarrow_{n,i+1}^{c}v'}
       {\pull e\Downarrow_{n+1,i}^{c}\delay v'}
@@ -919,7 +920,7 @@ Induction on the derivation of $\Theta;\Delta\vdash\Gamma<:\Gamma'$.
 \end{proof}
 
 \begin{appbthm}[Fundamental property]
-\label{thm:amortized-fundamental}
+\label{appbthm:amortized-fundamental}
 $\\$ If $\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau}$, 
 $(p,n,i,\gamma)\in\erel{\Gamma\iota}$, $(0,n,i,\delta)\in\erel{\Omega\iota}$, 
 and $\cdot\models\Delta\iota$, then
@@ -1238,8 +1239,8 @@ To prove (R0), we choose $p_2'$ to be $p'$, then it suffices to show
 \end{itemize}
 \end{proof}
 
-\begin{appbthm}[Soundness 1]
-\label{thm:amortized-soundness1}
+\begin{appbthm}[Soundness of  $\lambda^g_{\mathsf{amor}}$]
+\label{appbthm:amortized-soundness1}
 $\\$ For all $n, i \in \mathbb{N},c$, if $\hastype{}{e}{\tmonad{ I}{\tau}}$, $e \Downarrow_n v$ 
 and $v \Downarrow^c_{n, i} v'$, then $c \leq  I(i).$
 \end{appbthm}
