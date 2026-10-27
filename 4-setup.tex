@@ -22,12 +22,12 @@ The type system combines the later modality for guarded recursion with a graded 
 Specifically, the calculus adapts fragments from the guarded lambda calculus of \cite{cloustonGuardedLambdaCalculusProgramming2017a}
 and $\lambda$-amor of \cite{rajaniUnifyingTypetheoryHigherorder2021a}.
 
-Firstly, in Section \ref{sec:cost-foundation} we examine how the interaction between grades and the later modality yields the notion of \emph{time-dependent cost}, 
+Firstly, in Section~\ref{sec:cost-foundation} we examine how the interaction between grades and the later modality yields the notion of \emph{time-dependent cost}, 
 the foundation of cost analysis in $\lambda^g_{\mathsf{worst}}$. 
 We then present the syntax, type system, and operational semantics in
 Sections \ref{sec:worst-case-syntax}, \ref{sec:worst-case-type-system},
 and \ref{sec:worst-case-semantics}.
-Finally, Section \ref{sec:worst-case-program-examples} illustrates the calculus with examples of cost analysis for guarded recursive programs.
+Finally, Section~\ref{sec:worst-case-program-examples} illustrates the calculus with examples of cost analysis for guarded recursive programs.
 
 \FloatBarrier
 
@@ -63,9 +63,9 @@ $
     I,J ::= {}
     \kappa \mid N \mid R
     \mid I+J \mid I-J
-    \mid \textstyle\sum_{\kappa<J} I
+    \mid \textstyle\sum_{\kappa<s} I
     \mid \mathsf{clk}
-    \mid \mathsf{S}^J(I)
+    \mid \mathsf{S}^s(I)
   \end{aligned}
 $
 \end{defn}
@@ -79,14 +79,13 @@ Indices are written as $I$ and $J$, they represent \emph{symbolic} costs that ca
       \clk(i) &= i
         &\qquad N(i) &= N \\
       R(i) &= R
-        &\qquad \kappa(i) &= \kappa \\[0.6em]
       (I-J)(i) &= I(i) - J(i)
-        &\qquad (\mathsf{S}^J I)(i) &= I(i+J)
+        &\qquad (\mathsf{S}^s I)(i) &= I(i+s)
     \end{alignedat}
     \\[0.8em]
     \begin{aligned}
-       (\textstyle\sum_{\kappa<J}I)(i)
-        &=(\sum_{k=0}^{J-1}I[k/\kappa])(i).
+       (\textstyle\sum_{\kappa<s}I)(i)
+        &=(\sum_{k=0}^{s-1}I[k/\kappa])(i).
     \end{aligned}
   \end{gather*}
 \end{defn}
@@ -94,16 +93,18 @@ All indices can be considered as functions from the time
 $i$ to a \emph{nonnegative} real number. The index $\clk$ represents the clock, i.e. the value of the time $i$. As the clock ticks, $i$ 
 increments and the interpretation of $\clk$ changes. In addition, $i$ can be regarded as a Kripke world, where indices get their corresponding values at current world.
 
-The indices $N, R$ and $\kappa$ represent constant functions on $i$. $N$ is a natural-number constant, $R$ is a \emph{nonnegative} real-number constant, 
-and $\kappa$ denotes an index variable. Consequently, their interpretations follow their original values.
+The indices $N$ and $R$ represent constant functions on $i$. $N$ is a natural-number constant, $R$ is a \emph{nonnegative} real-number constant. Consequently, their interpretations follow their original values.
 The interpretations of addition and subtraction between indices are defined compositionally.
-The $\mathsf{S}^{J}I$ index denotes the cost $I$ when the time is shifted forward by $J$, then the interpretation of the inner $I$ becomes $I(i+J)$.
-We write the shift value directly using $J$ instead of $J(i)$, 
-meaning that $J$ is a constant whose interpretation is always itself, and $J$ is restricted to be a natural number.
-Intuitively, $\mathsf{S}^JI$ allows us to express costs that take place in the future.
+The $\mathsf{S}^{s}I$ index denotes the cost $I$ when the time is shifted forward by $s$, then the interpretation of the inner $I$ becomes $I(i+s)$.
+$s$ denotes the shift index, and we write its interpreted value directly as $s$ instead of $s(i)$,
+meaning that $s$ is a constant whose interpretation is always itself~\footnote{Throughout this thesis, we reserve the symbol $s$ for time-independent constant indices}. In addition, $s$ is restricted to be a natural number within a shift expression to
+ensure that it only increments a fixed amount of time.
+Intuitively, $\mathsf{S}^sI$ allows us to express costs that take place in the future.
 
-Finally, the index $\textstyle\sum_{\kappa<J} I$ represents bounded summation that sums $I$ 
-from $0$ up to $(J - 1)$. In particular, $I$ can contain the variable $\kappa$ bound by the sum, and $J$ needs to be a natural number constant. Therefore, the symbolic costs can be summed directly, 
+The symbol $\kappa$ denotes an index variable whose value depends on an assignment to that variable. We therefore omit its time interpretation here.
+
+Finally, the index $\textstyle\sum_{\kappa<s} I$ represents bounded summation that adds $I$ 
+from $0$ up to $(s - 1)$. In particular, $I$ can contain the variable $\kappa$ bound by the sum, and $s$ needs to be a natural number. Therefore, the symbolic costs can be summed directly, 
 i.e. $I[0/\kappa] + \ldots + I[(J-1)/\kappa]$ or $\sum_{k=0}^{J-1}I[k/\kappa]$.
 Moreover, the sum will simply be $0$ if $J$ is zero.
 
@@ -112,7 +113,7 @@ Now we can combine the graded monad with the later modality in the type system.
 For example, a computation of type $\tmonad{\clk}{\tau}$ produces a \emph{symbolic} cost $\clk$, and the real interpreted cost will be the value of 
 $i$. If we consider the time starts from 0, then the cost is 0. By contrast, a computation of type $\triangleright\tmonad{\clk}{\tau}$ means that it
 will be executed one step later, and the cost will be the value of $i+1 = 1$. 
-Likewise, the cost will be $n$ for a computation of type $\triangleright^n \tmonad{\kappa}{\tau}$, where $n$ is the number of nested $\triangleright$ types. 
+Similarly, the cost will be $n$ for a computation of type $\triangleright^n \tmonad{\clk}{\tau}$, where $n$ is the number of nested later ($\triangleright$) types. 
 For a clearer illustration, Table \ref{fig:ticktime-costs} lists the cost sequence of a guarded stream whose elements are typed $\tmonad{\clk}{\tau}$.
 
 In contrast, computations of types $\tmonad{3}{\tau}$ and $\triangleright^n \tmonad{3}{\tau}$ do not distinguish their costs.
@@ -125,10 +126,10 @@ In this section, we present the full syntax of $\lambda^g_{\mathsf{worst}}$, pro
 Since the calculus combines part of $\lambda$-amor and the guarded lambda calculus, the formalisation is similar.
 
 \subsection{Indices, Sorts and Constraints}
-The index language should be familiar, as described in Section \ref{sec:cost-foundation}. 
+The index language should be familiar, as described in Section~\ref{sec:cost-foundation}. 
 Sort determines the range of indices, and indices may belong to two possible sorts: natural numbers $\mathbb{N}$, and 
 nonnegative real numbers $\mathbb{R}_{\ge 0}$. Furthermore, $\lambda^g_{\mathsf{worst}}$ has constraint over indices using 
-predicates $=$, $<$. There are also conjunction $\land$ and disjunction $\lor$ between constraints. 
+predicates $=$ and $<$. There are also conjunction $\land$ and disjunction $\lor$ between constraints. 
 Since indices depend on the time $i$, predicates are determined by $i$ as well. The interpretation of predicates is defined as below:
 \begin{defn}[Interpretation of Predicates]
 \label{def:constraint-entailment}
@@ -158,10 +159,10 @@ For any two indices $I$ and $J$, we define
       \mid \mu\alpha.\tau
       \mid \triangleright \tau
       \mid \tmonad{I}{\tau}
-      \mid L^n \tau
+      \mid L^s \tau
       \mid \forall\kappa:S.\tau
       \\[6pt]
-    &\text{Expressions}
+    &\text{Terms}
     &e &::=
       x \mid \langle\rangle \mid b
       \mid \tlam{x}{e}
@@ -194,8 +195,8 @@ For any two indices $I$ and $J$, we define
       \kappa \mid N \mid R \mid \clk
       \mid I+J \mid I-J \\
     &&&\quad
-      \mid \textstyle\sum_{\kappa<J} I
-      \mid \mathsf{S}^J(I)
+      \mid \textstyle\sum_{\kappa<s} I
+      \mid \mathsf{S}^s(I)
       \\[6pt]
     &\text{Sorts}
     &S &::=
@@ -210,32 +211,32 @@ For any two indices $I$ and $J$, we define
 \end{figure}
 
 From Definition \ref{def:time-indices} and the pointwise interpretation of predicates, we can easily derive equations about the shift operation: For any index $I$, $\mathsf{S}^0 I= \mathsf{S}I$, 
-and for any natural number constant indices $J, K$, $\mathsf{S}^J(\mathsf{S}^KI) = \mathsf{S}^{J+K}I$.
+and for any constant natural number $s, s'$, $\mathsf{S}^{s}(\mathsf{S}^{s'}I) = \mathsf{S}^{s+s'}I$.
 In addition, the shift operation distributes over standard arithmetic expressions:
 \begin{prop}[Distributivity of Shift]
 \label{lem:shif-dist}
-For any well-formed indices $I, J$, and $K$, if $ K$ is a natural number constant, then the following equations hold:
+For any well-formed indices $I, J$, and $s$, if $ s$ is a natural number constant, then the following equations hold:
 \begin{align*}
-  &(1) \qquad \mathsf{S}^K(I+J)
-  = \mathsf{S}^K(I)+\mathsf{S}^K(J),\\
-  &(2)\qquad \mathsf{S}^K(I-J)
-  = \mathsf{S}^K(I)-\mathsf{S}^K(J),\\
-  &(3)\qquad \text{If } J \text{ is a natural number constant}, \text{ then }\mathsf{S}^K\left(\textstyle\sum_{\kappa<J}I\right)
-  = \textstyle\sum_{\kappa<J}\mathsf{S}^K(I).
+  &(1) \qquad \mathsf{S}^s(I+J)
+  = \mathsf{S}^s(I)+\mathsf{S}^s(J)\\
+  &(2)\qquad \mathsf{S}^s(I-J)
+  = \mathsf{S}^s(I)-\mathsf{S}^s(J)\\
+  &(3)\qquad \text{If } s' \text{ is a natural number constant}, \text{ then }\mathsf{S}^s\left(\textstyle\sum_{\kappa<s'}I\right)
+  = \textstyle\sum_{\kappa<s'}\mathsf{S}^s(I)
 \end{align*}
 \end{prop}
 \begin{proof}
-  See Lemma \ref{appa:shift-dist}
+  See Proposition \ref{appa:shift-dist}
 \end{proof}
 
-We do not fix a proof system for constraints in $\lambda^g_{\mathsf{worst}}$. Instead, we use a context $\Delta$ to collect constraints, and an abstract validity relation $\Delta \models C$ states that $C$ follows from $\Delta$. 
+We do not fix a proof system for constraints in $\lambda^g_{\mathsf{worst}}$. Instead, we use a context $\Delta$ to collect constraint assumptions, and an abstract validity relation $\Delta \models C$ states that $C$ follows from $\Delta$. 
 Thus, all constraint reasoning is delegated to an oracle, which in practice can be implemented by a backend such as an SMT solver. 
 The next section shows how this relation is used for type formations.
 
 \subsection{Types}
 $\lambda^g_{\mathsf{worst}}$ contains types in ordinary simply-typed lambda calculus:\ unit, base, function,
 product and sum types. Following $\lambda$-amor, we also include types that contain quantitative information.
-The list type $L^n \tau$ carries an index $I$, representing its finite length. Furthermore, the length index is
+The list type $L^s \tau$ carries an index $s$, representing its length. Furthermore, the length index is
 restricted to be a natural number constant for correctness. The graded monad $\tmonad{I}{\tau}$, as previously mentioned, denotes computations returning data of type $\tau$, producing $I$ units of symbolic cost.
 The polymorphic type $\forall\kappa\,{:}S.\tau$ allows types to be parameterised by indices, such as a cost-polymorphic monad
 $\forall \kappa:\mathbb{N}.\;\tmonad{\kappa}{\tau}$.
@@ -247,9 +248,9 @@ In addition, $\lambda$-amor incorporates constraint types to ensure certain cons
 However, we find that using constraints for type and subtype formations is enough for $\lambda^g_{\mathsf{worst}}$.
 
 \subsection{Terms}
-Expressions defined in Figure~\ref{def:worst-case-syntax} covers all forms of terms in $\lambda^g_{\mathsf{worst}}$.
-Most terms are common in simply-typed lambda calculus and should be familiar. 
-$\delay$ and $\circledast$ are the applicative functor operations of the later type \citep{mcbrideP08}.
+Most term constructs presented in Figure~\ref{def:worst-case-syntax} are standard. We therefore focus on the less conventional constructs introduced in our calculus, particularly those related to 
+guarded recursion and cost analysis.
+$\delay$ and $\circledast$ are the applicative functor operations of the later type ($\triangleright \tau$) \citep{mcbrideP08}.
 The $\delay$ constructor introduces a term of the later type, and the $\circledast$ operator composes two terms of later type as a function application.
 Lists have the constructors $nil$ and cons ``::'', with pattern matching as the eliminator.
 
@@ -329,14 +330,14 @@ In this section, we present the typing judgments of $\lambda^g_{\mathsf{worst}}$
   \inferrule*[right=S-Sum]
       {\Theta;\Delta\vdash n:\mathbb{N} \quad
        \Theta,\kappa:\mathbb{N};\Delta, \kappa < J\vdash I:S \quad
-       \Theta;\Delta\models n = \mathsf{S}(n)}
-      {\Theta;\Delta\vdash\textstyle{\sum}_{\kappa<n}I:S}
+       \Theta;\Delta\models s = \mathsf{S}(s)}
+      {\Theta;\Delta\vdash\textstyle{\sum}_{\kappa<s}I:S}
   \\
 
   \inferrule*[right=S-Shift]
       {\Theta;\Delta\vdash I: S \quad \Theta;\Delta\vdash n:\mathbb{N}
-        \quad \Theta;\Delta\models n = \mathsf{S(n)}}
-      {\Theta;\Delta\vdash \mathsf{S}^n(I):S}
+        \quad \Theta;\Delta\models s = \mathsf{S(s)}}
+      {\Theta;\Delta\vdash \mathsf{S}^s(I):S}
 \end{mathpar} 
   \caption{Sort typing rules for indices}
   \label{defn:worst-case-sort-rule}
@@ -346,14 +347,14 @@ The judgment for indices is in the form $\Theta;\Delta\vdash I: S$, where $\Thet
 $\Delta$ is the context that contains constraints about indices as mentioned previously. Constraints in $\Delta$ may refer to variables in $\Theta$, we thus need to use them together.
 
 Figure~\ref{defn:worst-case-sort-rule} presents the sort rules for indices. The \textsc{S-Var, S-Nat}  and \textsc{S-Real} rules should be self-explanatory. 
-The $\mathsf{clk}$ expression is treated as a natural number, representing the logical time. The \textsc{S-Real1} rule allows a natural number index to be used as a nonnegative real number with the same value. 
+The $\mathsf{clk}$ expression is treated as a natural number, representing the logical time. The \textsc{S-NatReal} rule allows a natural number index to be used as a nonnegative real number with the same value. 
 For ordinary arithmetic operations, we require
 both arguments to have the same sort. Since indices cannot be negative according to all the sorts ($\mathbb{N}, \mathbb{R}_{\ge0}$), the subtraction $I - J$ needs to
 ensure that $J \leq I$. Here we write $J \leq I$ as the disjunction between $J < I$ and $J = I$. Similarly, in \text{S-Sum}, we ensure the index variable is smaller than the bound $I$ when checking 
-the body expression. Moreover, we restrict the bound $J$ to be a natural number constant, checked by the constraint:
-$J = \mathsf{S}(J)$. Since constraints are pointwise to the time, this ensures $J$'s interpretation does not change for any $i$.
-Finally, the \textsc{S-Shift} rule shifts the time to interpret the body expression. Again, the index $J$ is restricted to be a constant through the same constraint of \textsc{S-Sum}
-ensuring that the shift only increments a fixed amount of time.
+the body expression. The constraint $s = \mathsf{S}(s)$ in \textsc{S-Sum} and \textsc{S-Shift} requires $s$ to be a time-independent constant.
+Since constraints are pointwise to the time, this ensures $s$'s interpretation does not change for any $i$, which is the desired property for 
+both the bounded sum and the shift index.
+
 
 \subsection{Type Well-formedness}
 \begin{figure}[!htbp]
@@ -525,7 +526,8 @@ are defined inductively:
 \end{defn}
 
 We say that a type variable $\alpha$ is \emph{positive} in $\tau$ if all free occurrences of it in $\tau$ are positive, i.e. no negative occurrences of $\alpha$ in $\tau$.
-For example, the variable $\alpha$ is positive in $\textbf{1} \to \alpha$, $L^n\,\alpha \times \textbf{1}$, and negative in $\alpha \to \textbf{1}$.
+For example, the type $\textbf{1} \to \alpha$ is a positive occurrence in itself, then $\alpha$ is positive occurrence inside. Dually, 
+$\alpha$ is a negative occurrence in the type $\alpha \to \textbf{1}$.
 
 Due to negative occurrences, the subtyping relation does not always hold after unfolding two related recursive types, we adapt an example from \cite{zhouRevisitingIsorecursiveSubtyping2020} to our setting:
 Suppose dropping the positive side condition from \textsc{S-Rec}, we can derive the following relation:
@@ -607,8 +609,8 @@ record type variables.
   \\
 
   \inferrule*[right=T-Case]
-    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau_1+\tau_2}
-     \\\\ \hastype{\Theta;\Delta;\Gamma,x:\tau_1}{e_1}{\tau}
+    {\hastype{\Theta;\Delta;\Gamma}{e}{\tau_1+\tau_2} \quad
+     \hastype{\Theta;\Delta;\Gamma,x:\tau_1}{e_1}{\tau}
      \quad \hastype{\Theta;\Delta;\Gamma,y:\tau_2}{e_2}{\tau}}
     {\hastype{\Theta;\Delta;\Gamma} {\case{e}{x}{e_1}{y}{e_2}}{\tau}}
   \\
@@ -620,14 +622,15 @@ record type variables.
   \inferrule*[right=T-Cons]
     {
     \hastype{\Theta;\Delta;\Gamma}{e_1}{\tau}
-     \quad \hastype{\Theta;\Delta;\Gamma}{e_2}{L^n\tau}}
-    {\hastype{\Theta;\Delta;\Gamma}{e_1::e_2}{L^{n+1}\tau}}
+     \quad \hastype{\Theta;\Delta;\Gamma}{e_2}{L^s\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}{e_1::e_2}{L^{s+1}\tau}}
   \\
 
   \inferrule*[right=T-Match]
-    {\hastype{\Theta;\Delta,n > 0;\Gamma,h:\tau,t:L^{n-1}\tau}{e_2}{\tau'}
-     \\\\ \hastype{\Theta;\Delta;\Gamma}{e}{L^n\tau}
-     \quad \hastype{\Theta;\Delta,n=0;\Gamma}{e_1}{\tau'}}
+    {
+     \hastype{\Theta;\Delta;\Gamma}{e}{L^s\tau} \\\\
+     \hastype{\Theta;\Delta,s=0;\Gamma}{e_1}{\tau'} \quad
+     \hastype{\Theta;\Delta,s > 0;\Gamma,h:\tau,t:L^{s-1}\tau}{e_2}{\tau'}}
     {\hastype{\Theta;\Delta;\Gamma}{\lmatch{e}{e_1}{h}{t}{e_2}}{\tau'}}
   \\
 
@@ -655,8 +658,8 @@ record type variables.
     {\hastype{\Theta;\Delta;\Gamma}{\delay e}{\triangleright \tau}}
 
   \inferrule*[right=T-Napp]
-    {\hastype{\Theta;\Delta;\Gamma}{e_1}{\triangleright (\tau_1 \to \tau_2)}
-     \\\\ \hastype{\Theta;\Delta;\Gamma}{e_2}{\triangleright \tau_1}}
+    {\hastype{\Theta;\Delta;\Gamma}{e_1}{\triangleright (\tau_1 \to \tau_2)}  \quad
+    \hastype{\Theta;\Delta;\Gamma}{e_2}{\triangleright \tau_1}}
     {\hastype{\Theta;\Delta;\Gamma}{e_1 \circledast e_2}{\triangleright \tau_2}}
   \\
 
@@ -675,7 +678,7 @@ record type variables.
     {\hastype{\Theta;\Delta;\Gamma}{\bind{x}{e_1}{e_2}}{\tmonad{( I_1 + I_2)}{\tau_2}}}
   \\
 
-  \inferrule*[right=T-Pull]
+  \inferrule*[right=T-Prepay]
     {\Theta;\Delta;\Gamma\vdash e : \triangleright \tmonad{ I}{\tau}}
     {\hastype{\Theta;\Delta;\Gamma}{\pull e}{\tmonad{\mathsf{S}( I)}{\triangleright \tau}}}
 
@@ -696,9 +699,9 @@ record type variables.
 
 The typing rules are presented in Figure~\ref{def:worst-case-typing-judgment}. Most rules are standard, corresponding to the introduction and elimination rules for the respective type constructors.
 \textsc{T-Nil} is the rule for the term $nil$ that introduces an empty list, thus, the type is $L^0 \tau$.
-\textsc{T-Cons} describes the typing for the cons (::) expression which pushes a new element in front of a list, and the length index of the resulting list 
+\textsc{T-Cons} describes the typing for the cons (::) term which pushes a new element in front of a list, and the length index of the resulting list 
 needs to increase by one. Consequently, pattern matching on a list has two branches, where the list is either $nil$ or cons.
-The \textsc{T-Match} rule also adds more assumptions to refine existing constraints: length $I = 0$ and $I > 0$ for the corresponding branch.
+The \textsc{T-Match} rule also adds more assumptions to refine existing constraints: length $s = 0$ and $s > 0$ for the corresponding branch.
 \textsc{T-Fold} and \textsc{T-Unfold} are the two rules that substitutes type variables bounded by the recursive type.
 Likewise, the term-level index instantiation $e\;[\,]$ requires substituting index variable as the result type $\tau [I/\kappa]$.
 
@@ -714,7 +717,6 @@ In the end, \textsc{T-Sub} connects subtyping with terms, and the \textsc{T-Weak
 The subtyping judgment $\Theta;\Delta\vdash \Gamma <: \Gamma$ is defined inductively, where the rules are listed in Figure~\ref{def:worst-case-context-sub}, where
 $\cdot$ represents the empty context in the base case. As a result, a context $\Gamma'$ can be replaced by another context $\Gamma$ that 
 may contain extra variables with possibly their subtypes, which is analogous to record subtyping.
-
 
 \begin{figure}[!htbp]
 \small
@@ -738,12 +740,12 @@ may contain extra variables with possibly their subtypes, which is analogous to 
 
 \section{Semantics}
 \label{sec:worst-case-semantics}
-In this section, we present the big-step, call-by-value operational semantics of $\lambda^g_{\mathsf{worst}}$.
+In this section, we present the big-step, call-by-value, fuel-based operational semantics of $\lambda^g_{\mathsf{worst}}$.
 Usually, the semantics should relate a term $e$ to a value (normal form) defined in a calculus, we first discuss the definition of values in $\lambda^g_{\mathsf{worst}}$ and connect it to
 the semantics.
 
 \subsection{Values}
-The judgment $e\;\mathsf{val}_n$ states that the term $e$ is a value at "depth $n$".
+The judgment $e\;\mathsf{val}_n$ states that the term $e$ is a value at ``depth $n$''.
 The intuition is that all recursive definitions of terms will be guarded by a $\delay$ constructor, just like recursive types are guarded by a $\triangleright$, then we may get 
 infinite nested $\delay$ constructors for recursions. Evaluation must look inside
 $\mathsf{next}$ to produce anything beyond the current step. We therefore bound the number of nested
@@ -820,9 +822,9 @@ $\\$ For any $e$, and $m, n \in \mathbb{N}$, if $\isval{e}{n}$ and $m\leq n$, th
   \begin{itemize}
     \item Case \textsc{V-NextBase}: since $n$ is 0, then $m = 0$, and we have the goal directly.
     \item Case \textsc{V-NextInd}: let $n=k+1$ and $e=\delay e_0$, with
-    $\isval{e_0}{k}$. If $m=0$, we get the desired by \textsc{V-NextZero}. Otherwise,
+    $\isval{e_0}{k}$. If $m=0$, we get the desired by \textsc{V-NextBase}. Otherwise,
     let $m=r+1$ with $r\leq k$, applying the IH with $e_0, r, k$ gives
-    $\isval{e_0}{r}$. By \textsc{V-NextSucc}, we have $\isval{(\delay e_0)}{m}$. \qedhere
+    $\isval{e_0}{r}$. By \textsc{V-NextInd}, we have $\isval{(\delay e_0)}{m}$. \qedhere
   \end{itemize}
 \end{proof}
 
@@ -838,7 +840,7 @@ available to an interpreter: evaluation may unfold recursive definitions at most
 
 Figure~\ref{def:worst-case-pure-eval} lists the rules of pure evaluation, they are conventional rules that can be found in most call-by-value calculi.
 Similar to the value judgment, the evaluations of $\delay e$ are defined inductively, where 
-we evaluate inside the constructor recursively. If $n$ is $0$, $\delay e$ then becomes a "thunk" that rejects further evaluation.
+we evaluate inside the constructor recursively. If $n$ is $0$, $\delay e$ then becomes a ``thunk'' that rejects further evaluation.
 Meanwhile, the rules for the $\circledast$ operator follow the same pattern, creating a thunk for function application at depth 0.
 Lastly, the \textsc{E-Val} rule evaluates a value at depth $n$ to itself, as the base case for other evaluations. From Lemma \ref{lem:worst-case-value-closure},
 we can derive that a value will remain unchanged if we decrease the depth.
@@ -951,10 +953,9 @@ To see this feature of evaluation, consider the following example:
 Let $f := \lambda x.\delay(x\,\langle\rangle)$, $\mathsf{id} := \lambda y.y$. We know $f\,\mathsf{id} = \delay(\mathsf{id}\,\langle\rangle)$ and $\mathsf{id}\,\langle\rangle = \langle\rangle$.
 The evaluation of $\delay(f\,\mathsf{id})$ at $n = 1$ is: 
 
-{\small
+{
 \mprset{sep=1em}
 \[
-\resizebox{\linewidth}{!}{$\displaystyle
   \inferrule*[right=E-NextInd]
     { \inferrule*[right=E-App]
         { \inferrule*[right=E-Val]{\isval{f}{0}}{ f \Downarrow_0 f }
@@ -964,13 +965,10 @@ The evaluation of $\delay(f\,\mathsf{id})$ at $n = 1$ is:
           \inferrule*[right=E-NextBase]{ }{\delay(\mathsf{id}\,\langle\rangle)\Downarrow_0 \delay(\mathsf{id}\,\langle\rangle)} }
         { f\,\mathsf{id} \Downarrow_0 \delay(\mathsf{id}\,\langle\rangle) } }
     { \delay(f\,\mathsf{id}) \Downarrow_1 \delay(\delay(\mathsf{id}\,\langle\rangle))}
-$}
 \]
 }
 
-\Needspace{10\baselineskip}
 We can give $\delay(\delay(\mathsf{id}\,\langle\rangle))$ a larger $n$ to further evaluate it:
-
 {
 \small
 \mprset{sep=1em}
@@ -991,16 +989,16 @@ We can give $\delay(\delay(\mathsf{id}\,\langle\rangle))$ a larger $n$ to furthe
 
 \subsubsection{Forcing Evaluation}
 The forcing evaluation judgment $e \Downarrow^{c}_{n,i} v$ relates a term $e$ of type $\tmonad{I}{\tau}$
-to a value $v$ of type $\tau$, it is indexed additionally by the time $i$ to interpret the cost of evaluation from a symbolic cost to a real cost $c$.
+to a value $v$ of type $\tau$, it is indexed additionally by the time $i$ to interpret costs.
 
-Figure~\ref{def:worst-case-forcing-eval} gives all the forcing evaluation rules. In particular, only constructors of monads have forcing evaluation. \textsc{E-Tick} gives the time interpretation of
+Figure~\ref{def:worst-case-forcing-eval} gives all the forcing evaluation rules. In particular, only constructors of monads can be forced. \textsc{E-Tick} gives the time interpretation of
 $I$ in the term $\tick{I}$ and reduces it to $\langle \rangle$, hence the evaluation costs $I(i)$. The \textsc{E-Return} rule specifies that $\ret e$ just gives the pure evaluation result of 
-$e$ with 0 cost. \textsc{E-Bind} composes two monadic computations $e_1$ and $e_2$ and sums the costs, it first evaluates $e_1$ purely to reach its monadic constructor, then 
-continues to force it, and similarly for $e_2$. Of greater interest is the $\text{E-Prepay}$ rule, evaluating $\pull e$ requires at least one amount of "fuel" to reduce inside the 
+$e$ with 0 cost. \textsc{E-Bind} composes two monadic computations $e_1$ and $e_2$ and sums their costs, it first evaluates $e_1$ purely to reach its monadic constructor, then 
+continues to force it, and similarly for $e_2$. Of greater interest is the $\text{E-Prepay}$ rule, evaluating $\pull e$ requires at least one amount of ``fuel'' to reduce inside the 
 $\delay$ constructor. As we pass through a $\delay$, $i$ also increments by one locally in order to assign the future cost value.
-For example, $\pull \tick{I} \Downarrow^{I(i+1)}_{n, i} \delay \langle\rangle$, the cost is $I(i+1)$. From Definition \ref{def:time-indices}, this aligns with the typing cost $\mathsf{S}(I)$'s interpretation.
+For example, $\pull \tick{I} \Downarrow^{I(i+1)}_{n, i} \delay \langle\rangle$, the cost is $I(i+1)$. From Definition \ref{def:time-indices}, this aligns with the typing cost $\mathsf{S}(I)$.
 
-There is no rule for evaluating a term typed $\triangleright \tmonad{I}{\tau}$ using $n$, this is to keep the laziness of cost effects:
+There is no rule for evaluating a term typed $\triangleright \tmonad{I}{\tau}$ under $n$, this is to keep the laziness of cost effects:
 If a computation is delayed, its cost should not be incurred now. To demand the data inside a delayed monadic computation, the only way is to use $\pull$ and pay for
 the corresponding future cost.
 
@@ -1074,7 +1072,7 @@ calculus and its type-based cost analysis features.
 To express guarded recursive functions, a fixed point combinator is required. Here we present the guarded version of Turing's fixed point combinator 
 described in \citep{cloustonGuardedLambdaCalculusProgramming2017a}.
 
-\begin{defn}[Guarded Fixed point] The fixed point is derived as follows:
+\begin{defn}[Guarded fixed point] The fixed point is derived as follows:
 \begin{align*}
   \mathsf{Rec}
     &\triangleq
@@ -1116,11 +1114,11 @@ From \textsc{E-NappZero} and \textsc{E-NappInd}, no matter what $n$ we are given
 \]
 Suppose $n=1$, we can reduce inside the $\delay$. 
 The inner application gives $\unfold \fold \theta$, it then gets eliminated to $\theta$ by $\textsc{E-Unfold}$.
-Therefore, the whole expression becomes 
+Therefore, the whole term becomes 
 \[
   f (\delay (\theta(\delay \fold \theta)f)) 
 \]
-This expression is exactly $f (\delay \fix f)$. 
+This term is exactly $f (\delay \fix f)$. 
 Since our call-by-value semantics evaluate arguments eagerly, different $n$ results in different expansions:
 \begin{align*}
   &n = 0: \fix f  \\
@@ -1160,8 +1158,8 @@ Here we overload the syntax, using the same notation (::) as list cons to constr
 Based on the stream constructors, we can define a family of functions that enables us to observe a stream deeper:
 \begin{flalign*}
   &\quad\mathsf{nth}_n : \tstr{\tau} \to \triangleright^n\tau && \\
-  &\quad\mathsf{nth}_0 \triangleq \tlam{s}{\head s} && \\
-  &\quad\mathsf{nth}_{n+1} \triangleq \tlam{s}{(\delay \mathsf{nth}_n)\circledast(\tail s)} &&
+  &\quad\mathsf{nth}_0 \triangleq \tlam{str}{\head str} && \\
+  &\quad\mathsf{nth}_{n+1} \triangleq \tlam{str}{(\delay \mathsf{nth}_n)\circledast(\tail str)} &&
 \end{flalign*}
 The functions are defined inductively for convenience instead of listing all of their definitions, and $n$ 
 is hardcoded as the order number of a function. In particular, 
@@ -1183,12 +1181,12 @@ of traversing the stream.
 Operationally, we can define a family of functions that allow us to evaluate the $ n$-th element of a stream, which is similar to the $\mathsf{nth}$ function:
 \begin{flalign*}
 &\quad\mathsf{prepayNth}_n : \forall I.\,\tstr{(\tmonad{I}{\tau})} \to \tmonad{\mathsf{S}^n(I)}{(\triangleright^n\tau)}, &&\\
-&\quad\mathsf{prepayNth}_0 \triangleq \Lambda.\tlam{s}{\head s}, &&\\
-&\quad\mathsf{prepayNth}_{n+1} \triangleq \Lambda.\tlam{s}{\pull((\delay (\mathsf{prepayNth}_n\,[\,]))\circledast(\tail s))} &&
+&\quad\mathsf{prepayNth}_0 \triangleq \Lambda.\tlam{str}{\head str}, &&\\
+&\quad\mathsf{prepayNth}_{n+1} \triangleq \Lambda.\tlam{str}{\pull((\delay (\mathsf{prepayNth}_n\,[\,]))\circledast(\tail str))} &&
 \end{flalign*}
 The symbolic cost $\mathsf{S}^n(I)$ records the amount of increment needed for the current time 
 to obtain the delayed cost. Moreover, the index $I$ is polymorphic and can take streams of arbitrary cost.
-However, there is no polymorphism for the number of nested ``laters''($\triangleright^n\tau$) in our type system, we 
+However, there is no polymorphism for the number of nested ``laters''($\triangleright^n\tau$) in our type system, and hence we 
 choose the index that is equal to $n$ for $\mathsf{S}^n(I)$.
 
 \begin{table}[!htbp]
@@ -1228,8 +1226,8 @@ choose the index that is equal to $n$ for $\mathsf{S}^n(I)$.
 Ordinary element-wise stream processing functions can be defined easily:
 \begin{flalign*}
 &\quad\mathsf{mapC}: \forall I_1, I_2.\,(\tau \to \tmonad{I_1}{\tau}) \to \tstr{\tmonad{I_2}{\tau}} \to \tstr{\tmonad{(I_1 + I_2)}{\tau}} &&\\
-&\quad\mathsf{mapC} \triangleq \fix\lambda m.\Lambda.\Lambda.\lambda f.\lambda s.&&\\
-&\qquad(\bind{x}{\head s}{f\; x}) :: (m\,[\,]\,[\,]\circledast \delay f \circledast\tail s) &&
+&\quad\mathsf{mapC} \triangleq \Lambda.\Lambda.\fix\lambda m.\lambda f.\lambda str.&&\\
+&\qquad(\bind{x}{\head s}{f\; x}) :: (m \circledast \delay f \circledast\tail str) &&
 \end{flalign*}
 $\mathsf{mapC}$ is the cost-aware version of the common stream mapping function.
 The function $f$ has type $\tau \to \tmonad{I_1}{\tau}$, which is the standard type of encoding 
@@ -1241,9 +1239,9 @@ Likewise, we can define a $\mathsf{zipWithC}$ as follows:
 &\quad\mathsf{zipWithC}: \forall I_1, I_2, I_3.\;(\tau_1\to\tau_2\to\tmonad{I_3}{\tau_3}) &&\\
 &\qquad\to\tstr{\tmonad{I_1}{\tau_1}}\to\tstr{\tmonad{I_2}{\tau_2}}
     \to\tstr{\tmonad{(I_1+I_2+I_3)}{\tau_3}} &&\\
-&\quad\mathsf{zipWithC}\triangleq\fix\lambda z.\Lambda.\Lambda.\Lambda.
+&\quad\mathsf{zipWithC}\triangleq\Lambda.\Lambda.\Lambda.\fix\lambda z.
   \lambda f.\lambda s_1.\lambda s_2. &&\\
-&\qquad E_1::(z\,[\,]\,[\,]\circledast \delay f \circledast\tail s_1\circledast\tail s_2) &&\\
+&\qquad E_1::(z\circledast \delay f \circledast\tail s_1\circledast\tail s_2) &&\\
 &\qquad\textbf{where }E_1\triangleq
   \bind{h_1}{\head s_1}{\bind{h_2}{\head s_2}{f\,h_1\,h_2}}. &&
 \end{flalign*}
@@ -1257,7 +1255,7 @@ and never stop. On the other hand, we can also express (primitive) recursions th
 help of indexed types.
 
 Firstly, we can derive a size-indexed natural number type using lists: 
-\[\mathsf{Nat}(I) \triangleq L^n\textbf{1}\]
+\[\mathsf{Nat}(s) \triangleq L^s\textbf{1}\]
 The natural number type is just a list of units, where the data stored is irrelevant. 
 
 Next, we define the $\mathsf{Colist}$ type, which represents a possibly infinite guarded list:
@@ -1273,40 +1271,41 @@ Next, we define the $\mathsf{Colist}$ type, which represents a possibly infinite
   &&: \colist{\tau}
 \end{align*}
 A co-list is almost the same as a guarded stream, except that it can terminate with a unit value, represented by the ``$\mathsf{null}$'' constructor.
-Similar to stream, we also use the notation (::) as the cons constructor.
+Similar to stream, we also use the notation (::) to denote the cons constructor.
 
 After constructing the two types, we can use them to define functions that consume a fixed-length prefix of a stream.
 For example:
 \begin{flalign*}
-&\quad\mathsf{takeC}:\forall J, I.\;\mathsf{Nat}(J) \to \tstr{\tmonad{I}{\tau}} 
-  \to \tmonad{(\textstyle\sum_{\kappa<J}\mathsf{S}^\kappa I)}{\colist{\tau}} &&\\
-&\quad\mathsf{takeC} \triangleq \fix \lambda f.\Lambda.\Lambda.\lambda n.\lambda s. &&\\
+&\quad\mathsf{takeC}:\forall s, I.\;\mathsf{Nat}(s) \to \tstr{\tmonad{I}{\tau}} 
+  \to \tmonad{(\textstyle\sum_{\kappa<s}\mathsf{S}^\kappa I)}{\colist{\tau}} &&\\
+&\quad\mathsf{takeC} \triangleq \fix \lambda f.\Lambda.\Lambda.\lambda n.\lambda str. &&\\
 &\qquad\mathsf{match}\;n\;\mathsf{with} &&\\
 &\qquad\mid\;nil \mapsto \ret (\mathsf{null}) &&\\
-&\qquad\mid\;-::n'\mapsto \bind{t}{\pull((f\;[\,]\;[\,])\circledast\tail s\circledast\delay n')}{} &&\\
-&\qquad\qquad\bind{h}{\head s}{}\ret(h::t) &&
+&\qquad\mid\;\_::n'\mapsto \bind{t}{\pull(\delay(\lambda g. g\;[\,]\;[\,]) \circledast f \circledast\tail str\circledast\delay n')}{} &&\\
+&\qquad\qquad\qquad\qquad\bind{h}{\head str}{}\ret(h::t) &&
 \end{flalign*}
 
 The $\mathsf{takeC}$ function copies the first $J$ elements of the input stream into a co-list. It forces each element and stores their results,
 and hence the final type is a monad that sums all the costs and returns a pure co-list. 
 
-Since $\mathsf{Nat}(J)$ is indeed a list, we can pattern match on 
-it to achieve the effect of recursion on natural numbers. In the base ($nil$) case, the function returns $\mathsf{null}$ to end the co-list. $\mathsf{ret}$ gives cost 0, which is consistent with the type signature since 
+$\mathsf{Nat}(s)$ is indeed a list, and we can pattern match on 
+it to achieve the effect of induction on natural numbers. In the base ($nil$) case, the function returns $\mathsf{null}$ to end the co-list. $\mathsf{ret}$ gives cost 0, which is consistent with the type signature since 
 $\textstyle\sum_{\kappa<0}\mathsf{S}^\kappa I = 0$. In the recursive case, we use $\pull$ to access the recursive call that is originally guarded, 
-bind its result and the head computation to construct the final co-list. Note that the recursive call's type is also polymorphic, the natural number's size is instantiated with $J-1$.
-As a result, the cost of the $\pull$ is $\mathsf{S}(\textstyle{\sum}_{\kappa<(J-1)}\mathsf{S}^{\kappa} I)$, and the final cost is $\mathsf{S}(\textstyle{\sum}_{\kappa<(J-1)}\mathsf{S}^\kappa I) + I$.
+bind its result and the head computation to construct the final co-list. Note that the recursive call is also polymorphic, and we need to use an additional function $\delay(\lambda g. g\;[\,]\;[\,]$) to instantiate it.
+Consequently, the natural number's size is instantiated with $s-1$, and the cost of the $\pull$ is $\mathsf{S}(\textstyle{\sum}_{\kappa<(J-1)}\mathsf{S}^{\kappa} I)$. 
+Together with the cost of binding the stream head, the final cost is $\mathsf{S}(\textstyle{\sum}_{\kappa<(J-1)}\mathsf{S}^\kappa I) + I$.
 
-Since we know $J$ is a time-independent natural number, then we can rewrite the cost to match that presented in the type signature:
+Since we know $s$ is a time-independent natural number, then we can rewrite the cost to match that presented in the type signature:
 \[
 \begin{aligned}
-\mathsf{S}\Bigl(\sum_{\kappa<J-1}\mathsf{S}^\kappa I\Bigr) + I 
-  &= \Bigl(\sum_{\kappa<J-1}\mathsf{S}^{\kappa+1} I\Bigr) + I && (\text{by Proposition \ref{lem:shif-dist} and } \mathsf{S}(\mathsf{S}^{\kappa}) = \mathsf{S}^{\kappa+1})\\
-  &= \Bigl(\sum_{\kappa<J-1}\mathsf{S}^{\kappa+1} I\Bigr) + \mathsf{S}^0 I && (I = \mathsf{S}^{0}I) \\
-  &= \sum_{\kappa<J}\mathsf{S}^\kappa I && (\text{reindex } J-1 \text{ and } \kappa +1) 
+\mathsf{S}\Bigl(\sum_{\kappa<s-1}\mathsf{S}^\kappa I\Bigr) + I 
+  &= \Bigl(\sum_{\kappa<s-1}\mathsf{S}^{\kappa+1} I\Bigr) + I && (\text{by Proposition \ref{lem:shif-dist} and } \mathsf{S}(\mathsf{S}^{\kappa}) = \mathsf{S}^{\kappa+1})\\
+  &= \Bigl(\sum_{\kappa<s-1}\mathsf{S}^{\kappa+1} I\Bigr) + \mathsf{S}^0 I && (I = \mathsf{S}^{0}I) \\
+  &= \sum_{\kappa<s}\mathsf{S}^\kappa I && (\text{reindex } s-1 \text{ and } \kappa +1) 
 \end{aligned}
 \]
 
-Overall, indexed types such as $\mathrm{Nat}(I)$ let us process a finite prefix
+Overall, indexed types such as $\mathrm{Nat}(s)$ let us process a finite prefix
 of an infinite type like the guarded stream, and the total cost is a finite sum. Since
 a stream cannot end, the results are collected in a data structure that can terminate,
 such as a co-list, which also agrees with the structure of guarded recursive types.

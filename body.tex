@@ -62,6 +62,21 @@ citecolor   = blue
 \renewcommand*{\figureformat}{\figurename~\thefigure}
 \renewcommand*{\tableformat}{\tablename~\thetable}
 
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstdefinestyle{hs}{
+  language=Haskell,
+  basicstyle=\ttfamily\small,
+  columns=fullflexible,
+  keepspaces=true,
+  keywordstyle=\bfseries,
+  morekeywords={Later},
+  xleftmargin=2em,
+  aboveskip=0.6\baselineskip,
+  belowskip=0.6\baselineskip
+}
+
 \begin{document}
 
 \input{macros}                                    % define all your macros here

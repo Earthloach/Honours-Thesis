@@ -1,52 +1,52 @@
 \chapter{Appendix: Proofs for the worst-case calculus}\label{chap:appendix1}
 
-\begin{appalem}
+\begin{appaprop}
 \label{appa:shift-dist}
-For any well-formed indices $I, J$, and $K$, if $ K$ is a natural number constant, then the following equations hold:
+For any well-formed indices $I, J$, and $s$, if $s$ is a natural number constant, then the following equations hold:
 \begin{align*}
-  &(1) \quad \mathsf{S}^K(I+J)
-  = \mathsf{S}^K(I)+\mathsf{S}^K(J),\\
-  &(2)\quad \mathsf{S}^K(I-J)
-  = \mathsf{S}^K(I)-\mathsf{S}^K(J),\\
-  &(3)\quad \text{If } J \text{ is a natural number constant}, \text{ then }\mathsf{S}^K\left(\textstyle\sum_{\kappa<J}I\right)
-  = \textstyle\sum_{\kappa<J}\mathsf{S}^K(I).
+  &(1) \qquad \mathsf{S}^s(I+J)
+  = \mathsf{S}^s(I)+\mathsf{S}^s(J)\\
+  &(2)\qquad \mathsf{S}^s(I-J)
+  = \mathsf{S}^s(I)-\mathsf{S}^s(J)\\
+  &(3)\qquad \text{If } s' \text{ is a natural number constant}, \text{ then }\mathsf{S}^s\left(\textstyle\sum_{\kappa<s'}I\right)
+  = \textstyle\sum_{\kappa<s'}\mathsf{S}^s(I)
 \end{align*}
-\end{appalem}
+\end{appaprop}
 
 \begin{proof}
 From Definition \ref{def:constraint-entailment}, for any $i \in \mathbb{N}$, it suffices to show:
 \begin{itemize}
   \item[(1)]
   \begin{align*}
-    \bigl(\mathsf{S}^K(I+J)\bigr)(i)
-    &= (I+J)(i+K)&& \text{(interpretation of $\mathsf{S}$)}\\
-    &= I(i+K)+J(i+K)&& \text{(interpretation of $+$)}\\
-    &= \bigl(\mathsf{S}^K(I)\bigr)(i)
-       +\bigl(\mathsf{S}^K(J)\bigr)(i)&& \text{(interpretation of $\mathsf{S}$)}\\
-    &= \bigl(\mathsf{S}^K(I)+\mathsf{S}^K(J)\bigr)(i) && \text{(interpretation of $+$)}\\
+    \bigl(\mathsf{S}^s(I+J)\bigr)(i)
+    &= (I+J)(i+s)&& \text{(interpretation of $\mathsf{S}^{s}$)}\\
+    &= I(i+s)+J(i+s)&& \text{(interpretation of $+$)}\\
+    &= \bigl(\mathsf{S}^s(I)\bigr)(i)
+       +\bigl(\mathsf{S}^s(J)\bigr)(i)&& \text{(interpretation of $\mathsf{S}^{s}$)}\\
+    &= \bigl(\mathsf{S}^s(I)+\mathsf{S}^s(J)\bigr)(i) && \text{(interpretation of $+$)}\\
   \end{align*}
 
   \item[(2)]
   \begin{align*}
-    \bigl(\mathsf{S}^K(I-J)\bigr)(i)
-    &= (I-J)(i+K)
-       && \text{(interpretation of $\mathsf{S}$)}\\
-    &= I(i+K)-J(i+K) && \text{(interpretation of $\mathsf{-}$)}\\
-    &= \bigl(\mathsf{S}^K(I)\bigr)(i) -\bigl(\mathsf{S}^K(J)\bigr)(i)
-      && \text{(interpretation of $\mathsf{S}$)}\\
-    &= \bigl(\mathsf{S}^K(I)-\mathsf{S}^K(J)\bigr)(i) 
+    \bigl(\mathsf{S}^s(I-J)\bigr)(i)
+    &= (I-J)(i+s)
+       && \text{(interpretation of $\mathsf{S}^{s}$)}\\
+    &= I(i+s)-J(i+s) && \text{(interpretation of $\mathsf{-}$)}\\
+    &= \bigl(\mathsf{S}^s(I)\bigr)(i) -\bigl(\mathsf{S}^s(J)\bigr)(i)
+      && \text{(interpretation of $\mathsf{S}^{s}$)}\\
+    &= \bigl(\mathsf{S}^s(I)-\mathsf{S}^s(J)\bigr)(i) 
       && \text{(interpretation of $\mathsf{-}$)}\\
   \end{align*}
 
   \item[(3)]
   \begin{align*}
-    \mathsf({S}^{K}(\sum_{\kappa<J}I))(i)
-    &= (\mathsf{S}^{K}(\sum_{k=0}^{J-1}I[k/\kappa]))(i)
+    \mathsf({S}^{s}(\sum_{\kappa<s'}I))(i)
+    &= (\mathsf{S}^{s}(\sum_{k=0}^{s'-1}I[k/\kappa]))(i)
       && \text{(interpretation of bounded sum)}\\
-    &= (\sum_{k=0}^{J-1}I[k/\kappa])(i+K) && \text{(interpretation of $\mathsf{S}$)}\\
-    &= \sum_{k=0}^{J-1}((I[k/\kappa])(i+K)) && \text{(interpretation of $+$)}\\
-    &= \sum_{k=0}^{J-1}(\mathsf{S}^K(I[k/\kappa])(i)) && \text{(interpretation of $\mathsf{S}$)}\\
-    &= (\sum_{k=0}^{J-1}\mathsf{S}^K(I[k/\kappa]))(i) && \text{(interpretation of $+$)}\\
+    &= (\sum_{k=0}^{s'-1}I[k/\kappa])(i+s) && \text{(interpretation of $\mathsf{S}^{s}$)}\\
+    &= \sum_{k=0}^{s'-1}((I[k/\kappa])(i+s)) && \text{(interpretation of $+$)}\\
+    &= \sum_{k=0}^{s'-1}(\mathsf{S}^s(I[k/\kappa])(i)) && \text{(interpretation of $\mathsf{S}^{s}$)}\\
+    &= (\sum_{k=0}^{s'-1}\mathsf{S}^s(I[k/\kappa]))(i) && \text{(interpretation of $+$)}\\
     &= \sum_{\kappa<J}\mathsf{S}(I)
        && \text{(interpretation of bounded sum)}
   \end{align*}
@@ -230,7 +230,7 @@ In the positive case, the two positive IHs give
 $\Theta;\Delta\vdash\sigma_j[\tau_0/\alpha]<:\sigma_j[\tau_1/\alpha]$
 for $j=1,2$. Applying \textsc{Sub-Sum} gives the desired.
 
-\item Case $\sigma=L^I\sigma_0$
+\item Case $\sigma=L^s\sigma_0$
 
 In the positive case, the positive IH for $\sigma_0$ gives
 \[ \sigma_0[\tau_0/\alpha] <: \sigma_0[\tau_1/\alpha]\]
@@ -712,7 +712,6 @@ This is exactly the desired.
 \end{proof}
 
 
-%%%%% Fundamental Property %%%%%%%%%%%%%%%%%
 \begin{appathm}[Fundamental Property]
 \label{appa:fundamental}
 $\\$ If $\hastype{\Theta;\Delta;\Gamma}{e}{\tau}$, $\cdot\models\Delta\iota$, and $(n,i,\gamma) \in \erel{\Gamma\iota}$, 
@@ -1322,12 +1321,12 @@ Trivial.
 \inferrule*[right=T-Cons]
     {
     \hastype{\Theta;\Delta;\Gamma}{e_1}{\tau}
-     \quad \hastype{\Theta;\Delta;\Gamma}{e_2}{L^n\tau}}
-    {\hastype{\Theta;\Delta;\Gamma}{e_1::e_2}{L^{n+1}\tau}}.
+     \quad \hastype{\Theta;\Delta;\Gamma}{e_2}{L^s\tau}}
+    {\hastype{\Theta;\Delta;\Gamma}{e_1::e_2}{L^{s+1}\tau}}.
 \]
 Unfold the definition of the goal's term relation, assume $m\leq n$ and
 $e_1\gamma::e_2\gamma \Downarrow_m v$. It suffices to show
-\[(m, i, v) \in \vrel{L^{n+1}\tau\;\iota}.\]
+\[(m, i, v) \in \vrel{L^{(s+1)\iota}\tau\iota}.\]
 From \textsc{E-Cons}, we have 
 \[
 v = v'::l, \quad 
@@ -1335,7 +1334,7 @@ e_1\gamma\Downarrow_m v', \quad
 e_2\gamma\Downarrow_m l.
 \]
 Unfold and apply the value relation to this, it remains to show 
-\[(m, i, v') \in \vrel{\tau \iota}, \quad (m, i, l) \in \vrel{L^{n}\tau\;\iota}.\]
+\[(m, i, v') \in \vrel{\tau \iota}, \quad (m, i, l) \in \vrel{L^{s\iota}\tau\;\iota}.\]
 Since $m \leq n$, applying IH1 to $e_1\gamma\Downarrow_m v'$ and IH2 
 to $e_2\gamma\Downarrow_m l$ gives the desired.
 
@@ -1343,8 +1342,8 @@ to $e_2\gamma\Downarrow_m l$ gives the desired.
 \[
 \inferrule*[right=T-Match]
     {\hastype{\Theta;\Delta;\Gamma}{e}{L^s\tau}
-     \\ \hastype{\Theta;\Delta,n=0;\Gamma}{e_1}{\tau'}
-     \\ \hastype{\Theta;\Delta,n > 0;\Gamma,h:\tau,t:L^{n-1}\tau}{e_2}{\tau'}}
+     \\ \hastype{\Theta;\Delta,s=0;\Gamma}{e_1}{\tau'}
+     \\ \hastype{\Theta;\Delta,s > 0;\Gamma,h:\tau,t:L^{s-1}\tau}{e_2}{\tau'}}
     {\hastype{\Theta;\Delta;\Gamma}{\lmatch{e}{e_1}{h}{t}{e_2}}{\tau'}}.
 \]
 Unfold the definition of the goal's term relation, assume $m\leq n$ and
@@ -1363,9 +1362,9 @@ Since $m\leq n$, applying IH2 to this gives the desired.
 From \textsc{E-MatchCons}, we have $e_2\gamma[v_f/h][l/t]\Downarrow_m v$.
 Let $\gamma' = \gamma[h\mapsto v_f][t\mapsto l]$, then we get $e_2\gamma'\Downarrow_m v$.
 Applying IH1 to $e\gamma \Downarrow_m v'$ gives
-\[(m, i,v_f::l) \in \vrel{L^{n\iota}\tau\;\iota}.\]
+\[(m, i,v_f::l) \in \vrel{L^{s\iota}\tau\;\iota}.\]
 Unfold this value relation, we have 
-\[(m,i,v_f) \in \vrel{\tau \iota},\quad (m,i,v_f) \in \vrel{L^{n\iota-1}\tau\;\iota}.\]
+\[(m,i,v_f) \in \vrel{\tau \iota},\quad (m,i,v_f) \in \vrel{L^{s\iota-1}\tau\;\iota}.\]
 Therefore, we know $(m, i,\gamma') \in \erel{(\Gamma, h:\tau,t:L^{n-1})\iota}$ from the definition of the substitution relation.
 Now applying IH3's term relation to $e_2\gamma'\Downarrow_m v$ gives the desired.
 

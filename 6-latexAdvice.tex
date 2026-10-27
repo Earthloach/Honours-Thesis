@@ -5,9 +5,9 @@ In this chapter, we introduce $\lambda^g_{\mathsf{amor}}$, an extension of $\lam
 Following $\lambda$-amor, the extended calculus incorporates an \emph{affine} type system and a \emph{graded potential} modal type. 
 Together, these features let types store potential and use it to offset costs, enabling type-based amortised analysis.
 
-We first discuss the extensions to the syntax, type system, semantics in Section \ref{sec:amor-overview}.
-In Section \ref{sec:amor-program-examples}, We demonstrate the applicability of the calculus by example programs.
-Lastly, the model and soundness theorem of $\lambda^g_{\mathsf{amor}}$ are described in Section \ref{fig:amor-model}.
+We first discuss the extensions to the syntax, type system, semantics in Section~\ref{sec:amor-overview}.
+In Section~\ref{sec:amor-program-examples}, We demonstrate the applicability of the calculus by example programs.
+Lastly, the model and soundness theorem of $\lambda^g_{\mathsf{amor}}$ are described in Section~\ref{sec:amor-model}.
 
 
 \section{Development of $\lambda^g_{\mathsf{amor}}$}
@@ -149,7 +149,7 @@ However, we also restrict it to be time-independent by the familiar constraint $
 The intuition of this is similar to that of affine typing: potential should not be created arbitrarily. 
 For example, the index $\clk$ that carries $i$ units of potential at time $i$ will be regarded as carrying $i+1$ units one step later, 
 without any additional potential being stored. Specifically, using time-dependent potential will lead to unsoundness of the type system, we will
-show a corresponding example in Section \ref{subsec:amor-semantics}.
+show a corresponding example in Section~\ref{subsec:amor-semantics}.
 \begin{figure}[H]
 \begin{mathpar}
     \inferrule*[right=WF-Pot]
@@ -274,7 +274,8 @@ In this section, we present several programs written in $\lambda^g_{\mathsf{amor
 amortised analysis features. Following the program examples shown in Chapter \ref{chap:4}, we mainly consider 
 linear data structures, such as streams and co-lists.
 
-We first give an equivalent definition of the stream type presented in Section \ref{sec:worst-case-program-examples}:
+\subsection{Stream and list processing}
+We first give an equivalent definition of the stream type presented in Section~\ref{sec:worst-case-program-examples}:
 \[
   \tstr{\tau}
   \triangleq
@@ -290,7 +291,7 @@ We first give an equivalent definition of the stream type presented in Section \
 \end{align*}
 
 We revisit the stream mapping function $\mathsf{mapC}$. In $\lambda^g_{\mathsf{amor}}$, stream elements may carry potential that can be released\
-\footnote{The guarded fixed-point combinator introduced in Section \ref{sec:worst-case-program-examples} requires adaptation to respect affine types. We omit its definition here and provide that in Appendix \ref{chap:appendix2}.}: 
+~\footnote{The guarded fixed-point combinator introduced in Section~\ref{sec:worst-case-program-examples} requires adaptation to respect affine types. We omit its definition here and provide that in Appendix \ref{chap:appendix2}.}: 
 \begin{flalign*}
 &\quad\mathsf{mapRelease}: \forall s.\,!(\tau \multimap \tmonad{s}{\tau}) \multimap \tstr{\tmonad{s}{[s]\tau}} \multimap \tstr{\tmonad{s}{\tau}} &&\\
 &\quad\mathsf{mapRelease} \triangleq \Lambda.\fix\lambda m.\lambda f.\lambda str.&&\\
@@ -312,8 +313,8 @@ For example, we can create a stream of potential easily:
   &\quad\mathsf{potStream} : \tstr{\tmonad{s}{[s]\textbf{1}}} && \\
   &\quad\mathsf{potStream} \triangleq \fix\lambda x. \store \langle\rangle:: x &&
 \end{flalign*}
-To collect the values produced by the monadic stream into a pure data structure, we can use the $\mathsf{takeC}$ function introduced in Section \ref{sec:worst-case-program-examples}. 
-This function extracts a finite prefix of the stream into a co-list\footnote{We reuse the co-list type introduced in Section \ref{sec:worst-case-program-examples}, replacing the $\times$ type inside its definition with $\otimes$ and $+$ with $\oplus$.}, 
+To collect the values produced by the monadic stream into a pure data structure, we can use the $\mathsf{takeC}$ function introduced in Section~\ref{sec:worst-case-program-examples}. 
+This function extracts a finite prefix of the stream into a co-list~\footnote{We reuse the co-list type introduced in Section~\ref{sec:worst-case-program-examples}, replacing the $\times$ type inside its definition with $\otimes$ and $+$ with $\oplus$.}, 
 which can subsequently be accessed by binding the resulting monad.
 For example, the result type of collecting 10 elements of $\mathsf{potStream}$ by $\mathsf{takeC}$ is 
 $\tmonad{(\textstyle\sum_{\kappa<10}\mathsf{S}^\kappa s)}{\colist{[s]\textbf{1}}}$.
@@ -370,7 +371,7 @@ by extending the model of $\lambda^g_{\mathsf{worst}}$ developed in Chapter \ref
 The overall construction remains largely unchanged, we therefore focus on the modifications required for amortised cost analysis.
 
 \subsection{Model}
-Based on the model of $\lambda$-amor, we extend the logical relation from Section \ref{sec:worst-case-model} by introducing an additional Kripke World $p$, representing 
+Based on the model of $\lambda$-amor, we extend the logical relation from Section~\ref{sec:worst-case-model} by introducing an additional Kripke World $p$, representing 
 an upper bound of potential carried by terms. Accordingly, the value and term relations are now indexed by $(p,n, i)$, where $n$ and $i$ retain their previous meanings.
 Following the restriction of potential grades in the type system, $p$ is a time-independent nonnegative real number, and we use its value directly 
 instead of writing $p(i)$ for convenience.
@@ -482,7 +483,7 @@ Since unrestricted terms cannot carry any potential, all variables in $\Omega$ h
 \subsection{Soundness}
 We now demonstrate the soundness of $\lambda^g_{\mathsf{amor}}$.
 As in Chapter~\ref{chap:5}, the central result is the Fundamental Property of logical relation. 
-Establishing this property requires adapting the auxiliary lemmas presented in Section \ref{sec:axu-lemma} to the extended logical relation.
+Establishing this property requires adapting the auxiliary lemmas presented in Section~\ref{sec:axu-lemma} to the extended logical relation.
 Since the proof structure and strategies follow, we omit most of them here. Details of the lemmas and proofs can be found in Appendix \ref{chap:appendix2}.
 
 One notable extension is that the monotonicity now also accounts for the potential:
@@ -592,7 +593,7 @@ To prove (R0), we choose $p_2'$ to be $p'$, then it suffices to show
 \end{itemize}
 \end{proof}
 
-Analogously to Section \ref{sec:worst-case:soundness}, the soundness theorem follows directly from the Fundamental Property:
+Analogously to Section~\ref{sec:worst-case:soundness}, the soundness theorem follows directly from the Fundamental Property:
 
 \begin{thm}[Soundness of $\lambda^g_{\mathsf{amor}}$]
 \label{thm:amortized-soundness1}

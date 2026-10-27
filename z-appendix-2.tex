@@ -1,4 +1,4 @@
-\chapter{Formalisations of the amortised calculus}\label{chap:appendix2}
+\chapter{Full Development of the amortised calculus}\label{chap:appendix2}
 
 What you find here is an explanation of why the border width keeps flipping from left to right -- which you might have spotted and wondered why that's the case.
 
@@ -20,7 +20,7 @@ When you open the book, there are three borders of equal size~$n$. This however 
 
 \pagebreak
 
-\section{Specification of $\lambda^{g}_\mathsf{amor}$}
+\section{Formalisation of $\lambda^{g}_\mathsf{amor}$}
 \subsection{Syntax}
 \[
 \begin{alignedat}{3}
@@ -40,7 +40,7 @@ When you open the book, there are three borders of equal size~$n$. This however 
  &&&&&\mid\ret e\mid\tick{I}\mid\bind{x}{e_1}{e_2}\mid\pull e\\
  &&&&&\mid\store e\mid\release{x}{e_1}{e_2}\\[.6ex]
  &\text{Indices} &&I,J,s&\;::={}&\kappa\mid N\mid R\mid\clk\mid I+J\mid I-J\\
- &&&&&\mid\textstyle{\sum}_{\kappa<n}I\mid\mathsf{S}^n(I)\\[.6ex]
+ &&&&&\mid\textstyle{\sum}_{\kappa<s}I\mid\mathsf{S}^s(I)\\[.6ex]
  &\text{Sorts} &&S &\;::={}&\mathbb N\mid\mathbb R_{\ge0} \\
  &\text{Constraints} &&C &\;::={}&I\leq J\mid I=J\\[.6ex]
  &\text{Affine context} &&\Gamma &\;::={}&\cdot\mid\Gamma,x:\tau\\
@@ -93,14 +93,14 @@ When you open the book, there are three borders of equal size~$n$. This however 
   \inferrule*[right=S-Sum]
       {\Theta;\Delta\vdash J:\mathbb{N} \quad
        \Theta,\kappa:\mathbb{N};\Delta, \kappa < n\vdash I:S \quad
-       \Theta;\Delta\models n = \mathsf{S}(n)}
-      {\Theta;\Delta\vdash\textstyle{\sum}_{\kappa<J}I:S}
+       \Theta;\Delta\models s = \mathsf{S}(s)}
+      {\Theta;\Delta\vdash\textstyle{\sum}_{\kappa<s}I:S}
   \\
 
   \inferrule*[right=S-Shift]
       {\Theta;\Delta\vdash I: S \quad \Theta;\Delta\vdash J:\mathbb{N}
-        \quad \Theta;\Delta\models n = \mathsf{S(n)}}
-      {\Theta;\Delta\vdash \mathsf{S}^n(I):S}
+        \quad \Theta;\Delta\models s = \mathsf{S(s)}}
+      {\Theta;\Delta\vdash \mathsf{S}^s(I):S}
 \end{mathpar} 
   \caption{Sort typing rules for indices}
 \end{figure}
@@ -150,8 +150,8 @@ When you open the book, there are three borders of equal size~$n$. This however 
 
     \inferrule*[right=WF-List]
       {\Psi;\Theta;\Delta\vdash\tau\quad\Theta;\Delta\vdash I:\mathbb N
-      \quad \Theta;\Delta\models I=\mathsf S(I)}
-      {\Psi;\Theta;\Delta\vdash L^I\tau}
+      \quad \Theta;\Delta\models s=\mathsf S(s)}
+      {\Psi;\Theta;\Delta\vdash L^s\tau}
 
     \inferrule*[right=WF-Forall]
       {\Psi;\Theta,\kappa:S;\Delta\vdash\tau}
@@ -243,21 +243,21 @@ When you open the book, there are three borders of equal size~$n$. This however 
 \inferrule*[right=T-Cons]
   {
     \hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\tau}
-    \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2}{e_2}{L^n\tau}
-    \quad \Theta;\Delta\vdash n:\mathbb{N}}
-  {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{e_1::e_2}{L^{n+1}\tau}}
+    \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2}{e_2}{L^s\tau}
+    }
+  {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{e_1::e_2}{L^{s+1}\tau}}
 
 \inferrule*[right=T-Match]
-    {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e}{L^n\tau}
+    {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e}{L^s\tau}
       \\\\ 
-      \hastype{\Theta;\Delta,n=0;\Omega;\Gamma_2}{e_1}{\tau'} \quad
-      \hastype{\Theta;\Delta,n > 0;\Omega;\Gamma_2,h:\tau,t:L^{n-1}\tau}{e_2}{\tau'}
+      \hastype{\Theta;\Delta,s=0;\Omega;\Gamma_2}{e_1}{\tau'} \quad
+      \hastype{\Theta;\Delta,s > 0;\Omega;\Gamma_2,h:\tau,t:L^{s-1}\tau}{e_2}{\tau'}
       }
     {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{\lmatch{e}{e_1}{h}{t}{e_2}}{\tau'}}
 
 \inferrule*[right=T-Case]
-      {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e}{\tau_1\oplus\tau_2}
-       \\\\ \hastype{\Theta;\Delta;\Omega;\Gamma_2,x:\tau_1}{e_1}{\tau}
+      {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e}{\tau_1\oplus\tau_2} \quad
+       \hastype{\Theta;\Delta;\Omega;\Gamma_2,x:\tau_1}{e_1}{\tau}
        \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2,y:\tau_2}{e_2}{\tau}}
       {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2} {\case{e}{x}{e_1}{y}{e_2}}{\tau}}
 
@@ -323,8 +323,8 @@ When you open the book, there are three borders of equal size~$n$. This however 
 
 \inferrule*[right=T-Store]
   {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau}
-    \quad\Theta;\Delta\vdash n:\mathbb{R}_{\ge0}}
-  {\hastype{\Theta;\Delta;\Omega;\Gamma}{\store e}{\tmonad{n}{([s]\tau)}}}
+    \quad\Theta;\Delta\vdash s:\mathbb{R}_{\ge0}}
+  {\hastype{\Theta;\Delta;\Omega;\Gamma}{\store e}{\tmonad{s}{([s]\tau)}}}
 
 \inferrule*[right=T-Release]
   {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{[s]\tau_1}
@@ -368,7 +368,7 @@ When you open the book, there are three borders of equal size~$n$. This however 
 
     \inferrule*[right=Sub-List]
       {\Theta;\Delta\vdash \tau <: \tau'}
-      {\Theta;\Delta\vdash L^n\tau <: L^n\tau'}
+      {\Theta;\Delta\vdash L^s\tau <: L^s\tau'}
 
     \inferrule*[right=Sub-IndexPoly]
       {\Theta,\kappa:S;\Delta\vdash\tau<:\tau'}
@@ -630,6 +630,47 @@ When you open the book, there are three borders of equal size~$n$. This however 
 \end{align*}
 \end{appbdef}
 
+\section{Supplementary Programs}
+\begin{appbdef}[Guarded fixed point]
+\begin{align*}
+\mathsf{Rec}
+  &\triangleq
+    \mu\alpha.\,
+    !(\triangleright\alpha)
+    \multimap !(\triangleright\tau\multimap\tau)
+    \multimap\tau,
+    \\[6pt]
+\theta
+  &\triangleq
+    \lambda y.\lambda f.\,
+    \mathsf{let}\;!u=y\;\mathsf{in}\;
+    \mathsf{let}\;!g=f\;\mathsf{in}
+    \\
+  &\qquad
+    g\bigl(
+      \mathsf{next}(\lambda z.\mathsf{unfold}\,z)
+      \circledast u
+      \circledast \mathsf{next}(!u)
+      \circledast \mathsf{next}(!g)
+    \bigr)
+    \\
+  &\quad:
+    !(\triangleright\mathsf{Rec})
+    \multimap !(\triangleright\tau\multimap\tau)
+    \multimap\tau,
+    \\[6pt]
+\mathsf{fix}
+  &\triangleq
+    \lambda f.\,
+    \theta
+    \bigl(!(\mathsf{next}(\mathsf{fold}\,\theta))\bigr)
+    \,f
+  \quad:
+    !(\triangleright\tau\multimap\tau)
+    \multimap\tau.
+\end{align*} 
+\end{appbdef}
+
 \pagebreak
 \section{Proofs}
 
@@ -781,7 +822,7 @@ Unfold the assumption, we have $v=\fold v'$ and
   (p, n,i,v')\in
   \vrel{\tau'[\mu\alpha.\tau'/\alpha]}.
 \]
-From \ref{lem:ty-size}, we know $|\tau'[\mu\alpha.\tau'/\alpha]|\leq |\tau'| < |\mu\alpha.\tau'|$, so the inner IH gives
+From Lemma \ref{lem:amor-ty-size}, we know $|\tau'[\mu\alpha.\tau'/\alpha]|\leq |\tau'| < |\mu\alpha.\tau'|$, so the inner IH gives
 \[
   (q, m,j,v')\in
   \vrel{\tau'[\mu\alpha.\tau'/\alpha]}.
@@ -1000,9 +1041,9 @@ Unfold the value relation required by the goal, we get the desired directly.
 \inferrule*[right=T-Cons]
   {
     \hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\tau}
-    \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2}{e_2}{L^n\tau}
-    \quad \Theta;\Delta\vdash n:\mathbb{N}}
-  {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{e_1::e_2}{L^{n+1}\tau}}
+    \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2}{e_2}{L^s\tau}
+  }
+  {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{e_1::e_2}{L^{s+1}\tau}}
 \]
 Unfold the definition of the goal, assume $m\leq n$ and
 $e_1\gamma\delta::e_2\gamma\delta \Downarrow_m v$. It suffices to show
@@ -1037,10 +1078,10 @@ by IH2. Applying this term relation to $e_2\gamma\Downarrow_m l$, we have $(p_2,
 \item Case
 \[
 \inferrule*[right=T-Match]
-    {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e}{L^n\tau}
+    {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e}{L^s\tau}
       \\\\ 
-      \hastype{\Theta;\Delta,n=0;\Omega;\Gamma_2}{e_1}{\tau'} \quad
-      \hastype{\Theta;\Delta,n > 0;\Omega;\Gamma_2,h:\tau,t:L^{n-1}\tau}{e_2}{\tau'}
+      \hastype{\Theta;\Delta,s=0;\Omega;\Gamma_2}{e_1}{\tau'} \quad
+      \hastype{\Theta;\Delta,s > 0;\Omega;\Gamma_2,h:\tau,t:L^{s-1}\tau}{e_2}{\tau'}
       }
     {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{\lmatch{e}{e_1}{h}{t}{e_2}}{\tau'}}
 \]

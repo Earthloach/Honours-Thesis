@@ -21,9 +21,9 @@ This chapter develops the meta-theory of $\lambda^g_{\mathsf{worst}}$.
 Its central tool is a semantic model of the type system based on a technique of logical relations \citep{tait67}.
 In particular, the model gives interpretations to the types and can be used to prove the soundness of the type system. 
 
-We begin by presenting the model in Section \ref{sec:worst-case-model}, 
-followed by auxiliary lemmas derived from it in Section \ref{sec:axu-lemma}.
-Finally, Section \ref{sec:worst-case-fund} demonstrates the Fundamental Property of the underlying logical relation, from which the soundness theorem follows.
+We begin by presenting the model in Section~\ref{sec:worst-case-model}, 
+followed by auxiliary lemmas derived from it in Section~\ref{sec:axu-lemma}.
+Finally, Section~\ref{sec:worst-case-fund} demonstrates the Fundamental Property of the underlying logical relation, from which the soundness theorem follows.
 
 
 \section{Model}
@@ -32,19 +32,19 @@ The model of $\lambda^g_{\mathsf{worst}}$ is constructed using a step-indexed Kr
 Figure~\ref{fig:worst-case-logical-relation} gives the formalisation of our model, which consists of two
 mutually recursive relations indexed by well-formed types:\ the value relation $\vrel{}$ and the term/expression relation $\erel{}$.
 Essentially, such relations are a family of sets of the triple $(n, i, e)$, where $e$ is a usual term in the calculus,
-the index $i$ serves as the Kripke world that represents the logical time, and $n$ is the evaluation ``depth’’ mentioned in the last chapter.
+the index $i$ serves as the Kripke world that represents the logical time, and $n$ is the step-index that controls evaluation ``depth'' mentioned in the last chapter.
 
-Specifically, our logical relation is close to that of $\lambda$-amor, where we drop its potential Kripke world $p$ used for amortised analysis and add another world $i$.
-Furthermore, $\lambda$-amor uses a step index as the fuel for beta reduction, which is different from the $n$ used by us. 
-On the other hand, work in guarded recursion 
-\citep{cloustonGuardedLambdaCalculusProgramming2017a, guattoGeneralizedModalityRecursion2018d} present logical relations that use step-indices similar to ours.
+Specifically, our logical relation is closely related to that of $\lambda$-amor, but we omit its potential Kripke world $p$, used for amortised analysis, and introduce an additional world $i$. 
+Furthermore, $\lambda$-amor uses a step index as fuel for beta reduction, 
+which differs from our use of $n$. In contrast, previous work on guarded recursion \citep{cloustonGuardedLambdaCalculusProgramming2017a,guattoGeneralizedModalityRecursion2018c} 
+presents logical relations that use step indices in a manner similar to ours.
 
 The logical relations are well-founded by the lexicographic order $(n, |\tau|, \text{value} < \text{term})$.
 The order of $n$ is the standard one for natural numbers, and $\text{value} < \text{term}$ means that
 value relations are considered smaller than term relations. The order $|\tau|$ is more involved, it represents the size of types, defined
 as follows:
 
-\begin{defn}{Type Size}
+\begin{defn}{Type size}
 \label{def:worst-case-ty-size}
   \begin{align*}
     &|\alpha|=|\textbf{b}|=|\textbf{1}|=|\triangleright\tau|=1, \\
@@ -99,7 +99,7 @@ as follows:
     \{(n,i,e) \mid \forall m\leq n,v.\; e\Downarrow_m v\implies (m,i,v)\in\vrel{\tau}\} \\[0.8ex]
 &\erel{\Gamma}
   &\quad\triangleq\quad&
-    \{(n,i,\gamma) \mid \forall x\in\operatorname{dom}(\Gamma).\;
+    \{(n,i,\gamma) \mid \forall x\in dom(\Gamma).\;
         (n,i,\gamma(x))\in\vrel{\Gamma(x)}\}.
 \end{alignedat}
 \]
@@ -164,7 +164,7 @@ The term relations have two forms. The $\erel{\tau}$ relation extends the value 
 Particularly, if a term $e$ evaluates to a value $v$ at any possibly smaller depth $m$, then $v$ should satisfy the value relation $\vrel{\tau}$.
 
 The term substitution relation $\erel{\Gamma}$ characterises substitutions that satisfy the typing context $\Gamma$.
-Specifically, a substitution $\gamma$\footnote{We assume that \(\gamma\) is a standard capture-avoiding substitution.}
+Specifically, a substitution $\gamma$~\footnote{We assume that \(\gamma\) is a standard capture-avoiding substitution.}
 maps a set of term variables $x$ contained in $\Gamma$ to their corresponding values.
 The relation holds for $\gamma$ if each substituted value $\gamma(x)$ belongs to the value relation of its corresponding type $\Gamma(x)$.
 
@@ -271,7 +271,7 @@ By \textsc{Sub-Trans}, we obtain
   \tau\iota[\mu\alpha.\tau\iota/\alpha]
   <: \tau'\iota[\mu\alpha.\tau'\iota/\alpha] \quad (\text{S0})
 \]
-By Lemma \ref{lem:worst-case-ty-size}, we have
+By Lemma \ref{lem:rec-well-founded}, we have
 \[
   |\tau\iota[\mu\alpha.\tau\iota/\alpha]|
     <|\mu\alpha.\tau\iota|, \quad
@@ -313,7 +313,7 @@ then $(n,i,e\gamma)\in\erel{\tau\iota}$.
 \end{thm}
 \begin{proof}
   Induction on the typing derivation, pushing $\gamma$ and $\iota$ inside for each case.
-  Here we present several important cases, full proof can be found in Lemma \ref{appa:fundamental}.
+  Here we present several important cases, full proof can be found in Theorem \ref{appa:fundamental}.
 \begin{itemize}
 \item Case
 \[
