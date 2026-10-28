@@ -19,7 +19,7 @@
 
 This chapter presents $\lambda^g_{\mathsf{worst}}$, a calculus for worst-case cost analysis of guarded recursive programs.
 The type system combines the later modality for guarded recursion with a graded monad for cost analysis.
-Specifically, the calculus adapts fragments from the guarded lambda calculus of \cite{cloustonGuardedLambdaCalculusProgramming2017a}
+Specifically, the calculus adapts fragments from the guarded $\lambda$-calculus of \cite{cloustonGuardedLambdaCalculusProgramming2017a}
 and $\lambda$-amor of \cite{rajaniUnifyingTypetheoryHigherorder2021a}.
 
 Firstly, in Section~\ref{sec:cost-foundation} we examine how the interaction between grades and the later modality yields the notion of \emph{time-dependent cost}, 
@@ -31,25 +31,19 @@ Finally, Section~\ref{sec:worst-case-program-examples} illustrates the calculus 
 
 \FloatBarrier
 
-\section{Foundations of cost}
+\section{Time-Dependent Cost}
 \label{sec:cost-foundation}
-Following $\lambda$-amor, we use a graded monad to represent cost-aware computations. For example, the type $\tmonad{3}{\tau}$ 
-describes a computation whose result has type $\tau$, and the upper bound of the resulting cost is 3. 
-More generally, the grade annotation of the monad is a \emph{nonnegative} real number.
-
-Guarded recursion employs a notion of \emph{logical time}, represented by the later modality $\triangleright$ \citep{nakanoModalityRecursion2000}. 
-For example, data of type $\tau$ is considered available now, while data of type $\triangleright \tau$ becomes accessible after one time step. 
-In other words, an implicit time clock exists at the type level, where entering $\triangleright$ means the clock ticks once.
-Combining with the graded monad, we can leverage this logical time to express costs that vary each step.
+As introduced previously, guarded recursion use the notion of \emph{logical time}, represented by the later modality $\triangleright$ \citep{nakanoModalityRecursion2000}. 
+In other words, an implicit time clock exists at the type level, where entering $\triangleright$ means the time passes and the clock ticks once.
+Combining with the graded monad $\tmonad{I}{\tau}$, we can leverage this logical time concept to express costs that vary each step.
 
 Note that some work presents the clock explicitly \citep{atkeyProductiveCoprogrammingGuarded2013a,mogelberg14, bahrClocksAreTicking2017}, and
 multiple clocks can exist, e.g. types like $\triangleright^\alpha$ and $\triangleright^\beta$ where $\alpha, \beta$ denotes 2 different clocks,
 thus, the notion of time differs between the clocks. 
-Following the guarded lambda calculus, we only consider a single global clock in our type system. This also ensures that all costs 
+Following the guarded $\lambda$-calculus, we only consider a single global clock in our type system. This also ensures that all costs 
 change uniformly as time passes.
 
-\subsection{Time-dependent Cost}
-Firstly, we use an abstract parameter $i\in\mathbb N$ to denote the current time. Advancing one time step corresponds to moving from $i$ to $i+1$. 
+Firstly, we use an abstract parameter $i\in\mathbb N$ to denote the time. Advancing one time step corresponds to moving from $i$ to $i+1$. 
 Our aim is to specify non-uniform costs that change with $i$. For instance, if $i$ starts at zero, a cost of $i+2$ 
 gives costs 2, 3, 4 \dots as $i$ advances to $i+1$, $i+2$ \dots, while a constant cost like 3 remains unchanged as $i$ increments.
 
@@ -108,13 +102,11 @@ from $0$ up to $(s - 1)$. In particular, $I$ can contain the variable $\kappa$ b
 i.e. $I[0/\kappa] + \ldots + I[(J-1)/\kappa]$ or $\sum_{k=0}^{J-1}I[k/\kappa]$.
 Moreover, the sum will simply be $0$ if $J$ is zero.
 
-\subsection{Examples}
 Now we can combine the graded monad with the later modality in the type system.
 For example, a computation of type $\tmonad{\clk}{\tau}$ produces a \emph{symbolic} cost $\clk$, and the real interpreted cost will be the value of 
 $i$. If we consider the time starts from 0, then the cost is 0. By contrast, a computation of type $\triangleright\tmonad{\clk}{\tau}$ means that it
 will be executed one step later, and the cost will be the value of $i+1 = 1$. 
 Similarly, the cost will be $n$ for a computation of type $\triangleright^n \tmonad{\clk}{\tau}$, where $n$ is the number of nested later ($\triangleright$) types. 
-For a clearer illustration, Table \ref{fig:ticktime-costs} lists the cost sequence of a guarded stream whose elements are typed $\tmonad{\clk}{\tau}$.
 
 In contrast, computations of types $\tmonad{3}{\tau}$ and $\triangleright^n \tmonad{3}{\tau}$ do not distinguish their costs.
 
@@ -123,7 +115,7 @@ In contrast, computations of types $\tmonad{3}{\tau}$ and $\triangleright^n \tmo
 \section{Syntax}
 \label{sec:worst-case-syntax}
 In this section, we present the full syntax of $\lambda^g_{\mathsf{worst}}$, providing a general description of the surface constructs included in the calculus.
-Since the calculus combines part of $\lambda$-amor and the guarded lambda calculus, the formalisation is similar.
+Since the calculus combines part of $\lambda$-amor and the guarded $\lambda$-calculus, the formalisation is similar.
 
 \subsection{Indices, Sorts and Constraints}
 The index language should be familiar, as described in Section~\ref{sec:cost-foundation}. 
@@ -234,14 +226,14 @@ Thus, all constraint reasoning is delegated to an oracle, which in practice can 
 The next section shows how this relation is used for type formations.
 
 \subsection{Types}
-$\lambda^g_{\mathsf{worst}}$ contains types in ordinary simply-typed lambda calculus:\ unit, base, function,
+$\lambda^g_{\mathsf{worst}}$ contains types in ordinary simply-typed $\lambda$-calculus:\ unit, base, function,
 product and sum types. Following $\lambda$-amor, we also include types that contain quantitative information.
 The list type $L^s \tau$ carries an index $s$, representing its length. Furthermore, the length index is
 restricted to be a natural number constant for correctness. The graded monad $\tmonad{I}{\tau}$, as previously mentioned, denotes computations returning data of type $\tau$, producing $I$ units of symbolic cost.
 The polymorphic type $\forall\kappa\,{:}S.\tau$ allows types to be parameterised by indices, such as a cost-polymorphic monad
 $\forall \kappa:\mathbb{N}.\;\tmonad{\kappa}{\tau}$.
 
-Based on the guarded lambda calculus, $\lambda^g_{\mathsf{worst}}$ also includes the modal type $\triangleright \tau$ and the recursive type $\mu \alpha.\tau$ to achieve guarded recursion.
+Based on the guarded $\lambda$-calculus, $\lambda^g_{\mathsf{worst}}$ also includes the modal type $\triangleright \tau$ and the recursive type $\mu \alpha.\tau$ to achieve guarded recursion.
 
 For simplicity, we omit $\lambda$-amor's existential index quantification and quantification over types. 
 In addition, $\lambda$-amor incorporates constraint types to ensure certain constraints hold for programs. 
@@ -946,7 +938,7 @@ we can derive that a value will remain unchanged if we decrease the depth.
 \label{def:worst-case-pure-eval}
 \end{figure}
 
-Our notion of values and evaluation is similar to that of \cite{guattoGeneralizedModalityRecursion2018c}, in which evaluation produces a finite prefix of a potentially infinite computation. 
+Our notion of values and evaluation is similar to that of \cite{guattoGeneralizedModalityRecursion2018d}, in which evaluation produces a finite prefix of a potentially infinite computation. 
 In Guatto's semantics, all terms evaluate to a dummy value $\mathsf{stop}$ when $n=0$, thereby discarding any unevaluated terms within a $\delay$. By contrast, our semantics preserves these suspended terms, allowing them to be evaluated further if a larger ``fuel''  is supplied.
 To see this feature of evaluation, consider the following example:
 
@@ -1250,7 +1242,7 @@ The function $f$ now requires one element of each input stream, and the final co
 and processing their values with $f$.
 
 \subsection{Primitive Recursion}
-Functions like $\mathsf{mapC}$ and $\mathsf{zipWithC}$ are standard examples for demonstrating co-recursion since they continue to perform element-wise operations on streams 
+Functions like $\mathsf{mapC}$ and $\mathsf{zipWithC}$ are standard examples for demonstrating corecursion since they continue to perform element-wise operations on streams 
 and never stop. On the other hand, we can also express (primitive) recursions that will eventually terminate, with the 
 help of indexed types.
 
@@ -1270,7 +1262,7 @@ Next, we define the $\mathsf{Colist}$ type, which represents a possibly infinite
   (\mathsf{null}) &\triangleq \fold(\mathsf{inl}\,\langle\rangle)
   &&: \colist{\tau}
 \end{align*}
-A co-list is almost the same as a guarded stream, except that it can terminate with a unit value, represented by the ``$\mathsf{null}$'' constructor.
+A colist is almost the same as a guarded stream, except that it can terminate with a unit value, represented by the ``$\mathsf{null}$'' constructor.
 Similar to stream, we also use the notation (::) to denote the cons constructor.
 
 After constructing the two types, we can use them to define functions that consume a fixed-length prefix of a stream.
@@ -1285,13 +1277,13 @@ For example:
 &\qquad\qquad\qquad\qquad\bind{h}{\head str}{}\ret(h::t) &&
 \end{flalign*}
 
-The $\mathsf{takeC}$ function copies the first $J$ elements of the input stream into a co-list. It forces each element and stores their results,
-and hence the final type is a monad that sums all the costs and returns a pure co-list. 
+The $\mathsf{takeC}$ function copies the first $J$ elements of the input stream into a colist. It forces each element and stores their results,
+and hence the final type is a monad that sums all the costs and returns a pure colist. 
 
 $\mathsf{Nat}(s)$ is indeed a list, and we can pattern match on 
-it to achieve the effect of induction on natural numbers. In the base ($nil$) case, the function returns $\mathsf{null}$ to end the co-list. $\mathsf{ret}$ gives cost 0, which is consistent with the type signature since 
+it to achieve the effect of induction on natural numbers. In the base ($nil$) case, the function returns $\mathsf{null}$ to end the colist. $\mathsf{ret}$ gives cost 0, which is consistent with the type signature since 
 $\textstyle\sum_{\kappa<0}\mathsf{S}^\kappa I = 0$. In the recursive case, we use $\pull$ to access the recursive call that is originally guarded, 
-bind its result and the head computation to construct the final co-list. Note that the recursive call is also polymorphic, and we need to use an additional function $\delay(\lambda g. g\;[\,]\;[\,]$) to instantiate it.
+bind its result and the head computation to construct the final colist. Note that the recursive call is also polymorphic, and we need to use an additional function $\delay(\lambda g. g\;[\,]\;[\,]$) to instantiate it.
 Consequently, the natural number's size is instantiated with $s-1$, and the cost of the $\pull$ is $\mathsf{S}(\textstyle{\sum}_{\kappa<(J-1)}\mathsf{S}^{\kappa} I)$. 
 Together with the cost of binding the stream head, the final cost is $\mathsf{S}(\textstyle{\sum}_{\kappa<(J-1)}\mathsf{S}^\kappa I) + I$.
 
@@ -1308,7 +1300,7 @@ Since we know $s$ is a time-independent natural number, then we can rewrite the 
 Overall, indexed types such as $\mathrm{Nat}(s)$ let us process a finite prefix
 of an infinite type like the guarded stream, and the total cost is a finite sum. Since
 a stream cannot end, the results are collected in a data structure that can terminate,
-such as a co-list, which also agrees with the structure of guarded recursive types.
+such as a colist, which also agrees with the structure of guarded recursive types.
 
 % Common cost analysis program examples that process inductive data structures like indexed lists can be found in \cite{rajaniUnifyingTypetheoryHigherordera}
 % In $\lambda^g_{\mathsf{worst}}$, 

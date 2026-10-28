@@ -44,13 +44,15 @@ The head of a stream is accessible now while the tail is only available later.
 For programs, this means that within its own definition, a recursive
 reference is only available later: it has type $\triangleright\tau$ rather
 than $\tau$. For instance, the stream programs from the previous section
-are typed as follows:\footnote{For readability, we leave the delays implicit
-here. In practice, calculi based on guarded recursion provide explicit term
-constructs for introducing and applying delayed values.}
+are typed as follows:\footnote{For readability, we leave constructs of the later modality implicit in the example program. In practice, calculi often provide explicit syntax and operations
+for the later type.}
 
 \begin{lstlisting}[style=hs]
 map : (a -> b) -> Stream a -> Stream b
 map f (x :: xs) = f x :: map f xs
+
+tail : Later Stream a 
+tail (x :: xs) = xs
 
 ones : Stream Int
 ones = 1 :: ones
@@ -58,21 +60,21 @@ ones = 1 :: ones
 nats : Stream Int
 nats = 0 :: map (+1) nats
 
-bad  = bad
 \end{lstlisting}
 
 \noindent
 In \texttt{ones}, the recursive reference has type
 $\triangleright\tstr{\mathsf{Int}}$, which is exactly the type required for
-the tail. In \texttt{map}, both the tail \texttt{xs} and the recursive call
-are available only later, so the recursive call yields a value that is typed $\triangleright\tstr{a}$. Crucially,
+the tail. This is also reflected by the tail function, which gives a ``Later'' stream.
+In \texttt{map}, both the tail \texttt{xs} and the recursive call
+are guarded, so the recursive call yields a value that is typed $\triangleright\tstr{a}$. Crucially,
 \texttt{nats} is now accepted: applying \texttt{map (+1)} to the delayed
 recursive reference produces a delayed stream, which fits the type. In contrast,
-\texttt{bad} is still rejected: its definition requires a stream now, but its
-recursive reference is only available later.
+\texttt{bad} will still be rejected: its definition requires a stream now, but its
+recursive reference is delayed.
 
 Guarded recursion has since been developed in a range of calculi and type
-theories to reason about infinite data \citep{atkeyProductiveCoprogrammingGuarded2013a, mogelberg14,bahrClocksAreTicking2017}, which 
+theories to reason about infinite data \citep{atkeyProductiveCoprogrammingGuarded2013a, mogelberg14,bahrClocksAreTicking2017}.
 In this thesis, we follow the guarded $\lambda$-calculus~\citep{cloustonGuardedLambdaCalculusProgramming2017a},
 which extends the simply typed $\lambda$-calculus with the later modality
 and guarded recursive types.
@@ -80,7 +82,7 @@ and guarded recursive types.
 Another major application of guarded recursion is functional reactive programming ~\citep{elliottH97}, 
 where programs describe values that change over time and react to events continuously.
 Guarded recursion not only guarantees productivity to such programs but also helps to rule out undesired properties like space
-leaks ~\citep{krishnaswamiBH12, bahrSimplyRaTTFitchstyle2019a}. Nontheless, it says nothing about the computational work
+leaks ~\citep{krishnaswamiBH12, bahrSimplyRaTTFitchstyle2019a}. Nonetheless, it says nothing about the computational work
 performed at each step: a productive stream may do ever more work for
 each successive element. The following
 section introduces the tool we use to model costs.
@@ -110,7 +112,7 @@ Following the standard treatment of monads, the graded cost monad has the follow
 \[
   \ret e : \tau \to \tmonad{0}{\tau}
   \qquad\qquad
-  \bind{x}{e_1}{e_2} : \tmonad{I}{\tau_1} \to \tmonad{J}{\tau_2} \tmonad{I + J}{\tau_2}
+  \bind{x}{e_1}{e_2} : \tmonad{I}{\tau_1} \to \tmonad{J}{\tau_2} \to \tmonad{I + J}{\tau_2}
 \]
 The operation $\mathsf{ret}$ lifts an ordinary program $e$ into an effectful computation that returns
 its value without incurring any cost. This gives the flexibility to transform normal programs to monads, allowing them to interact with other monadic computations.
@@ -133,7 +135,7 @@ worst-case bounds, $\lambda$-amor can also analyse amortised costs,
 which we introduce in the next section.
 
 \section{Amortised Analysis}
-Many type-based cost analysis frameworks like $\lambda$-amor support
+Many type-based cost analysis frameworks like support
 \emph{amortised} analysis \citep{hofmannJ03, JostHLH10, Danielsson08}.
 In this section, we give a brief introduction to amortised analysis, as it is part of our development in this thesis.
 
@@ -145,14 +147,13 @@ cheap ones, which often yields much tighter bounds than worst-case analysis.
 A standard technique for amortised analysis is the \emph{potential
 method}. The method associates data structures with a \emph{potential function} $\Phi$, which assigns a
 non-negative number to each state of the data structure The \emph{amortised cost}
-$a$ of an operation that takes the state from $s$ to $s'$ with actual cost
+$a$ of an operation that takes the state from $s_n$ to $s_{n+1}$ with actual cost
 $c$ is required to satisfy:
 \[
-  c + \Phi(s') \;\le\; a + \Phi(s).
+  c + \Phi(s_{n+1}) \;\le\; a + \Phi(s_n).
 \]
 In particular, the amortised cost together with the potential before the
-operation must cover both the actual cost and the potential left
-afterwards.
+operation must cover both the actual cost and the potential left afterwards.
 Summing over a sequence of $m$ operations from state $s_0$ to $s_m$, the
 potentials in between cancel, and we get
 \[
@@ -160,39 +161,43 @@ potentials in between cancel, and we get
   \;\le\; \sum_{i=1}^{m} a_i + \Phi(s_0).
 \]
 Thus, if the data structure starts with zero potential, the total actual cost is
-bounded by the total amortised cost.
+bounded by the total amortised cost.  In practice, we usually choose potential functions such that a expensive operation
+result in a substantial decrease in the potential between two states. For example, choose a potential function that $\Phi(s_n)$ is very large while 
+$\Phi(s_{n+1})$ is very small, and hence $a$ become relatively small compared to $c$.
 
-A classic example is a binary counter, represented as a list of bits with
+A classic example of amortised analysis is a binary counter, represented as a list of bits with
 the least significant bit at the front. Incrementing the counter flips trailing
 ones to zeros until it reaches a zero, and updates it to one:
 
 \begin{lstlisting}[style=hs]
-data Bit = Zero | One
-
-inc :: [Bit] -> [Bit]
-inc []          = [One]
-inc (Zero : bs) = One : bs
-inc (One : bs)  = Zero : inc bs
+inc :: List Bit -> List Bit
+inc []          = [1]
+inc (0 : bs) = 1 : bs
+inc (1 : bs)  = 0 : inc bs
 \end{lstlisting}
 
 \noindent
-Suppose incrementing one bit costs one unit. In the worst case, a single
-increment of a counter with $k$ bits flips all of them, which costs $k + 1$.
-For instance, incrementing \texttt{[One, One, One]} yields
-\texttt{[Zero, Zero, Zero, One]} with a cost of $4$. However, such expensive
-increments are rare: after one occurs, the low bits are all zeros, and many
+Suppose incrementing one bit costs one unit. In the worst case, where the elements inside are all ones, a single
+increment of the counter with $k$ bits flips all of them, which costs $k + 1$.
+For instance, incrementing \texttt{[1, 1, 1]} yields
+\texttt{[0, 0, 0, 1]} with a cost of $4$. However, such expensive
+increments are rare: after this increment occurs, the low bits are all zeros, and many
 cheap increments must follow before an expensive one can happen again.
 
-The potential method makes this precise. Let $\Phi$ be the number of
-\texttt{One} bits in the counter. Consider an increment that flips $k$
+The conventional approach is to let $\Phi$ be the number of
+``1'' bits in the counter. Consider an increment that flips $k$
 trailing ones to zeros and the ending zero to a
 one. Its actual cost is $k + 1$. Its potential decreases by $k$ and
-increases by $1$, so
+increases by $1$, and we get
 \[
-  c + \Phi(s') = (k + 1) + (\Phi(s) - k + 1) = 2 + \Phi(s).
+  c + \Phi(s_{n+1}) = (k + 1) + (\Phi(s) -  k + 1) = 2 + \Phi(s_{n}).
 \]
-Every increment therefore has amortised cost $2$, regardless of $k$:
-each \texttt{One} bit stores the unit of potential needed to flip it back to
-\texttt{Zero}. Starting from the empty counter, $m$ increments cost at most
-$2m$ in total, whereas worst-case analysis only gives a bound that grows
+Every increment therefore has amortised cost $2$, regardless of $k$. 
+Starting from the empty counter, $m$ increments cost at most
+$2m$ in total, while worst-case analysis only gives a bound that grows
 with the size of the counter.
+
+Another point of view is that 
+each ``1'' bit stores one unit of potential locally to pay for the cost of flipping it back to
+the ``0'' bit. This is the approach adopted by existing systems such as $\lambda$-amor~\citep{rajaniUnifyingTypetheoryHigherorder2021a}, where types carry potential to offset costs.
+

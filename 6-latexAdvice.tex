@@ -272,7 +272,7 @@ However, we leave such an extension for future work and restrict potential now f
 \label{sec:amor-program-examples}
 In this section, we present several programs written in $\lambda^g_{\mathsf{amor}}$ that demonstrate its 
 amortised analysis features. Following the program examples shown in Chapter \ref{chap:4}, we mainly consider 
-linear data structures, such as streams and co-lists.
+linear data structures, such as streams and colists.
 
 \subsection{Stream and list processing}
 We first give an equivalent definition of the stream type presented in Section~\ref{sec:worst-case-program-examples}:
@@ -314,17 +314,17 @@ For example, we can create a stream of potential easily:
   &\quad\mathsf{potStream} \triangleq \fix\lambda x. \store \langle\rangle:: x &&
 \end{flalign*}
 To collect the values produced by the monadic stream into a pure data structure, we can use the $\mathsf{takeC}$ function introduced in Section~\ref{sec:worst-case-program-examples}. 
-This function extracts a finite prefix of the stream into a co-list~\footnote{We reuse the co-list type introduced in Section~\ref{sec:worst-case-program-examples}, replacing the $\times$ type inside its definition with $\otimes$ and $+$ with $\oplus$.}, 
+This function extracts a finite prefix of the stream into a colist~\footnote{We reuse the colist type introduced in Section~\ref{sec:worst-case-program-examples}, replacing the $\times$ type inside its definition with $\otimes$ and $+$ with $\oplus$.}, 
 which can subsequently be accessed by binding the resulting monad.
 For example, the result type of collecting 10 elements of $\mathsf{potStream}$ by $\mathsf{takeC}$ is 
 $\tmonad{(\textstyle\sum_{\kappa<10}\mathsf{S}^\kappa s)}{\colist{[s]\textbf{1}}}$.
 
 The restriction to finite operations is essential since extracting the entire stream would require accumulating the costs of infinitely many elements, yielding an unbounded total cost.
-Consequently, a pure co-list whose elements carry potential can be supplied. We can define a similar map function that returns a pure co-list:
+Consequently, a pure colist whose elements carry potential can be supplied. We can define a similar map function that returns a pure colist:
 \begin{flalign*}
 &\quad\mathsf{colistMapRelease}: \forall s.\,!(\tau \multimap \tmonad{s}{\tau}) \multimap \colist{[s]\tau} \multimap \colist{\tau} &&
 \end{flalign*}
-We omit its implementation here since it follows the $\mathsf{mapRelease}$ function, with just an additional case analysis when the co-list is empty, the full program can be found in Appendix \ref{chap:appendix2}.
+We omit its implementation here since it follows the $\mathsf{mapRelease}$ function, with just an additional case analysis when the colist is empty, the full program can be found in Appendix \ref{chap:appendix2}.
 
 \subsection{Binary Counter}
 The preceding examples illustrate how stored potential can offset the cost of individual computations. 
@@ -338,7 +338,7 @@ We represent binary digits using the type:
 A zero bit has no potential attached, while a one bit carries one unit of potential. $\mathsf{Zero}$ and $\mathsf{One}$ are constructor labels for the two variants of this sum type, 
 introduced for convenience.
 
-We represent the binary counter as a co-list of bits and define the increment function by case analysis on the co-list and its leading bit, as shown in Figure~\ref{fig:inc}. When the co-list is empty, 
+We represent the binary counter as a colist of bits and define the increment function by case analysis on the colist and its leading bit, as shown in Figure~\ref{fig:inc}. When the colist is empty, 
 the function inserts a new $\mathsf{One}$ bit, incurring one unit of cost for the update and another for storing potential. Similarly, 
 when the leading bit is $\mathsf{Zero}$, incrementing it to $\mathsf{One}$ and saving potential yields a cost of $2$. When the leading bit is $\mathsf{One}$, 
 its stored potential offsets the cost of changing it to $\mathsf{Zero}$, and the increment continues through a recursive call. 
