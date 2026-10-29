@@ -724,13 +724,14 @@ $(q,m,j,v)\in\vrel{\tau}$.
 \begin{proof}
 Induction on the lexicographic order $(n,|\tau|)$ and case analysis on $\tau$, 
 we apply Lemma \ref{lem:amortized-value-downward} to show $\isval{v}{m}$ required by the goal for each case.
-\paragraph{Case $\tau = \textbf{b}$.}
+\begin{itemize}
+\item Case $\tau = \textbf{b}$.
 Directly from the definition of $\vrel{\textbf{b}}$.
 
-\paragraph{Case $\tau = \textbf{1}$.}
+\item Case $\tau = \textbf{1}$.
 Directly from the definition of $\vrel{\textbf{1}}$.
 
-\paragraph{Case $\tau = \tau_1\otimes\tau_2$.}
+\item Case $\tau = \tau_1\otimes\tau_2$.
 Unfold the definition of the goal, it suffices to prove that there exist $v_1, v_2, q_1, q_2$ such that
 \[
   v = \ttuple{v_1}{v_2} \land q_1+q_2\leq q 
@@ -749,7 +750,7 @@ it remains to prove
 By the inner IH, we get the desired.
 
 
-\paragraph{Case $\tau = \tau_1\;\&\;\tau_2$.} Unfold the definition of the goal, it suffices to prove 
+\item Case $\tau = \tau_1\;\&\;\tau_2$. Unfold the definition of the goal, it suffices to prove 
 \[
   v = \tuple{v_1}{v_2} \land
   (q, m, j, v_1) \in \vrel{\tau_1} \land 
@@ -763,19 +764,19 @@ Unfold the assumption of $(p, n, i, v) \in \vrel{\tau_1\;\&\;\tau_2}$, we have
 \]
 Since $q \ge p, m \le n$ and $j \ge i$, by the inner IH, we get the desired.
 
-\paragraph{Case $\tau = \tau_1\oplus\tau_2$.}
+\item Case $\tau = \tau_1\oplus\tau_2$.
 We proceed by cases on $v$.
 
-\smallskip
-\noindent\emph{Subcase $v = \mathsf{inl}\,v_1$.}
+\begin{itemize}
+\item {Subcase $v = \mathsf{inl}\,v_1$.}
 The assumption gives
 $(p,n,i,v_1)\in\vrel{\tau_1}$; By the inner IH, we have $(q, m, j, v_1) \in \vrel{\tau_1}$.
 
-\smallskip
-\noindent\emph{Subcase $v = \mathsf{inr}\,v_2$.}
+\item {Subcase $v = \mathsf{inr}\,v_2$.}
 The proof is symmetric to the first subcase.
+\end{itemize}
 
-\paragraph{Case $\tau = \tau_1\multimap\tau_2$.}
+\item Case $\tau = \tau_1\multimap\tau_2$.
 Unfold the assumption, we know $v = \lambda x.e$. Unfold the definition of the goal, assume 
 $r \leq m$, $\ell \geq j$, $q'$ and $(q',r, \ell, v') \in \vrel{\tau_1}$,
 it suffices to show 
@@ -785,28 +786,28 @@ $q', r, \ell$ and $(q',r, \ell, v') \in \vrel{\tau_1}$ gives
 \[(p+q',r, \ell, e[v'/x]) \in \erel{\tau_2}.\]
 Since $p \leq q$, we know $p+q'\leq q+q'$, by Lemma \ref{lem:amortized-expression-monotonicity}, we get the desired.
 
-\paragraph{Case $\tau=\triangleright\tau'$.}
+\item Case $\tau=\triangleright\tau'$.
 We proceed by cases on $m$
 
-\smallskip
-\noindent\emph{Subcase $m=0$.}
+\begin{itemize}
+\item {Subcase $m=0$.}
 We get $(q, 0,j,v) \in \vrel{\triangleright\tau'}$ directly by the definition.
 
-\smallskip
-\noindent\emph{Subcase $m=k+1$.}
+\item {Subcase $m=k+1$.}
 Since $m \leq n$, we have $r$ such that
 $n = r+1$ and $k \leq r$. Unfolding $(p, r+1, i, v) \in \vrel{\triangleright \tau'}$ gives
 \[v = \delay v' \qquad\text{and} \qquad (p,r,i+1,v')\in\vrel{\tau'}.\]
 Since $k \leq r$ and $j+1\geq i+1$, applying the outer IH gives
 \[(q, k,j+1,v')\in\vrel{\tau'}.\]
 Therefore we have $(q, k+1,j,\delay v') \in \vrel{\triangleright\tau'}$ by the definition of $\vrel{\triangleright \tau}$.
+\end{itemize}
 
-\paragraph{Case $\tau=!\tau'$.} Unfold the definition of the goal, it suffices to prove
+\item Case $\tau=!\tau'$. Unfold the definition of the goal, it suffices to prove
 \[(0, m, j,v) \in \vrel{\tau}.\]
 Unfold the assumption, we have $(0, n, i, v) \in \vrel{\tau}$.
 By the inner IH, we get the desired.
 
-\paragraph{Case $\tau=[s]\tau'$.}
+\item Case $\tau=[s]\tau'$.
 Unfold the definition of the goal, it suffices to prove that there exists $q'$ such that
 \[q'+I(j) \leq q \land (q', m, j, v) \in \vrel{\tau}.\]
 Unfold the assumption, there exists a $p'$ such that 
@@ -816,7 +817,7 @@ Instantiate the goal with $p'$, it remains to prove
 \[(p', m, j, v) \in \vrel{\tau}.\]
 By the inner IH, we get the desired.
 
-\paragraph{Case $\tau = \mu\alpha.\tau'$.}
+\item Case $\tau = \mu\alpha.\tau'$.
 Unfold the assumption, we have $v=\fold v'$ and 
 \[
   (p, n,i,v')\in
@@ -830,7 +831,7 @@ From Lemma \ref{lem:amor-ty-size}, we know $|\tau'[\mu\alpha.\tau'/\alpha]|\leq 
 By the definition of $\vrel{\mu\alpha.\tau}$, we have 
 $(q, m,j,\fold v')\in\vrel{\mu\alpha.\tau'}$, which is the desired.
 
-\paragraph{Case $\tau = \forall\kappa.\tau$.}
+\item Case $\tau = \forall\kappa.\tau$.
 Unfold the assumption, we have $v = \Lambda.e$.
 Unfold the definition of the goal, given some $I$, it suffices to prove
 \[(q, m,j,e) \in \erel{\tau[I/\kappa]}.\]
@@ -838,14 +839,13 @@ Unfold and instantiate the assumption's relation with $I$, we have
 \[(p, n,i,e) \in \erel{\tau[I/\kappa]}.\]
 By Lemma \ref{lem:amortized-expression-monotonicity}, we get the desired.
 
-\paragraph{Case $\tau = L^s \tau$.}
+\item Case $\tau = L^s \tau$.
 We proceed by cases on $s$.
 
-\smallskip
-\noindent\emph{Subcase $s=0$.} We get the disred directly by the definition of $\vrel{L^0\tau}$.
+\begin{itemize}
+\item {Subcase $s=0$.} We get the disred directly by the definition of $\vrel{L^0\tau}$.
 
-\smallskip
-\noindent\emph{Subcase $s=s+1$.} Unfold the assumption, we have $v=v'::l, p_1, p_2$, 
+\item {Subcase $s=s+1$.} Unfold the assumption, we have $v=v'::l, p_1, p_2$, 
 \[
   p_1 + p_2 \leq p \land
   (n, i, l) \in \vrel{L^s\tau} \land
@@ -862,8 +862,9 @@ Since $p \leq q$, we know $p_1 + p_2 \leq q$. Instantiate the goal with $p_1, p_
   (p_2,m, j, v') \in \vrel{\tau}.\]
 Since $|L^s\tau| < |L^{s+1}\tau|$ and $|\tau| < |L^{s+1}\tau|$,
 by the inner IH, we get the desired.
+\end{itemize}
 
-\paragraph{Case $\tau = \tmonad{I}{\tau'}$.}
+\item Case $\tau = \tmonad{I}{\tau'}$.
 Unfold the definition of the goal, assume $r \leq m$, $\ell \geq j$, $v'$, and $c$
 with $v\Downarrow^c_{r,\ell}v'$. It suffices to show that there exist a $q'$ such that
 \[c+q' \leq I(\ell)+q \land (q',r, \ell, v') \in \vrel{\tau'}.\]
@@ -871,6 +872,7 @@ Since $r\leq m\leq n$ and $\ell\geq j\geq i$, unfolding and instantiating the as
 \vrel{\tmonad{ I}{\tau'}}$ with $r, \ell$ and $v\Downarrow^c_{r,\ell}v'$ gives that there exist a $p'$ such that
 \[c+p' \leq I(\ell)+p \land (p',r, \ell, v') \in \vrel{\tau'}.\]
 Since $p \leq q$, we know $c+p' \leq I(\ell) + q$. Therefore, instantiating the goal with $p'$ gives the desired.
+\end{itemize}
 \end{proof}
 
 \begin{appblem}[Term Monotonicity of Logical Relation]
@@ -1025,6 +1027,61 @@ Unfold the value relation required by the goal, we get the desired directly.
 
 \item Case
 \[
+  \inferrule*[right=T-Base]
+    { }
+   {\hastype{\Theta;\Delta;\Omega;\Gamma}{b}{\textbf{b}}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$b\Downarrow_m v$, it suffices to show
+\[(p, m,i,v)\in\vrel{\textbf{b}}.\]
+From \textsc{V-Constant}, we know $b \;\mathsf{val}_m$.
+Therefore, by \textsc{E-Val}, we have $v=b$. 
+Unfold the value relation required by the goal, we get the desired directly.
+
+\item Case
+\[
+  \inferrule*[right=T-Lam]
+        {\hastype{\Theta;\Delta;\Omega;\Gamma, x:\tau_1}{e}{\tau_2}}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{\tlam{x}{e}}{\tau_1 \multimap \tau_2}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$\tlam{x}{e\gamma\delta}\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\tau_1\iota \multimap \tau_2\iota}.\]
+By \textsc{E-Val}, $v=\tlam{x}{e\gamma}$, we then need to show 
+\[(p, m,i,e\gamma\delta)\in\vrel{\tau_1\iota \multimap\tau_2 \iota}\]
+Unfold the definition of this value relation, assume $q \geq p, r\leq m$, $j\geq i$, and
+$(q, r,j,v')\in\vrel{\tau_1\iota}$, it remains to prove
+\[
+  (q, r,j,(e\gamma)[v'/x])\in\erel{\tau_2\iota}.
+\]
+Since $q \ge p, r\leq m\leq n$ and $j\geq i$,
+Lemma \ref{lem:amor-mono} gives
+\[(q, r,j,\gamma)\in\erel{\Gamma\iota}.\]
+From $(q, r,j,v')\in\vrel{\tau_1\iota}$ and the definition of the
+substitution relation, we have
+\[
+  (r,j,\gamma[x\mapsto v'])\in\erel{(\Gamma,x:\tau_1)\iota}.
+\] 
+Instantiating IH with $r, j, \gamma[x\mapsto v']$ gives
+\[
+  (r,j,e(\gamma[x\mapsto v']))\in\erel{\tau_2\iota}.
+\]
+Since $e(\gamma[x\mapsto v']) =(e\gamma)[v'/x]$, we get the desired.
+
+\item Case 
+\[
+\inferrule*[right=T-App]
+    {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\tau_1 \multimap \tau_2}
+      \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2}{e_2}{\tau_1}}
+    {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{e_1e_2}{\tau_2}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$(e_1\gamma\delta)(e_2\gamma\delta)\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\tau_2\iota}.\]
+% TODO
+
+\item Case
+\[
   \inferrule*[right=T-Nil]
       { }
       {\hastype{\Theta;\Delta;\Omega;\Gamma}{nil}{L^0\tau}}
@@ -1035,6 +1092,98 @@ $nil \Downarrow_m v$.  It suffices to show
 From \textsc{V-Constant}, we know $nil\;\mathsf{val}_m$.
 By \textsc{E-Val}, we have $v=nil$.
 Unfold the value relation required by the goal, we get the desired directly.
+
+\item Case
+\[
+  \inferrule*[right=T-TensorI]
+        {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\tau_1}
+         \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2}{e_2}{\tau_2}}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{\ttuple{e_1}{e_2}}{\tau_1\otimes\tau_2}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$\ttuple{e_1\gamma\delta}{e_2\gamma\delta}\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\tau_1\iota\otimes\tau_2\iota}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-WithI]
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{e_1}{\tau_1}
+         \quad \hastype{\Theta;\Delta;\Omega;\Gamma}{e_2}{\tau_2}}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{\tuple{e_1}{e_2}}{\tau_1\;\&\;\tau_2}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$\tuple{e_1\gamma\delta}{e_2\gamma\delta}\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\tau_1\iota\;\&\;\tau_2\iota}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-Fst]
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau_1\;\&\;\tau_2}}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{\mathsf{fst}\,e}{\tau_1}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$\mathsf{fst}\,(e\gamma\delta)\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\tau_1\iota}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-Snd]
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau_1\;\&\;\tau_2}}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{\mathsf{snd}\,e}{\tau_2}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$\mathsf{snd}\,(e\gamma\delta)\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\tau_2\iota}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-TensorE]
+    {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\tau_1\otimes\tau_2}
+      \quad\hastype{\Theta;\Delta;\Omega;\Gamma_2,x:\tau_1,y:\tau_2}{e_2}{\tau}}
+    {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}
+      {\lete{\ttuple{x}{y}}{e_1}{e_2}}{\tau}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$(\lete{\ttuple{x}{y}}{e_1\gamma\delta}{e_2\gamma\delta})\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\tau\iota}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-Inl]
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau_1}}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{\mathsf{inl}\,e}{\tau_1\oplus\tau_2}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$\mathsf{inl}\,(e\gamma\delta)\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\tau_1\iota\oplus\tau_2\iota}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-Inr]
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau_2}}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{\mathsf{inr}\,e}{\tau_1\oplus\tau_2}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$\mathsf{inr}\,(e\gamma\delta)\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\tau_1\iota\oplus\tau_2\iota}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-Prepay]
+        {\Theta;\Delta;\Omega;\Gamma\vdash e : \triangleright \tmonad{ I}{\tau}}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{\pull e}{\tmonad{\mathsf{S}( I)}{\triangleright \tau}}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$\pull(e\gamma\delta)\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\tmonad{\mathsf{S}(I\iota)}{(\triangleright\tau\iota)}}.\]
+% TODO
 
 \item Case
 \[
@@ -1141,12 +1290,137 @@ Since $p_1+p_2=p$, we obtain the desired.
 
 \item Case
 \[
+  \inferrule*[right=T-Case]
+        {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e}{\tau_1\oplus\tau_2} \quad
+         \hastype{\Theta;\Delta;\Omega;\Gamma_2,x:\tau_1}{e_1}{\tau}
+         \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2,y:\tau_2}{e_2}{\tau}}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2} {\case{e}{x}{e_1}{y}{e_2}}{\tau}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$(\case{e\gamma\delta}{x}{e_1\gamma\delta}{y}{e_2\gamma\delta})\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\tau\iota}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-Iabs]
+        {\hastype{\Theta,\kappa:S;\Delta;\Omega;\Gamma}{e}{\tau}}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{\Lambda.e}{\forall\kappa:S.\tau}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$\Lambda.e\gamma\delta\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\forall\kappa:S.\tau\iota}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-Iapp]
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\forall\kappa:S.\tau}
+         \quad \Theta;\Delta\vdash I:S}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{e\,[\,]}{\tau[I/\kappa]}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$e\gamma\delta\,[\,]\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\tau\iota[I\iota/\kappa]}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-Sub]
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau}
+         \quad \Theta;\Delta\vdash\tau <: \tau'}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau'}}
+\]
+It suffices to show
+\[(p, n, i, e\gamma\delta)\in\erel{\tau'\iota}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-Weaken]
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau}
+         \\\\ \Theta;\Delta\vdash\Omega'<:\Omega
+         \quad\Theta;\Delta\vdash\Gamma'<:\Gamma}
+        {\hastype{\Theta;\Delta;\Omega';\Gamma'}{e}{\tau}}
+\]
+Given $(p, n, i, \gamma)\in\erel{\Gamma'\iota}$ and $(0, n, i, \delta)\in\erel{\Omega'\iota}$, it suffices to prove
+\[(p, n, i, e\gamma\delta)\in\erel{\tau\iota}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-Fold]
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau[\mu\alpha.\tau/\alpha]}}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{\fold e}{\mu\alpha.\tau}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$\fold(e\gamma\delta)\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\mu\alpha.\tau\iota}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-Unfold]
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\mu\alpha.\tau}}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{\unfold e}{\tau[\mu\alpha.\tau/\alpha]}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$\unfold(e\gamma\delta)\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-Next]
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau}}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{\delay e}{\triangleright \tau}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$\delay(e\gamma\delta)\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\triangleright\tau\iota}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-Napp]
+        {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\triangleright (\tau_1 \multimap \tau_2)}
+         \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2}{e_2}{\triangleright \tau_1}}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{e_1 \circledast e_2}{\triangleright \tau_2}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$(e_1\gamma\delta\circledast e_2\gamma\delta)\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\triangleright\tau_2\iota}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-Ret]
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau}}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{\ret e}{\tmonad{0}{\tau}}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$\ret(e\gamma\delta)\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\tmonad{0}{\tau\iota}}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-Tick]
+        {\Theta;\Delta\vdash I:\mathbb{R}_{\ge0}}
+        {\hastype{\Theta;\Delta;\Omega;\Gamma}{\,\tick{ I}}{\tmonad{ I}{\textbf{1}}}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$\tick{I}\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\tmonad{I\iota}{\textbf{1}}}.\]
+% TODO
+
+\item Case
+\[
   \inferrule*[right=T-Bind]
     {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\tmonad{ I_1}{\tau_1}}
       \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2,x:\tau_1}{e_2}{\tmonad{ I_2}{\tau_2}}}
     {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{\bind{x}{e_1}{e_2}}{\tmonad{( I_1 + I_2)}{\tau_2}}}
 \]
-
 Unfold the definition of the goal, assume $m\leq n$ and $(\bind{x}{e_1\gamma\delta}{e_2\gamma\delta}) \Downarrow_m v$, it suffices to prove
 \[(p, m, i, v) \in \vrel{\tmonad{(I_1\iota+I_2\iota)}{\tau_2\iota}} \]
 From \text{V-Constant}, we know $\isval{(\release{x}{e_1\gamma\delta}{e_2\gamma\delta})}{m}$.
@@ -1194,6 +1468,30 @@ To prove (B0), we choose $p_2'$ to be $p'$, then it suffices to show
   Since $v' = v_2'$, we obtain the desired from (B2).
 
 \end{itemize}
+
+\item Case
+\[
+  \inferrule*[right=T-ExpI]
+    {\hastype{\Theta;\Delta;\Omega;\cdot}{e}{\tau}}
+    {\hastype{\Theta;\Delta;\Omega;\cdot}{!e}{!\tau}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$!(e\gamma\delta)\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{!\tau\iota}.\]
+% TODO
+
+\item Case
+\[
+  \inferrule*[right=T-ExpE]
+    {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{!\tau_1}
+      \quad\hastype{\Theta;\Delta;\Omega,x:\tau_1;\Gamma_2}{e_2}{\tau_2}}
+    {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}
+      {\lete{!x}{e_1}{e_2}}{\tau_2}}
+\]
+Unfold the definition of the goal, assume $m\leq n$ and
+$(\lete{!x}{e_1\gamma\delta}{e_2\gamma\delta})\Downarrow_m v$, it suffices to show
+\[(p, m, i, v)\in\vrel{\tau_2\iota}.\]
+% TODO
 
 \item Case
 \[
