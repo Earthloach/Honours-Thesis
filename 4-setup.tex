@@ -33,15 +33,9 @@ Finally, Section~\ref{sec:worst-case-program-examples} illustrates the calculus 
 
 \section{Time-Dependent Cost}
 \label{sec:cost-foundation}
-As introduced previously, guarded recursion use the notion of \emph{logical time}, represented by the later modality $\triangleright$ \citep{nakanoModalityRecursion2000}. 
+As introduced previously, guarded recursion equips a notion of \emph{logical time}, represented by the later modality $\triangleright$. 
 In other words, an implicit time clock exists at the type level, where entering $\triangleright$ means the time passes and the clock ticks once.
-Combining with the graded monad $\tmonad{I}{\tau}$, we can leverage this logical time concept to express costs that vary each step.
-
-Note that some work presents the clock explicitly \citep{atkeyProductiveCoprogrammingGuarded2013a,mogelberg14, bahrClocksAreTicking2017}, and
-multiple clocks can exist, e.g. types like $\triangleright^\alpha$ and $\triangleright^\beta$ where $\alpha, \beta$ denotes 2 different clocks,
-thus, the notion of time differs between the clocks. 
-Following the guarded $\lambda$-calculus, we only consider a single global clock in our type system. This also ensures that all costs 
-change uniformly as time passes.
+Combining with the graded monad $\tmonad{I}{\tau}$, we can leverage this time notion to express costs that vary each step.
 
 Firstly, we use an abstract parameter $i\in\mathbb N$ to denote the time. Advancing one time step corresponds to moving from $i$ to $i+1$. 
 Our aim is to specify non-uniform costs that change with $i$. For instance, if $i$ starts at zero, a cost of $i+2$ 
@@ -1042,7 +1036,7 @@ the corresponding future cost.
 
 Now we can examine Theorem \ref{thm:worst-case-soundness}, which formulates the soundness of $\lambda^g_{\mathsf{worst}}$.
 The theorem states that if $e$ is a closed term that has a symbolic cost $I$ designated by its type, and if it can be evaluated purely into a value $v$, then 
-continue forcing it incurs a semantic cost $c$, this cost will be bounded by the interpretation of $I$ based on current time 
+continue forcing it incurs a real cost $c$, this cost will be bounded by the interpretation of $I$ based on current time 
 $i$, i.e. $c \leq I(i)$.
 \begin{thm}[Soudness of $\lambda^g_{\mathsf{worst}}$]
 \label{thm:worst-case-soundness}

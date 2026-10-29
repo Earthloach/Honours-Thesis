@@ -1,13 +1,13 @@
 \chapter{Related Work}\label{chap:relatedWork}
 Our work lies at the intersection of two lines of research: 
-cost analysis and productivity guarantees of infinite programs.
-In this chapter, we examine work from both directions that follows a static approach, e.g. type systems,
-and discuss its relationship to our work.
+cost analysis and productivity of infinite programs. 
+In this chapter, we review related work from both areas, 
+focusing on static approaches, particularly type-based techniques, 
+and discuss their connections to our work.
 
-\section{Static Cost Analysis}
+\section{Cost Analysis}
 \label{sec:rw-cost}
-
-Techniques for static cost analysis are commonly divided into two styles
+Techniques for (type-based) static cost analysis are commonly divided into two styles
 \citep{rajaniUnifyingTypetheoryHigherorder2021a}. In \emph{effect-based}
 systems, cost is treated as an additional output of a computation, as described in
 Chapter~\ref{chap:background}. In \emph{coeffect-based} systems, cost is
@@ -15,155 +15,150 @@ instead treated as an additional requirement of programs, such
 as the number of times each input can be used. Specifically, affine types used in $\lambda$-amor 
 and our $\lambda^g_{\mathsf{worst}}$ are coeffects.
 
-\subsection{Effect-Based Cost Analysis}
+\subsubsection{Effect-Based Cost Analysis}
 Automatic Amortised Resource Analysis (AARA) is one of the most extensively developed approaches to type-based resource analysis, where costs are treated as effects.
-First introduced by \citet{hofmannJ03}, it employs a type system based on the potential method to automatically infer linear bounds on the heap-space consumption of first-order functional programs. 
+First introduced by \citet{hofmannJ03}, it employs a type system based on the potential method to automatically infer linear bounds on the resource consumption of first-order functional programs. 
 Subsequent work extended AARA to support univariate and multivariate polynomial potential functions \citep{hoffmannH10, hoffmannMultivariateAmortizedResource2012a}, 
 enabling the inference of polynomial resource bounds that may depend on multiple program inputs. 
 To prevent the unsound duplication of potential, the higher-order extension of AARA by \citet{JostHLH10} restricts function closures from capturing potential, 
 allowing functions to be applied arbitrarily many times. However, this restriction limits the analysis of higher-order functions whose 
-resource consumption depends on data captured in their closures.
+resource consumption depends on data captured in closures.
 
 One approach to address this limitation is to use affine types, as in $\lambda$-amor \citep{rajaniUnifyingTypetheoryHigherorder2021a} and our work,
-to control the duplication of potential rather than prohibiting capturing potential in closures.
+to control the duplication of potential rather than prohibiting capturing potential.
 By contrast, \citet{xuW26} proposed a variant of AARA that separates potential from types to traditional potential functions via dependent types, 
 enabling more precise resource analysis of higher-order functions without relying on affine types.
 
-Apart from AARA, \cite{CraryW00} present a type system using indexed types to express resource consumption that depends on the structure of program inputs.
-Another significant line of work is recurrence extraction \citep{dannerDenotationalCostSemantics2015,kavvosRecurrenceExtractionFunctional2020,cutlerDenotationalRecurrenceExtraction2020}, which offers a relatively lightweight alternative to type-based 
-approaches by translating programs into cost recurrences. 
-The translation process uses a writer monad, modelling cost directly as producing a real-numbered value output, which is close 
-to a graded monad.
+Another line of work on effect-based cost analysis is recurrence extraction \citep{dannerDenotationalCostSemantics2015,kavvosRecurrenceExtractionFunctional2020,cutlerDenotationalRecurrenceExtraction2020}, 
+which provides an alternative to deriving cost bounds directly through type systems. 
+These approaches translate programs into cost recurrences that can subsequently be solved to obtain their complexity bounds. 
+The translation uses a writer monad to make costs explicit as an output of computations. 
+This is closely related to our use of a graded monad,  
+although their costs are represented explicitly in the translated programs rather than tracked through the grades contained by types.
 
+\subsubsection{Coeffect-Based Cost Analysis}
+An early precursor to coeffect-based resource analysis is Bounded Linear Logic (BLL)~\citep{girardSS92}.
+BLL derives cost by tracking variable usage in an affine type system. Unlike the standard affine type system adopted in $\lambda^g_{\mathsf{amor}}$, where variables can be used at most once unless assigned an exponential type 
+$!\tau$, which permits unrestricted reuse, BLL uses a graded exponential type $!_I\tau$, where the grade 
+$I$ specifies an upper bound on the number of uses of a variable. 
+By explicitly bounding variable duplication, BLL provides a logical foundation for polynomial-time cost analysis.
 
-\subsection{Coeffect-Based Cost Analysis}
-Coeffect-based resource analysis was first introduced in Bounded Linear Logic (BLL) ~\citep{girardSS92}.
-BLL derives cost by tracking variable usage in an affine type system. Different from standard affine type system like $\lambda^g_{\mathsf{amor}}$,
-where the number of using a variable is either at most one for affine variables or unbounded for unrestricted exponential variables, BLL instead bounds
-variable usage using a graded modal type $!_I\tau$, where the grade $I$ represents the upper bound of times for using a variable of this type. As a consequence, BLL can reason about resource usage as polynomials precisely.
+Building on ideas from BLL, \cite{dallagoLinearDependentTypes2011a} 
+introduce $d\ell\mathrm{PCF}$, 
+a linear dependent type system that uses numerical indices to express bounds on the evaluation cost of higher-order recursive programs. 
+\cite{gaboardiCombiningEffectsCoeffects2016} develop a unified type system for effects and coeffects, using graded modal types to describe computational effects and resource requirements (coeffects).
+This is related to $\lambda$-amor and our calculi, which also employ graded monads for cost analysis, but use affine types and potentials to account for resource usage. Graded coeffects are further explored in Granule \citep{orchardQuantitativeProgramReasoning2019a}, a practical functional programming language that combines graded modal types with 
+indexed types for quantitative reasoning.
 
-Building on this idea, \cite{dallagoLinearDependentTypes2011a} present
-$d\ell\mathrm{PCF}$, 
-a dependently-typed system based on BLL that can reason about the evaluation cost of general higher-order and recursive programs expressible in PCF \citep{Plotkin77}.
+The full $\lambda$-amor calculus can also embed $d\ell\mathrm{PCF}$ through its graded exponential type $!_{I}\tau$. 
+In contrast, our calculi only include the ordinary exponential type $!\tau$, 
+as we focus on effect-based cost analysis rather than coeffects, while $\lambda$-amor provides a unified framework for both approaches.
 
-\cite{gaboardiCombiningEffectsCoeffects2016} further develop coeffect-based approaches by combining effects and coeffects using 
-graded modal types. Their unified type system includes a graded monad to model computational effects and a graded comonad (coeffect) type to 
-track resource usage. This idea is then further generlised and realised into a practical programming language \citep{orchardQuantitativeProgramReasoning2019a}.
-
-Going back to $\lambda$-amor, its full formalisation can embed $d\ell\mathrm{PCF}$ using the graded sub-exponential type $!_{I}\tau$ mentioned eariler.
-Compared to our work, $\lambda^g_{\mathsf{amor}}$ only employs the ordinary exponential type $!\tau$ since we focus on effect-based cost analysis and do not aim for coeffects, while 
-$\lambda$-amor is a unifying calculus that can express both.
-
-% ----------------------------------------------------------------------
 \section{Type-Based Productivity}
 \label{sec:rw-productivity}
 
 \subsection{Sized Types}
-Besides guarded recursion, a well-studied type-based approach to
-productivity is \emph{sized types}, in which types are annotated with the
-size of the data they contain. \cite{hughesPS96} introduce sized types to
-prove the termination and productivity of non-terminating programs.
-For example, a stream type $\mathsf{Stream}^{i}(\tau)$ uses a size index $i$ to specify 
-a lower bound on the number of elements that can be safely observed. By tracking how 
-these indices change across recursive calls, the type system ensures that infinite programs can produce finite observations in finite time.
-By contrast, the size index is close to our notion of evaluation fuel $n$ in the operational semantics, which controls 
-the number of unrolling for recursive definitions.
+Besides guarded recursion, another well-studied type-based approach to ensuring productivity is \emph{sized types},
+ which annotate recursive types with size indices \citep{hughesPS96}. 
+ For example, a sized stream type $\mathsf{Stream}^{k}(\tau)$ guarantees that at least the first $k$ elements can be observed.
+ By tracking how these indices change across recursive definitions, the type system can ensure that arbitrarily long finite prefixes of streams can be produced. 
+This notion of observation depth is closely related to the evaluation fuel $n$ in our operational semantics, 
+which bounds the number of delayed computation layers that can be explored. However, sized types express such guarantees statically,
+whereas our evaluation fuel controls finite observations operationally.
 
 \subsection{Guarded Recursion}
-Several extensions of guarded recursion have been proposed. Some work presents the logical time clock explicitly \citep{atkeyProductiveCoprogrammingGuarded2013a,mogelberg14, bahrClocksAreTicking2017}, and
-multiple clocks can exist simultaneously, e.g. types like $\triangleright^\alpha$ and $\triangleright^\beta$ where $\alpha, \beta$ denotes 2 different clocks.
-Thus, the notion of time differs between the clocks. 
-We follow the guarded $\lambda$-calculus
-\citep{cloustonGuardedLambdaCalculusProgramming2017a}, which uses a single global clock, 
-and hence the clock can exist implicitly. Since costs in our work can depend on the clock, 
-this also ensures that they change uniformly as time passes.
+\label{sec:guarded-related-work}
+Several extensions of guarded recursion make the notion of logical
+time explicit through clock-indexed later modalities
+\citep{atkeyProductiveCoprogrammingGuarded2013a,mogelberg14,
+bahrClocksAreTicking2017}.
+These systems support multiple clocks, allowing different
+computations to progress independently in logical time.
+For example, a pair of type
+$\triangleright^\alpha \tau_1 \times \triangleright^\beta \tau_2$
+contains two components whose availability is controlled by
+different clocks $\alpha$ and $\beta$.
+In contrast, we follow the guarded $\lambda$-calculus
+\citep{cloustonGuardedLambdaCalculusProgramming2017a},
+which employs a single global clock.
+This choice is particularly suitable for our work, where
+costs may depend on logical time, as it ensures that
+all costs vary uniformly with respect to the
+same clock.
 
-\cite{guattoGeneralizedModalityRecursion2018d} further generalises
-the later modality to a ``warping'' modality, written $*_p$, where $p$ denotes a function 
-that re-index the time scale or evaluation fuel. For example, $*_{-1} \tau$ represents the original 
-later modality $\triangleright \tau$, means that the data of type $\tau$ is available after the step decreases from 
-$n$ to $n-1$. Crucially, this modality is more powerful since it can be indexed by any functions on natural number, giving more fine-grained control to
-guarded recursive types. Similarly, there is a form of re-indexing appears in our calculi at the level of cost indices,
-where $\mathsf{S}^{s}(I)$ interprets the cost $I$ at $s$ steps later.
+\cite{guattoGeneralizedModalityRecursion2018d} generalises the later modality to a warping modality $_p\tau$, where $p$ is a time warp function that reindexes the logical time, 
+determining how much information is available at each stage of computation. 
+The ordinary later modality is recovered by a one-step delay, written $_{-1}\tau$. 
+More generally, time warps can express different rates of information production, 
+such as streams that produce a new element every two time steps. 
+This provides more fine-grained control over temporal dependencies in guarded recursion. 
+A similar notion of temporal reindexing appears at the level of cost indices in our calculi: $\mathsf{S}^{s}(I)$ interprets a time-dependent cost index $I$ at $s$ logical steps into the future.
 
-The interaction between the later modality and other computational effects has also been studied.
-\cite{mogelbergWhatMonadsCan2025} examine the distributive law between the delay monad and a writer monad. Specifically, the delay monad is a guarded recursive 
-type that satisfies both properties about the later modality and a monad, and the writer monad can be considered as a cost monad similar to graded monads.
-The $\mathsf{prepay}$ operator of our calculi, which turns
-$\triangleright\tmonad{I}{\tau}$ into $\tmonad{S(I)}{\triangleright\tau}$,
-can be seen as a law of this kind between the later modality and the graded monad. However, we only have 
-the distributivity for one side, there is no operation that transforms a type $\tmonad{I}{\triangleright\tau}$ to $\triangleright\tmonad{J}{\tau}$.
+The interaction between guarded recursion and computational effects has also been studied. 
+\cite{mogelbergWhatMonadsCan2025} investigate distributive laws between the delay monad,
+which uses guarded recursion to represent computations that may either terminate with a value or continue beneath a later modality,
+and other effect monads, including the writer monad that can models costs.
+A similar interaction arises in our calculi through the $\mathsf{prepay}$ operator, 
+which transforms $\triangleright\tmonad{I}{\tau}$ into $\tmonad{S(I)}{\triangleright\tau}$. 
+This corresponds to a distributive law between the later modality and the graded monad, although we support one direction: there is no corresponding operator that transforms $\tmonad{I}{\triangleright\tau}$ into $\triangleright\tmonad{J}{\tau}$.
 
 \section{Logical Approaches to Cost Analysis}
 \label{sec:rw-logics}
-
 Cost can also be verified by stating their properties as propositions and proving
 them using logics, rather than checking them automatically with a type system.
 \cite{niuCostawareLogicalFramework2022a} introduce CALF, 
 a cost-aware logical framework based on dependent type theory that treats cost as computational effects. 
 CALF allows both the functional behaviour and resource usage of programs to be specified and verified within the same language. 
 In particular, cost bounds are proved through internal logical reasoning, and the framework supports potential-based amortised analysis.
-Based on CALF, \cite{grodinAmortizedAnalysisCoinduction2023a} give a
-formulation of analysing amortised cost of functions operate on coinductive types, which they prove equivalent to the
-standard formulation of inductive types. This coinductive view of amortisation
-is close in spirit to $\lambda^g_{\mathsf{amor}}$, where potential is used across coinductive types
-like streams and colists.
+Based on CALF, \cite{grodinAmortizedAnalysisCoinduction2023a} propose a coinductive formulation of amortised analysis, 
+which reasons about potentially infinite behaviour of data structures under continuous operations instead of analysing finite sequences of operations. 
+This work is related to $\lambda^g_{\mathsf{amor}}$ in combining coinductive reasoning with amortised cost analysis, although our work focuses on guarded recursive programs that produce infinite data, such as streams.
 
-In addition to logical frameworks, a more common approach is program logic.
-In particular, separation logic has been adopted widely, it enables local reasoning about program resources like mutable memory \citep{Reynolds02}.
-\cite{Atkey10} extends separation logic with resource assertions to support amortised analysis of imperative programs, 
-where resources can be associated with mutable data structures. There has also been further work for potential-based amortised analysis with separation logic \citep{ChargueraudP19,MevelJP19}.
+In addition to logical frameworks, a more common alternative is program logic.
+In particular, separation logic \citep{Reynolds02} has been widely adopted for its support of local reasoning about program resources, such as mutable memory.
+\cite{Atkey10} extends separation logic with resource assertions to support amortised analysis of imperative programs. There has also been further work for potential-based amortised analysis with separation logic \citep{ChargueraudP19,MevelJP19}.
 Among these approaches, the potential available before and after an operation can be represented as ghost state in its preconditions and postconditions, which is similar to 
-the potential $p$ used by the logical relations of $\lambda$-amor and $\lambda^g_{\mathsf{amor}}$.
-
+the potential used by the type systems and logical relations of $\lambda$-amor and $\lambda^g_{\mathsf{amor}}$.
 
 \section{Cost Analysis of Lazy Programs}
 \label{sec:rw-lazy}
-
-Lazy evaluation, also known as call-by-need, delays a computation until
+Lazy evaluation, also known as call-by-need, suspends a computation until
 its result is demanded and shares the result after evaluation
-\citep{launchburyNaturalSemanticsLazy1993a}. This makes it a natural way to
-work with infinite data and express corecursion.
-Specifically, amortised analysis has been applied widely for lazy programs. 
-\cite{okasak} analyses the
-amortised cost of various lazy data structures by associating debits with delayed
-computations, utlising laziness and memoisation (sharing) of results to derive tighter bounds, serveing as the foundation for later work. 
-Furthermore, Okasaki's approach does not rely on potential and therefore can be implemented without affine types.
-\cite{Danielsson08} employs an indexed monad that is similar to the graded monads used by us to track costs.
-In particular, \cite{Danielsson08} provides a primitive operation
-$\mathsf{pay}$, which (simplifying slightly) has type $ \tmonad{I_1+I_2}{\tau} \to \tmonad{I_1}{(\tmonad{I_2}{\tau})}$, 
-It allows part of the cost of a delayed computation to be paid in advance,
-so that forcing it later becomes cheaper, which seems similar to the
-$\mathsf{prepay}$ operator of our calculi. Nevertheless, the purpose of $\mathsf{pay}$ is to redistribute cost between different parts of a
-program for amortised analysis following the approach of \cite{okasak}, while our $\pull$ is associated with the logical time.
+\citep{launchburyNaturalSemanticsLazy1993a}. This makes it particularly suitable for working with infinite data structures. 
+The banker's method of amortised analysis uses credits accumulated during earlier operations to pay for future costs. \cite{okasak} adapt this method to lazy data structures by using \emph{debits} to represent the unpaid costs of suspended computations. These debits are gradually discharged by other operations, ensuring that the cost of a suspended computation is accounted for before it is evaluated.
+Moreover, unlike potential-based approaches like $\lambda$-amor, amortised analysis in this setting does not require affine types, since shared computations are evaluated at most once
+
+Following Okasaki's approach, \cite{Danielsson08} develop a type-based framework for analysing lazy functional programs using a graded monad to track amortised costs. In particular, they introduce a primitive operation $\mathsf{pay}$, which, written in our notation, has type
+$\tmonad{I_1+I_2}{\tau} \to \tmonad{I_1}{(\tmonad{I_2}{\tau})}$.
+This operator allows part of the deferred cost of a suspended computation to be accounted for by an enclosing computation, reducing the cost remaining to be paid for the suspension. 
+It may seem to be similar to our $\mathsf{prepay}$ operator, which transforms $\triangleright\tmonad{I}{\tau}$ into $\tmonad{S(I)}{\triangleright\tau}$. However, while $\mathsf{pay}$ redistributes amortised costs between nested suspensions, our $\mathsf{prepay}$ moves a cost 
+across the later modality, accounting for its dependence on logical time associated with the modality.
 
 Based on AARA, \cite{jostTypeBasedCostAnalysis2017a} present a cost analysis type system
-for lazy functional languages, where delayed computations are given
-thunk types annotated with their costs. Combining amortised
-analysis with these cost annotations, the analysis accounts for the
+for lazy functional programs, where lazy computations are given
+thunk types annotated with their costs. The analysis accounts for the
 sharing of thunks and derives precise upper bounds on the evaluation cost of lazy
-programs, including corecursive programs such as processing colists (lazy-lists).
+programs, including potentially non-terminating programs such as processing colists (lazy-lists).
 
 In comparison, our work uses call-by-value evaluation, where the graded monad suspends a
-computation, but its result is not shared.
+computation similar to the thunk type used by \cite{jostTypeBasedCostAnalysis2017a}, but the result after forcing a monad is not shared.
 We discuss a possible extension towards call-by-need evaluation in
 Chapter~\ref{chap:conclusion}.
 
-\section{Modal Types for Time and Resources}
+\section{Modal Types for Time and Resource Analysis}
 \label{sec:rw-temporal}
 
 There are also other works that use modal types to describe the
-relationship between time and resources in programs.
+relationship between time, resources and costs in programs.
 
-\cite{ahmanWhenProgramsHave2023} studies temporal resources, which can only
-be used after a certain amount of time has passed. This is determined by 
-time-graded modal type. Similar to our work, it combines a modality for time with a graded monad,
-but there the grades describe the time a computation
-takes, and the passage of time makes resources usable.
+Functional reactive programming (FRP) describes programs that react to events and produce values that change over time continuously \citep{elliottH97}. 
+Modal types and guarded recursion have been used in FRP to ensure productivity and prevent undesirable behaviours such as space leaks, where programs retain unnecessary data in memory \citep{krishnaswamiBH12,bahrSimplyRaTTFitchstyle2019a}. 
+While both approaches employ guarded recursion, these works focus on controlling resource usage in reactive programs, whereas our work aims to derive quantitative cost bounds for productive infinite computations.
 
-\cite{dasParallelComplexityAnalysis2018} extend session types
-\citep{hondaVK98} with temporal modalities, including a next modality
-$\bigcirc$, to specify the timing of messages between processes. Time is
-determined by a cost model, so the number of $\bigcirc$ modalities in a type
-reflects the cost of a computation. Like our calculi, they use a next
-modality to describe ongoing interactions such as streams.
+In concurrent programming, session types provide a type-based framework for specifying communication protocols \citep{HondaVK98}. 
+\cite{dasParallelComplexityAnalysis2018} extend session types with temporal modalities to specify when messages can be exchanged, 
+allowing the type system to derive bounds on the parallel execution time of programs. 
+In their approach, computational costs are measured in units of logical time, with operations such as sending or receiving messages contributing to the passage of time.
+In contrast, our calculi treat logical time and computational cost separately, the later modality to expresses temporal dependencies and graded monads tracks costs.
+
+
