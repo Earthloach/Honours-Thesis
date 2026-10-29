@@ -27,7 +27,7 @@ resource consumption depends on data captured in closures.
 One approach to address this limitation is to use affine types, as in $\lambda$-amor \citep{rajaniUnifyingTypetheoryHigherorder2021a} and our work,
 to control the duplication of potential rather than prohibiting capturing potential.
 By contrast, \citet{xuW26} proposed a variant of AARA that separates potential from types to traditional potential functions via dependent types, 
-enabling more precise resource analysis of higher-order functions without relying on affine types.
+and hence does not rely on affine types.
 
 Another line of work on effect-based cost analysis is recurrence extraction \citep{dannerDenotationalCostSemantics2015,kavvosRecurrenceExtractionFunctional2020,cutlerDenotationalRecurrenceExtraction2020}, 
 which provides an alternative to deriving cost bounds directly through type systems. 
@@ -39,7 +39,7 @@ although their costs are represented explicitly in the translated programs rathe
 \subsubsection{Coeffect-Based Cost Analysis}
 An early precursor to coeffect-based resource analysis is Bounded Linear Logic (BLL)~\citep{girardSS92}.
 BLL derives cost by tracking variable usage in an affine type system. Unlike the standard affine type system adopted in $\lambda^g_{\mathsf{amor}}$, where variables can be used at most once unless assigned an exponential type 
-$!\tau$, which permits unrestricted reuse, BLL uses a graded exponential type $!_I\tau$, where the grade 
+$!\tau$, which permits unrestricted usage, BLL uses a graded exponential type $!_I\tau$, where the grade 
 $I$ specifies an upper bound on the number of uses of a variable. 
 By explicitly bounding variable duplication, BLL provides a logical foundation for polynomial-time cost analysis.
 

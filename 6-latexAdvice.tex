@@ -492,7 +492,7 @@ One notable extension is that the monotonicity now also accounts for the potenti
 $\\$ If $p \leq q$, $m\leq n$, and $j\geq i$, then 
 \begin{itemize}
   \item $(p,n,i,v) \in \vrel{\tau} \implies (q,m,j,v) \in \vrel{\tau}$
-  \item $(p.n,i,e) \in \erel{\tau} \implies (q,m,j,e) \in \erel{\tau}$ 
+  \item $(p,n,i,e) \in \erel{\tau} \implies (q,m,j,e) \in \erel{\tau}$ 
   \item $(p,n,i,\gamma) \in \erel{\Gamma} \implies (q,m,j,\gamma) \in \erel{\Gamma}$ 
   \item $(0,n,i,\delta) \in \erel{\Omega} \implies (0,m,j,\delta) \in \erel{\Omega}$ 
 \end{itemize}
@@ -520,16 +520,16 @@ and $\cdot\models\Delta\iota$, then
     \quad\Theta;\Delta\vdash s:\mathbb{R}_{\ge0}}
   {\hastype{\Theta;\Delta;\Omega;\Gamma}{\store e}{\tmonad{s}{([s]\tau)}}}
 \]
-Unfold the definition of the goal, assume $m\leq n$ and $\store e\gamma \Downarrow_m v$, it suffices to prove
+Unfold the definition of the goal, assume $m\leq n$ and $\store e\gamma\delta \Downarrow_m v$, it suffices to prove
 \[(p, m, i, v) \in \vrel{\tmonad{s\iota}{[s\iota]\tau\iota}}\]
-From \text{V-Constant}, we know $\isval{\store e\gamma}{m}$.
-Therefore, we know $v= \store e\gamma$ from \textsc{E-Val}, then we need to prove 
-\[(p, m, i, \store e\gamma) \in \vrel{\tmonad{s\iota}{[s\iota]\tau\iota}}\]
-Since $s\iota$ is a constant, unfold the definition of this relation, assume $r \leq m$, $j \ge i$ and $\store e\gamma \Downarrow^c_{r, j} v'$, it suffices to prove 
+From \text{V-Constant}, we know $\isval{\store e\gamma\delta}{m}$.
+Therefore, we know $v= \store e\gamma\delta$ from \textsc{E-Val}, then we need to prove 
+\[(p, m, i, \store e\gamma\delta) \in \vrel{\tmonad{s\iota}{[s\iota]\tau\iota}}\]
+Since $s\iota$ is a constant, unfold the definition of this relation, assume $r \leq m$, $j \ge i$ and $\store e\gamma\delta \Downarrow^c_{r, j} v'$, it suffices to prove 
 \[\exists p'.\;c+p'\leq p+s\iota \land
        (p',r,j,v')\in\vrel{[s\iota]\tau\iota} \]
 From \textsc{E-Store}, there exist $v'',c$ such that 
-\[ e\gamma \Downarrow_r v'', \quad c = 0,\quad v' = v''\]
+\[ e\gamma\delta \Downarrow_r v'', \quad c = 0,\quad v' = v''\]
 Therefore, we choose $p$ + $s\iota$ to be $p'$, then we need to prove 
 \[(p+s\iota,r,j,v'')\in\vrel{[s\iota]\tau\iota}\]
 Unfold the definition of this relation, it suffices to prove 
@@ -538,8 +538,8 @@ Unfold the definition of this relation, it suffices to prove
 Choose $p$ to be $p''$, it remains to show 
 \[(p,r,j,v')\in\vrel{\tau\iota}\]
 By IH, we have 
-\[ (p, n, i, e\gamma) \in \erel{\tau\iota} \]
-Unfold the definition of this relation and instantiate it with $e\gamma \Downarrow_r v''$, we have 
+\[ (p, n, i, e\gamma\delta) \in \erel{\tau\iota} \]
+Unfold the definition of this relation and instantiate it with $e\gamma\delta \Downarrow_r v''$, we have 
 \[(p,r,i,v'') \in \vrel{\tau\iota}\]
 Since $j \ge i$, applying Lemma \ref{lem:amor-mono} gives the desired.
 
@@ -567,16 +567,18 @@ From \textsc{E-Release}, there exist $v_1, v_2, v_2'$ such that
 \quad v' = v_2'\]
 Since we are given $(p,n,i, \gamma) \in \erel{\Gamma_1\iota + \Gamma_2\iota}$, from the definition of the affine substitution relation, we know 
 \[ \exists p_1.\, p_2. p_1+p_2 = p \land (p_1,n,i, \gamma) \in \erel{\Gamma_1\iota} \land (p_2,n,i, \gamma) \in \erel{\Gamma_2\iota}\]
-From IH1, we have $(p_1, n, i, e_1\gamma\delta) \in \erel{[s\iota]\tau_1\iota}$. Instantiate this relation with $e_1\gamma\delta \Downarrow_r v_1$, we obtain $(p_1,n,i,v_1) \in \vrel{[s\iota]\tau_1\iota}$.
+From IH1, we have $(p_1, n, i, e_1\gamma\delta) \in \erel{[s\iota]\tau_1\iota}$. Instantiate this relation with $e_1\gamma\delta \Downarrow_r v_1$, we obtain $(p_1,r,i,v_1) \in \vrel{[s\iota]\tau_1\iota}$.
 Unfold the definition of this relation, we have 
-\[\exists p_1'. s\iota + p_1' \leq p_1 \land (p_1', n, i, v_1) \in \vrel{\tau_1\iota} \quad (\text{R1})\]
+\[\exists p_1'. s\iota + p_1' \leq p_1 \land (p_1', r, i, v_1) \in \vrel{\tau_1\iota} \quad (\text{R1})\]
 Let $\gamma' = \gamma[x\mapsto v_1]$, then we know $e_2\gamma'\delta \Downarrow_r v_2$ from $e_2\gamma\delta[v_1/x] \Downarrow_r v_2$.
+Since $r \leq m \leq n$, Lemma \ref{lem:amor-mono} gives
+\[(p_2, r, i, \gamma)\in\erel{\Gamma_2\iota}, \quad (0, r, i, \delta)\in\erel{\Omega\iota}.\]
 From the definition of the affine substitution relation and (\text{R1}), we have 
-\[(p_2+p_1', n, i, \gamma') \in \erel{\Gamma_2\iota, x:\tau_1\iota}\]
+\[(p_2+p_1', r, i, \gamma') \in \erel{\Gamma_2\iota, x:\tau_1\iota}\]
 Instantiating IH2 with this gives
-\[(p_2+p_1', n, i, e_2\gamma'\delta) \in \erel{\tmonad{s\iota+I\iota}{\tau_2\iota}}\]
+\[(p_2+p_1', r, i, e_2\gamma'\delta) \in \erel{\tmonad{s\iota+I\iota}{\tau_2\iota}}\]
 Instantiate this relation with $e_2\gamma'\delta \Downarrow_r v_2$, we get 
-\[(p_2+p_1', n, i, v_2) \in \vrel{\tmonad{s\iota+I\iota}{\tau_2\iota}}\]
+\[(p_2+p_1', r, i, v_2) \in \vrel{\tmonad{s\iota+I\iota}{\tau_2\iota}}\]
 Instantiate this relation with $v_2 \Downarrow^c_{r,j} v_2'$, we have 
 \[\exists p_2'.\,c+p_2' \leq p_2+p_1'+ s\iota + I\iota(j) \land (p_2', r, j, v_2') \in \vrel{\tau_2\iota} \quad (\text{R2})\]
 

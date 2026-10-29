@@ -69,7 +69,7 @@ as follows:
 &\vrel{L^{s+1}\tau}
   &\quad\triangleq\quad&
     \{(n,i,v::l) \mid (n,i,v)\in\vrel{\tau}
-    \land (n,i,l)\in\vrel{L^I\tau}\} \\[0.5ex]
+    \land (n,i,l)\in\vrel{L^s\tau}\} \\[0.5ex]
 &\vrel{\tau_1\times\tau_2}
   &\quad\triangleq\quad&
     \{(n,i,\tuple{v_1}{v_2}) \mid (n,i,v_1)\in\vrel{\tau_1}\ \land (n,i,v_2)\in\vrel{\tau_2}\} \\[0.5ex]
@@ -255,29 +255,30 @@ Given $(n,i,\fold v) \in \vrel{\mu\alpha.\tau\iota}$, it suffices to prove
 \[(n,i,\fold v) \in \vrel{\mu\alpha.\tau'\iota}\]
 Unfold the definition of this relation, it remains to prove 
 \[(n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]}\]
-Instantiate Lemma \ref{lem:substitute-subtyping} with $\Theta;\Delta\vdash\tau\iota <: \tau'\iota$ and $\mu\alpha.\tau$, we have
+Instantiate Lemma \ref{lem:substitute-subtyping} with $\Theta;\Delta\vdash\tau <: \tau'$ and $\mu\alpha.\tau$, we have
 \[
-  \Theta;\Delta\vdash\tau\iota[\mu\alpha.\tau\iota/\alpha]<:\tau\iota[\mu\alpha.\tau\iota/\alpha]
+  \Theta;\Delta\vdash\tau[\mu\alpha.\tau/\alpha]<:\tau'[\mu\alpha.\tau/\alpha]
 \]
-Since $\iota$ only substitutes indices, we know all occurrences of $\alpha$ are positive in $\tau'\iota$. 
-Therefore, applying Lemma \ref{lem:subtyping-polarity} to 
-$\Theta;\Delta\vdash \mu\alpha.\tau\iota <:\mu\alpha.\tau'\iota$ and $\tau'\iota$ gives
+Since $\alpha$ is positive in $\tau'$, applying Lemma \ref{lem:subtyping-polarity} to 
+$\Theta;\Delta\vdash \mu\alpha.\tau <:\mu\alpha.\tau'$ and $\tau'$ gives
 \[
-  \Theta;\Delta\vdash\tau'\iota[\mu\alpha.\tau'\iota\/\alpha]<:\tau'\iota[\mu\alpha.\tau'\iota/\alpha]
+  \Theta;\Delta\vdash\tau'[\mu\alpha.\tau/\alpha]<:\tau'[\mu\alpha.\tau'/\alpha]
 \]
 By \textsc{Sub-Trans}, we obtain
 \[
   \Theta;\Delta\vdash
-  \tau\iota[\mu\alpha.\tau\iota/\alpha]
-  <: \tau'\iota[\mu\alpha.\tau'\iota/\alpha] \quad (\text{S0})
+  \tau[\mu\alpha.\tau/\alpha]
+  <: \tau'[\mu\alpha.\tau'/\alpha] \quad (\text{S0})
 \]
 By Lemma \ref{lem:rec-well-founded}, we have
 \[
-  |\tau\iota[\mu\alpha.\tau\iota/\alpha]|
-    <|\mu\alpha.\tau\iota|, \quad
-  |\tau'\iota[\mu\alpha.\tau'\iota/\alpha]|<|\mu\alpha.\tau'\iota|
+  |\tau[\mu\alpha.\tau/\alpha]|
+    <|\mu\alpha.\tau|, \quad
+  |\tau'[\mu\alpha.\tau'/\alpha]|<|\mu\alpha.\tau'|
 \]
-Thus, instantiate the IH of $|\tau + \tau'|$ with (S0) and $(n,i,v)$, we have
+Since $(\tau[\mu\alpha.\tau/\alpha])\iota = \tau\iota[\mu\alpha.\tau\iota/\alpha]$ and
+$(\tau'[\mu\alpha.\tau'/\alpha])\iota = \tau'\iota[\mu\alpha.\tau'\iota/\alpha]$,
+instantiating the IH of $|\tau + \tau'|$ with (S0), $\iota$ and $(n,i,v)$, we have
 \[(n,i,v) \in \vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]} \implies (n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]} \] 
 Unfold the given $(n,i,\fold v) \in \vrel{\mu\alpha.\tau\iota}$, we get $(n,i,v) \in \vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]}$, hence we know 
 $(n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]}$.
@@ -338,7 +339,7 @@ This holds directly by the definition of $\vrel{\triangleright(\tau\iota)}$.
 \item {Subcase $m=k+1$.}
 It suffices to show 
 \[(k+1,i,v')\in\vrel{\triangleright(\tau\iota)}\]
-From \textsc{E-NextSucc}, there is some $v$ such that
+From \textsc{E-NextInd}, there is some $v$ such that
 \[
   e\gamma\Downarrow_k v
   \quad\text{and}\quad
@@ -392,7 +393,7 @@ From \textsc{E-Bind}, there exist $c_1,c_2, v_1, v_1', v_2, v_2'$ such that
   \quad
   v_2 \Downarrow^{c_2}_{r,j}v_2',
   \quad 
-   v'' = v_2
+   v'' = v_2'
 \]
 Therefore, we need to show 
 \[ c_1+c_2 \leq(I_1\iota +I_2 \iota)(j),
@@ -508,7 +509,7 @@ Applying Lemma \ref{lem:worst-semantic-subtyping} to this, we get the desired.
     {\hastype{\Theta;\Delta;\Gamma'}{e}{\tau}}.
 \]
 Given $(n, i, \gamma) \in \erel{\Gamma'\iota}$, it suffices to prove
-\[(n, i, e\gamma) \in \erel{\tau}\] 
+\[(n, i, e\gamma) \in \erel{\tau\iota}\] 
 Since $\Theta;\Delta\vdash\Gamma'<:\Gamma$, applying Lemma \ref{lem:worst-case-ctx-subtyping} to $(n, i, \gamma) \in \erel{\Gamma'\iota}$, we have 
 \[(n, i, \gamma) \in \erel{\Gamma\iota}\]
 Therefore, we can apply the IH with $\gamma$, which gives the desired.

@@ -3,11 +3,9 @@
 \section{Guarded Recursion and the Later Modality}
 \label{sec:bg-guarded}
 
-Many programs are not intended to terminate. Cloud servers and
-reactive programs run continually, consuming and producing potentially
-infinite amount of data. For such programs the appropriate correctness
-criterion is not termination but \emph{productivity}: 
-the program keeps producing output as it operates.
+As discussed in Chapter~\ref{chap:Introduction}, the appropriate property for a non-terminating program is 
+\emph{productivity}. This section reviews two ways of ensuring productivity, first by a syntactic
+check and then through type systems.
 
 \subsection{Syntactic Productivity Checks}
 The traditional approach of ensuring productivity is \emph{syntactic check} \citep{coquand93}, where it requires every recursive call
@@ -36,7 +34,7 @@ $\triangleright$. The later modality employs a notion of \emph{logical time},
 data of type $\tau$ is considered available now, while data of type $\triangleright \tau$ becomes accessible one step later. 
 Productivity is then enforced by a single rule: every self-reference must
 be guarded by a $\triangleright$. For data types, this means a recursive
-occurrence of the type must appear beneath the later modality. A guarded stream type is 
+occurrence of the type must appear beneath the later modality. Let $\tau$ denote any type, a guarded stream type is 
 therefore defined as the follow:
 \[ \tstr{\tau} \triangleq \tau \times \triangleright \tstr{\tau}\]
 
@@ -77,15 +75,7 @@ Guarded recursion has since been developed in a range of calculi and type
 theories to reason about infinite data \citep{atkeyProductiveCoprogrammingGuarded2013a, mogelberg14,bahrClocksAreTicking2017}.
 In this thesis, we follow the guarded $\lambda$-calculus~\citep{cloustonGuardedLambdaCalculusProgramming2017a},
 which extends the simply typed $\lambda$-calculus with the later modality
-and guarded recursive types.
-
-Another major application of guarded recursion is functional reactive programming ~\citep{elliottH97}, 
-where programs describe values that change over time and react to events continuously.
-Guarded recursion not only guarantees productivity to such programs but also helps to rule out undesired properties like space
-leaks ~\citep{krishnaswamiBH12, bahrSimplyRaTTFitchstyle2019a}. Nonetheless, it says nothing about the computational work
-performed at each step: a productive stream may do ever more work for
-each successive element. The following
-section introduces the tool we use to model costs.
+and guarded recursion.
 
 \section{Type-Based Cost Analysis}
 \label{sec:bg-cost}

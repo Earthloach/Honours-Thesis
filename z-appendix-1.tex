@@ -47,7 +47,7 @@ From Definition \ref{def:constraint-entailment}, for any $i \in \mathbb{N}$, it 
     &= \sum_{k=0}^{s'-1}((I[k/\kappa])(i+s)) && \text{(interpretation of $+$)}\\
     &= \sum_{k=0}^{s'-1}(\mathsf{S}^s(I[k/\kappa])(i)) && \text{(interpretation of $\mathsf{S}^{s}$)}\\
     &= (\sum_{k=0}^{s'-1}\mathsf{S}^s(I[k/\kappa]))(i) && \text{(interpretation of $+$)}\\
-    &= \sum_{\kappa<J}\mathsf{S}(I)
+    &= \bigl(\textstyle\sum_{\kappa<s'}\mathsf{S}^s(I)\bigr)(i)
        && \text{(interpretation of bounded sum)}
   \end{align*}
 \end{itemize}
@@ -59,6 +59,47 @@ $\\$ If $\alpha$ is guarded in $\tau$, then $|\tau[\tau'/\alpha]| \leq |\tau|$.
 \end{appalem}
 \begin{proof}
   Induction on $|\tau|$, and case analysis on the construction of $\tau$.
+  Since $\alpha$ is guarded in $\tau$, $\tau$ cannot be $\alpha$ itself, and all occurrences of $\alpha$ are handled by the case of the later type.
+\begin{itemize}
+\item Case $\tau=\beta$, where $\beta\neq\alpha$, or $\tau = \textbf{1}$ or  $\textbf{b}$
+
+The substitution leaves $\tau$ unchanged, so $|\tau[\tau'/\alpha]| = |\tau|$.
+
+\item Case $\tau=\triangleright\tau_0$
+
+By Definition \ref{def:worst-case-ty-size}, we have
+$|(\triangleright\tau_0)[\tau'/\alpha]| = |\triangleright(\tau_0[\tau'/\alpha])| = 1 = |\triangleright\tau_0|$.
+
+\item Case $\tau=\tau_1\to\tau_2$
+
+Since $\alpha$ is guarded in $\tau$, it is also guarded in $\tau_1$ and $\tau_2$. By the IH, we have
+$|\tau_1[\tau'/\alpha]| \leq |\tau_1|$ and $|\tau_2[\tau'/\alpha]| \leq |\tau_2|$. Therefore,
+\[
+  |(\tau_1\to\tau_2)[\tau'/\alpha]| = 1 + |\tau_1[\tau'/\alpha]| + |\tau_2[\tau'/\alpha]|
+  \leq 1 + |\tau_1| + |\tau_2| = |\tau_1\to\tau_2|.
+\]
+The cases $\tau=\tau_1\times\tau_2$ and $\tau=\tau_1+\tau_2$ are similar.
+
+\item Case $\tau=\tmonad{I}{\tau_0}$
+
+Since $\alpha$ is guarded in $\tau_0$, the IH gives $|\tau_0[\tau'/\alpha]| \leq |\tau_0|$. Therefore,
+\[
+  |(\tmonad{I}{\tau_0})[\tau'/\alpha]| = 1 + |\tau_0[\tau'/\alpha]| \leq 1 + |\tau_0| = |\tmonad{I}{\tau_0}|.
+\]
+The cases $\tau=L^s\tau_0$ and $\tau=\forall\kappa:S.\tau_0$ are similar.
+
+\item Case $\tau=\mu\beta.\tau_0$
+
+If $\beta=\alpha$, then $\alpha$ is not free in $\tau$, and the substitution leaves $\tau$ unchanged.
+
+If $\beta \neq \alpha$, then
+$(\mu\beta.\tau_0)[\tau'/\alpha] = \mu\beta.(\tau_0[\tau'/\alpha])$.
+Since $\alpha$ is guarded in $\tau_0$, the IH gives $|\tau_0[\tau'/\alpha]| \leq |\tau_0|$, hence
+\[
+  |\mu\beta.(\tau_0[\tau'/\alpha])| = 1 + |\tau_0[\tau'/\alpha]| \leq 1 + |\tau_0| = |\mu\beta.\tau_0|.
+\]
+\qedhere
+\end{itemize}
 \end{proof}
 
 \begin{appalem}[Type substitution preserves subtyping]
@@ -153,6 +194,7 @@ By the IH, we have
   \Theta;\Delta\vdash\tau_1[\tau_0/\alpha]
     <: \tau_1'[\tau_0/\alpha]
 \]
+Since $\beta$ does not occur free in $\tau_0$, $\beta$ is still positive in $\tau_1[\tau_0/\alpha]$ and $\tau_1'[\tau_0/\alpha]$.
 Applying \textsc{Sub-Rec} gives the desired
 \qedhere
 \end{itemize}
@@ -259,10 +301,13 @@ In the positive case, instantiating the positive IH with $\Theta,\kappa:S$ gives
 \[\Theta,\kappa:S;\Delta\vdash\sigma_0[\tau_0/\alpha]<:\sigma_0[\tau_1/\alpha]\]
 Applying \textsc{Sub-IndexPoly} gives the desired.
 
-\item Case $\sigma=\mu\beta.\sigma_0$, where $\beta\neq\alpha$
+\item Case $\sigma=\mu\beta.\sigma_0$, where $\beta\neq\alpha$ and $\beta$ is not free in $\tau_0, \tau_1$
 
-In the positive case, the positive IH gives
+In the positive case, by the side condition of positivity, $\beta$ is positive in $\sigma_0$, and $\alpha$ is positive in $\sigma_0$.
+The positive IH gives
 \[\Theta;\Delta\vdash\sigma_0[\tau_0/\alpha]<:\sigma_0[\tau_1/\alpha]\]
+Since $\beta$ does not occur free in $\tau_0$ and $\tau_1$, the substitutions do not change the occurrences of $\beta$, 
+so $\beta$ is still positive in $\sigma_0[\tau_0/\alpha]$ and $\sigma_0[\tau_1/\alpha]$.
 Applying \textsc{Sub-Rec} gives the desired.
 \qedhere
 \end{itemize}
@@ -526,8 +571,8 @@ $(m,j,v') \in \vrel {\tau'\iota}$, and we are done.
     {\Theta;\Delta\vdash \tau <: \tau'}
     {\Theta;\Delta\vdash L^s\tau <: L^s\tau'}
 \]
-Given $(n,i,v) \in \vrel{L^{n\iota}(\tau\iota)}$, it suffices to show
-\[(n,i,v) \in \vrel{L^{n\iota}(\tau'\iota)}.\]
+Given $(n,i,v) \in \vrel{L^{s\iota}(\tau\iota)}$, it suffices to show
+\[(n,i,v) \in \vrel{L^{s\iota}(\tau'\iota)}.\]
 We proceed by structural induction on $v$.
 
 \begin{itemize}
@@ -583,29 +628,30 @@ Given $(n,i,\fold v) \in \vrel{\mu\alpha.\tau\iota}$, it suffices to prove
 \[(n,i,\fold v) \in \vrel{\mu\alpha.\tau'\iota}\]
 Unfold the definition of this relation, it remains to prove 
 \[(n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]}\]
-Instantiate Lemma \ref{lem:substitute-subtyping} with $\Theta;\Delta\vdash\tau\iota <: \tau'\iota$ and $\mu\alpha.\tau$, we have
+Instantiate Lemma \ref{lem:substitute-subtyping} with $\Theta;\Delta\vdash\tau <: \tau'$ and $\mu\alpha.\tau$, we have
 \[
-  \Theta;\Delta\vdash\tau\iota[\mu\alpha.\tau\iota/\alpha]<:\tau\iota[\mu\alpha.\tau\iota/\alpha]
+  \Theta;\Delta\vdash\tau[\mu\alpha.\tau/\alpha]<:\tau'[\mu\alpha.\tau/\alpha]
 \]
-Since $\iota$ only substitutes indices, we know all occurrences of $\alpha$ are positive in $\tau'\iota$. 
-Therefore, applying Lemma \ref{lem:subtyping-polarity} to 
-$\Theta;\Delta\vdash \mu\alpha.\tau\iota <:\mu\alpha.\tau'\iota$ and $\tau'\iota$ gives
+Since $\alpha$ is positive in $\tau'$, applying Lemma \ref{lem:subtyping-polarity} to 
+$\Theta;\Delta\vdash \mu\alpha.\tau <:\mu\alpha.\tau'$ and $\tau'$ gives
 \[
-  \Theta;\Delta\vdash\tau'\iota[\mu\alpha.\tau'\iota\/\alpha]<:\tau'\iota[\mu\alpha.\tau'\iota/\alpha]
+  \Theta;\Delta\vdash\tau'[\mu\alpha.\tau/\alpha]<:\tau'[\mu\alpha.\tau'/\alpha]
 \]
 By \textsc{Sub-Trans}, we obtain
 \[
   \Theta;\Delta\vdash
-  \tau\iota[\mu\alpha.\tau\iota/\alpha]
-  <: \tau'\iota[\mu\alpha.\tau'\iota/\alpha] \quad (\text{S0})
+  \tau[\mu\alpha.\tau/\alpha]
+  <: \tau'[\mu\alpha.\tau'/\alpha] \quad (\text{S0})
 \]
-By Lemma \ref{lem:worst-case-ty-size}, we have
+By Lemma \ref{lem:rec-well-founded}, we have
 \[
-  |\tau\iota[\mu\alpha.\tau\iota/\alpha]|
-    <|\mu\alpha.\tau\iota|, \quad
-  |\tau'\iota[\mu\alpha.\tau'\iota/\alpha]|<|\mu\alpha.\tau'\iota|
+  |\tau[\mu\alpha.\tau/\alpha]|
+    <|\mu\alpha.\tau|, \quad
+  |\tau'[\mu\alpha.\tau'/\alpha]|<|\mu\alpha.\tau'|
 \]
-Thus, instantiate the IH of $|\tau + \tau'|$ with (S0) and $(n,i,v)$, we have
+Since $(\tau[\mu\alpha.\tau/\alpha])\iota = \tau\iota[\mu\alpha.\tau\iota/\alpha]$ and
+$(\tau'[\mu\alpha.\tau'/\alpha])\iota = \tau'\iota[\mu\alpha.\tau'\iota/\alpha]$,
+instantiating the IH of $|\tau + \tau'|$ with (S0), $\iota$ and $(n,i,v)$, we have
 \[(n,i,v) \in \vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]} \implies (n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]} \] 
 Unfold the given $(n,i,\fold v) \in \vrel{\mu\alpha.\tau\iota}$, we get $(n,i,v) \in \vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]}$, hence we know 
 $(n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]}$.
@@ -679,8 +725,8 @@ Induction on the derivation of $\Theta;\Delta\vdash\Gamma<:\Gamma'$.
     { }
     {\Theta;\Delta\vdash\Gamma <: \cdot} 
 \]
-Given $(n, i, \gamma) \in \vrel{\Gamma}$, it suffices to prove 
-\[(n, i, \gamma) \in \vrel{\cdot}.\]
+Given $(n, i, \gamma) \in \erel{\Gamma\iota}$, it suffices to prove 
+\[(n, i, \gamma) \in \erel{\cdot}.\]
 By the definition of the substitution relation, since dom($\cdot$) is empty, 
 we have the desired directly.
 
@@ -691,21 +737,21 @@ we have the desired directly.
     \quad \Theta;\Delta\vdash \Gamma/x <: \Gamma'}
     {\Theta;\Delta\vdash\Gamma <: \Gamma', x:\tau'} 
 \]
-Given $(n, i, \gamma) \in \vrel{\Gamma}$, it suffices to prove 
-\[(n, i, \gamma) \in \vrel{\Gamma', x:\tau'}.\]
+Given $(n, i, \gamma) \in \erel{\Gamma\iota}$, it suffices to prove 
+\[(n, i, \gamma) \in \erel{(\Gamma', x:\tau')\iota}.\]
 Unfold the substitution relation, it suffices to prove 
 \[
-  \forall y \in dom(\Gamma',x:\tau').\;(n, i, \gamma(y)) \in \vrel{\tau_2}, 
+  \forall y \in dom(\Gamma',x:\tau').\;(n, i, \gamma(y)) \in \vrel{\tau_2\iota}, 
   \text{where }\tau_2 = (\Gamma', x:\tau')(y). 
 \]
 Unfold the assumption's substitution relation, we have 
-\[\forall x \in dom(\Gamma).\;(n, i, \gamma(x)) \in \vrel{\Gamma(x)}. \quad (\text{L0})\]
+\[\forall x \in dom(\Gamma).\;(n, i, \gamma(x)) \in \vrel{\Gamma\iota(x)}. \quad (\text{L0})\]
 By Lemma \ref{appa:domain-containment}, given $y \in dom(\Gamma',x:\tau')$, we have 
 \[y : \tau_1 \in \Gamma, \quad \Theta;\Delta\vdash \tau_1<:\tau_2.\]
 Therefore, instantiate $(\text{L0})$ with $y$, we have 
-\[(n,i,\gamma(y)) \in \vrel{\tau_1}.\]
-Since $\Theta;\Delta\vdash \tau_1<:\tau_2$, by Lemma \ref{lem:worst-case-mono}, we have 
-\[(n, i, \gamma(y)) \in \vrel{\tau_2}\]
+\[(n,i,\gamma(y)) \in \vrel{\tau_1\iota}.\]
+Since $\Theta;\Delta\vdash \tau_1<:\tau_2$ and $\cdot\models\Delta\iota$, by Lemma \ref{appa:val-subtyping}, we have 
+\[(n, i, \gamma(y)) \in \vrel{\tau_2\iota}\]
 This is exactly the desired.
 \qedhere
 \end{itemize}
@@ -1038,7 +1084,7 @@ This holds directly by the definition of $\vrel{\triangleright(\tau\iota)}$.
 \item {Subcase $m=k+1$.}
 It suffices to show 
 \[(k+1,i,v')\in\vrel{\triangleright(\tau\iota)}\]
-From \textsc{E-NextSucc}, there exists a $v$ such that
+From \textsc{E-NextInd}, there exists a $v$ such that
 \[
   e\gamma\Downarrow_k v
   \quad\text{and}\quad
@@ -1212,7 +1258,7 @@ From \textsc{E-Bind}, there exist $c_1,c_2, v_1, v_1', v_2, v_2'$ such that
   \quad
   v_2 \Downarrow^{c_2}_{r,j}v_2',
   \quad 
-   v'' = v_2
+   v'' = v_2'
 \]
 Therefore, we need to show 
 \[ c_1+c_2 \leq(I_1\iota +I_2 \iota)(j),
@@ -1355,6 +1401,8 @@ We proceed by cases on $v'$.
 
 \begin{itemize}
 \item {Subcase $v'= nil$.}
+Applying IH1 to $e\gamma \Downarrow_m nil$ gives $(m, i, nil) \in \vrel{L^{s\iota}\tau\;\iota}$.
+Since $nil$ only belongs to $\vrel{L^0\tau\;\iota}$, we know $s\iota = 0$, and hence $\cdot\models(\Delta,s=0)\iota$.
 From \textsc{E-MatchNil}, we have $e_1\gamma \Downarrow_m v$.
 Since $m\leq n$, applying IH2 to this gives the desired.
 
@@ -1363,10 +1411,12 @@ From \textsc{E-MatchCons}, we have $e_2\gamma[v_f/h][l/t]\Downarrow_m v$.
 Let $\gamma' = \gamma[h\mapsto v_f][t\mapsto l]$, then we get $e_2\gamma'\Downarrow_m v$.
 Applying IH1 to $e\gamma \Downarrow_m v'$ gives
 \[(m, i,v_f::l) \in \vrel{L^{s\iota}\tau\;\iota}.\]
+Since $v_f::l$ only belongs to $\vrel{L^{s\iota}\tau\;\iota}$ when $s\iota > 0$, we know $\cdot\models(\Delta,s>0)\iota$.
 Unfold this value relation, we have 
-\[(m,i,v_f) \in \vrel{\tau \iota},\quad (m,i,v_f) \in \vrel{L^{s\iota-1}\tau\;\iota}.\]
-Therefore, we know $(m, i,\gamma') \in \erel{(\Gamma, h:\tau,t:L^{n-1})\iota}$ from the definition of the substitution relation.
-Now applying IH3's term relation to $e_2\gamma'\Downarrow_m v$ gives the desired.
+\[(m,i,v_f) \in \vrel{\tau \iota},\quad (m,i,l) \in \vrel{L^{s\iota-1}\tau\;\iota}.\]
+Since $m \leq n$, Lemma \ref{lem:worst-case-mono} gives $(m, i, \gamma) \in \erel{\Gamma\iota}$.
+Therefore, we know $(m, i,\gamma') \in \erel{(\Gamma, h:\tau,t:L^{s-1}\tau)\iota}$ from the definition of the substitution relation.
+Instantiating IH3 with $m, i, \gamma'$ gives $(m, i, e_2\gamma') \in \erel{\tau'\iota}$, and applying this term relation to $e_2\gamma'\Downarrow_m v$ gives the desired.
 
 
 \end{itemize}
@@ -1426,7 +1476,7 @@ Applying Lemma \ref{lem:worst-semantic-subtyping} to this, we get the desired.
     {\hastype{\Theta;\Delta;\Gamma'}{e}{\tau}}.
 \]
 Given $(n, i, \gamma) \in \erel{\Gamma'\iota}$, it suffices to prove
-\[(n, i, e\gamma) \in \erel{\tau}\] 
+\[(n, i, e\gamma) \in \erel{\tau\iota}\] 
 Since $\Theta;\Delta\vdash\Gamma'<:\Gamma$, applying Lemma \ref{lem:worst-case-ctx-subtyping} to $(n, i, \gamma) \in \erel{\Gamma'\iota}$, we have 
 \[(n, i, \gamma) \in \erel{\Gamma\iota}\]
 Therefore, we can apply the IH with $\gamma$, and it gives the desired.

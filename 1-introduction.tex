@@ -1,19 +1,17 @@
 \chapter{Introduction}\label{chap:Introduction}
 
-Type systems can provide static guarantees about the behaviour of all possible programs written in a language, and one such behaviour is computational cost.
 Computation costs money, and writing programs that do more work than intended can be a major problem. For example, cloud providers are
 notorious for sending surprisingly large bills to clients who underestimated the computational needs of their programs.
-Type-based cost analysis addresses this problem by checking a bound on the cost of a program before it is run
-\citep{CraryW00, hofmannJ03, rajaniUnifyingTypetheoryHigherorder2021a}.
-In particular, graded modalities are type formers that give programmers control over the cost of their programs, as well-typed programs
-can never do more work than the programmer is willing to allow \citep{katsumata14, orchardQuantitativeProgramReasoning2019a}.
+Type systems can provide static guarantees about the behaviour of all possible programs written in a language.
+In particular, graded modalities \citep{katsumata14, orchardQuantitativeProgramReasoning2019a} are type formers that give
+programmers control over the cost of their programs, as well-typed programs can never do more work than the programmer is willing to allow.
 
 However, most type systems provide guarantees about the output of terminated runs of programs. This is not a meaningful notion for
 applications that are intended to run continually, producing outputs as they go, such as servers and stream processors.
-Instead of guarantees about a final output, we would like guarantees about \emph{productivity}, which means that for as long as
-the program runs, it will continue to produce correct output \citep{atkeyProductiveCoprogrammingGuarded2013a}.
-Guarded modalities are type formers that allow programmers to write non-terminating programs, but disallow such programs that are
-not productive \citep{nakanoModalityRecursion2000, cloustonGuardedLambdaCalculusProgramming2017a}.
+Instead of guarantees about a final output, we would like guarantees about \emph{productivity} \citep{atkeyProductiveCoprogrammingGuarded2013a},
+which means that for as long as the program runs, it will continue to produce correct output.
+Guarded modalities \citep{nakanoModalityRecursion2000, cloustonGuardedLambdaCalculusProgramming2017a} are type formers that allow programmers
+to write non-terminating programs, but disallow such programs that are not productive.
 
 These two kinds of modality address different concerns. The cost analyses mentioned above mostly target finite computations.
 Guarded modalities ensure that each output eventually arrives, but they do not tell how much
@@ -24,7 +22,7 @@ the next output. Specifically, this thesis seeks answers to the question:
   \emph{Can types be used to specify the cost of productive non-terminating programs?}
 \end{quote}
 
-To see why this involves, consider the following two stream programs, written in Haskell-like syntax, 
+To see why this matters, consider the following two stream programs, written in Haskell-like syntax, 
 where \texttt{input} is a stream of numbers:
 
 \begin{lstlisting}[style=hs]
@@ -39,7 +37,7 @@ so the same constant bounds every step. In contrast, the $k$-th element of \text
 constant is enough, and its cost bound must grow as the stream continues. Thus, a cost specification should be able
 to express both kinds of bound.
 
-To answer this question, we design an idealised programming language, based on the $\lambda$-calculus, with both graded and guarded
+To this end, we design an idealised programming language, based on the $\lambda$-calculus, with both graded and guarded
 modalities, in which the programmer may specify how much cost may be incurred for each additional step of the program.
 Specifically, we employ the later modality of the guarded $\lambda$-calculus \citep{cloustonGuardedLambdaCalculusProgramming2017a}
 with the graded cost monad of $\lambda$-amor \citep{rajaniUnifyingTypetheoryHigherorder2021a}.
