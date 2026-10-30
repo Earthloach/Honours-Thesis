@@ -1,30 +1,29 @@
 \chapter{Concluding Remarks}\label{chap:conclusion}
-In this chapter, we discuss several directions for future work, followed by a summary of this thesis and some concluding remarks.
-
+In this chapter, we discuss several directions for future work, followed by a summary of this thesis as the conclusion.
 
 \section{Future Work}
 Both the calculi developed in this thesis, $\lambda^g_{\mathsf{worst}}$ and $\lambda^g_{\mathsf{amor}}$, suggest several directions for future work, including extensions to their expressiveness, further study of their semantics, and practical implementations.
 
 \subsubsection{Productive Acausal Programs}
 The later modality not only brings productivity but also ensures a stronger property called \emph{causality}:
-the nth output element should be produced from the first n input elements \citep{KrishnaswamiB11}.
-An acausal function may instead depend on deeper input elements to determine an output.
-A standard example is $\mathsf{every2nd}$, which retains the first element and then every other element of its input \citep{cloustonGuardedLambdaCalculusProgramming2017a}:
+the $n$-th output element should be produced from the first $n$ input elements \citep{KrishnaswamiB11}.
+An \emph{acausal} function may instead depend on deeper input elements to determine an output.
+A standard example is $\mathsf{every2nd}$ \citep{cloustonGuardedLambdaCalculusProgramming2017a}:
 \begin{lstlisting}[style=hs] 
 every2nd (x :: x' :: xs) = x :: xs
 \end{lstlisting}
 Although this program is productive, it cannot be typed in our calculi since the type of \texttt{xs} is $\triangleright \triangleright \tau$, while 
 the :: operator of guarded streams expects an argument of type $\triangleright\tau$.
 
-Existing extensions of guarded recursion suggest several ways to accommodate these programs, such as the "constant" modality ($\Box$) in the guarded $\lambda$-calculus \citep{cloustonGuardedLambdaCalculusProgramming2017a}, and 
+Existing extensions of guarded recursion suggest several ways to accommodate these programs, such as the ``constant'' modality ($\Box$) in the guarded $\lambda$-calculus \citep{cloustonGuardedLambdaCalculusProgramming2017a}, and 
 clock quantifiers in multi-clocked type systems \citep{atkeyProductiveCoprogrammingGuarded2013a}.
-Both these approaches allow the elimination of arbitrarily-many of nested ``later''s. For example, transforming a $\triangleright \triangleright \tau$ into
-$\tau$. 
+Both these approaches allow eliminating arbitrarily many nested ``later''s when some side conditions hold. For example, we may transform a term of type $\triangleright \triangleright \tau$ into
+$\tau$.
 
 The main challenge is to extend the cost analysis to account for these more general temporal dependencies.
-Currently, the $\pull$ allows demanding deeper future costs using the index $\mathsf{S}(I)$, an acusal 
-program therefore need a similar reindexing for costs  to track its future cost.
-As discussed in Section \ref{sec:guarded-related-work}, the time-warping modalities of \cite{guattoGeneralizedModalityRecursion2018d} can describe more general relationships between rates of information availability, and employ a similar reindexing mechanism
+Currently, the $\pull$ operator allows demanding deeper future costs using the index $\mathsf{S}(I)$. An acausal 
+program therefore needs a similar reindexing for costs to track its future value.
+As discussed in Section~\ref{sec:guarded-related-work}, the time-warping modalities of \cite{guattoGeneralizedModalityRecursion2018d} can describe more general relationships between rates of information availability, and employ a similar reindexing mechanism
 to the logical time. Thus, one possible direction is to extend our calculi with time-warping modalities to support acausal programs.
 
 \subsubsection{Lazy Evaluation}
@@ -32,7 +31,7 @@ As discussed in Section~\ref{sec:rw-lazy}, the graded monad in our calculi is ev
 \begin{lstlisting}[style=hs]
 repeat x = x :: repeat x
 \end{lstlisting}
-This function produces an infinite stream where every element refers to the same computation \texttt{x}. Suppose \texttt{x} is a monadic computation, forcing each occurrence of \texttt{x} incurs its cost again under our current call-by-value semantics. 
+This function produces an infinite stream where every element refers to the same variable \texttt{x}. Suppose \texttt{x} is a monadic computation. Then forcing each occurrence of \texttt{x} incurs its cost again under our current call-by-value semantics. 
 In contrast, 
 the result of the first evaluation could be shared among subsequent elements under lazy evaluation, so that the cost of \texttt{x} is paid only once.
 
@@ -41,30 +40,30 @@ tracks shared computations, together with typing rules that account for their co
 Such an approach is demonstrated in \citet{jostTypeBasedCostAnalysis2017a}, where a typing rule for prepaying the evaluation costs of shared thunks is proposed.
 Their system also constrains the sharing of potential to prevent its unsound duplication.
 
-We therefore envision extending our calculi with a call-by-need semantics and corresponding typing rules following \citep{jostTypeBasedCostAnalysis2017a}. 
-Since they use a heap-based call-by-need semantics from \cite{sestoftDerivingLazyAbstract1997a}, the models of our calculi may require further extension to be compatible with the semantics.
-
+We therefore envision extending our calculi with a call-by-need semantics and similar typing rules following \cite{jostTypeBasedCostAnalysis2017a}. 
+Since they use a heap-based call-by-need semantics from \cite{sestoftDerivingLazyAbstract1997a}, the models of our calculi may require further extension to be compatible with the semantics,
+such as adding a new Kripke world to track the information of the heap.
 
 \subsubsection{Probabilistic Cost Analysis}
 A stream producer may make random choices at each step, and an expected-cost bound can be more informative than one on its most expensive execution. 
 Guarded recursion has recently been combined with probabilistic choice \citep{StassenMZAB25}.
 Besides, $\lambda$-amor has been extended with probabilistic computation and expected costs \citep{rajani24}. 
-A direct extension is to adapt from the probabilistic extension of $\lambda$-amor first to examine the feasibility 
-of expressing expected cost in our calculi, then explore the interaction with guarded recursion in probabilistic setting.
+A direct extension is to first adapt the probabilistic extension of $\lambda$-amor to examine the feasibility 
+of expressing expected cost in our calculi, and then explore the interaction with guarded recursion in probabilistic settings.
 
 \subsubsection{Denotational Semantics}
-Chapters \ref{chap:5} and \ref{chap: chap6} establish the soundness of our calculi using logical relations based on operational semantics.
-A complementary direction is to develop a \emph{denotational} model that explains the structure of the modalities and their interactions.
-Denotational semantics interprets each type as a mathematical object and gives program mathematical meanings, so that properties of programs can be proved by reasoning about their meanings rather than their operational execution \citep{Winskel93}.
-The topos of trees provides a standard denotational model of guarded recursion \citep{birkedal2012}, while a model for a subset of $\lambda$-amor based on 
+Chapters~\ref{chap:5} and \ref{chap: chap6} establish the soundness of our calculi using logical relations based on operational semantics.
+A complementary direction is to develop a \emph{denotational} model that explains the structure of the modalities and their interactions, such as distributive laws.
+Denotational semantics interprets each type as a mathematical object and gives programs mathematical meanings, so that properties of programs can be proved by reasoning about their meanings rather than their operational execution \citep{Winskel93}.
+The topos of trees is a well-studied denotational model of guarded recursion \citep{birkedal2012}, while a model for a subset of $\lambda$-amor based on 
 category theory has been developed recently \citep{binderCategoricalModelsAmortized2026}.
-A promising direction is to explore the interactions between the two model, and  whether these two lines of work can be combined into a unified model for our calculi.
+A promising direction is to explore the interactions between the two models, and whether these two can be combined into a unified model for our calculi.
 
 \subsubsection{Implementations}
 A practical direction is to implement a typechecker and interpreter for our calculi. 
 The implementation of a restricted variant of $\lambda$-amor by 
-\cite{cutlerLanguagesPotentialTypes2021} provides a useful starting point. The main challenges would be extending to checking type guardedness,
-and discharging constraints involving new constructs like time shifts and time-independent constants, potentially using an SMT solver for a restricted index language.
+\cite{cutlerLanguagesPotentialTypes2021} provides a useful starting point. The main challenges would be extending it to check guarded recursion and new constructs like time shifts, and discharging constraints involving 
+time interpretations.
 
 \section{Conclusion}
 In this thesis, we present two calculi that combine guarded and graded modal types to analyse the cost of productive
@@ -74,7 +73,8 @@ The first calculus, $\lambda^g_{\mathsf{worst}}$, targets worst-case analysis. I
 of the later modality as a parameter of cost. We extend cost grades with the clock $\clk$ and the shift operation $\mathsf{S}^s$,
 so that one type can assign different costs at different depths of the later modality. The $\pull$ operator connects the two
 modalities: it brings a guarded computation out from the later modality and charges its delayed cost at the shifted grade
-$\mathsf{S}(I)$. Operationally, evaluation is indexed by fuel and gives a finite approximation of a possibly infinite computation.
+$\mathsf{S}(I)$. Operationally, evaluation is bounded by fuel, which limits how many nested $\delay$ constructors it may enter,
+so that it yields a finite approximation of a possibly infinite computation.
 Through examples, we show that the costs of common stream processing functions can be reasoned about naturally, both for
 finite and infinite operations.
 
@@ -88,5 +88,5 @@ We then extend $\lambda^g_{\mathsf{worst}}$ to the second calculus, $\lambda^g_{
 analysis. Following $\lambda$-amor, it uses affine types and the graded potential type $[s]\tau$ to offset cost.
 We require potential grades to be independent of logical time, since potential that varies over time can lead to unsound cost
 bounds. Under this requirement, both infinite stream operations and classic programs such as the binary counter can be given
-amortised cost bounds. The model and soundness of $\lambda^g_{\mathsf{amor}}$ then follows by adding the potential Kripke world of
+amortised cost bounds. The model and soundness of $\lambda^g_{\mathsf{amor}}$ then follow by adding the potential Kripke world of
 $\lambda$-amor back to the logical relation of $\lambda^g_{\mathsf{worst}}$.

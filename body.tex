@@ -29,7 +29,17 @@
   \newdateformat{monthonly}{\monthname[\THEMONTH]}
   \newdateformat{monthyeardate}{\monthname[\THEMONTH] \THEYEAR}
 \usepackage{amssymb,amsthm,amsmath}                  % standard math packages; often used
+\usepackage{thm-restate}                             % restate a theorem later with the same number
+\counterwithout{footnote}{chapter}                   % number footnotes continuously across chapters
+\setlength{\emergencystretch}{3em}                   % lets TeX loosen a line rather than let long inline maths run into the margin
 \usepackage{mathpartir}                  % standard math packages; often used
+% Layout of inference-rule figures, used as \begin{mathpar}[\rulelayout{w}]:
+% the rules form a block of width w\linewidth, and the rules that share a row
+% are spread evenly across it.
+\newcommand{\rulelayout}[1]{%
+  \hsize=#1\linewidth
+  \mprset{sep=1em,andskip=1.5em plus 1fil}%
+  \lineskiplimit=0.6em\lineskip=0.7em plus 0.1em\relax}
 \usepackage[backref=page]{hyperref}  % defines style of references / links
 \hypersetup{
 linktocpage,                         % in the table of contents, the numbers serve as links, not the entries

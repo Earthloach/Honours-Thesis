@@ -1,46 +1,46 @@
 \chapter{From Worst-Case to Amortised Analysis}
 \label{chap: chap6}
 
-In this chapter, we introduce $\lambda^g_{\mathsf{amor}}$, an extension of $\lambda^g_{\mathsf{worst}}$ that supports amortised cost analysis of guarded recursive programs. 
+In this chapter, we introduce $\lambda^g_{\mathsf{amor}}$, an extension of $\lambda^g_{\mathsf{worst}}$ that supports amortised cost analysis. 
 Following $\lambda$-amor, the extended calculus incorporates an \emph{affine} type system and a \emph{graded potential} modal type. 
-Together, these features let types store potential and use it to offset costs, enabling type-based amortised analysis.
+Together, these features let types store potential and use it to offset costs, enabling typed amortised bounds.
 
-We first discuss the extensions to the syntax, type system, semantics in Section~\ref{sec:amor-overview}.
-In Section~\ref{sec:amor-program-examples}, We demonstrate the applicability of the calculus by example programs.
+We first discuss the extensions to the syntax, type system and semantics in Section~\ref{sec:amor-overview}.
+In Section~\ref{sec:amor-program-examples}, we demonstrate the applicability of the calculus through example programs.
 Lastly, the model and soundness theorem of $\lambda^g_{\mathsf{amor}}$ are described in Section~\ref{sec:amor-model}.
 
 
 \section{Development of $\lambda^g_{\mathsf{amor}}$}
 \label{sec:amor-overview}
-The formalisation of $\lambda^g_{\mathsf{amor}}$ builds upon that of $\lambda^g_{\mathsf{worst}}$ presented in Chapter\ref{chap:4}. Rather than repeating the complete specification, we introduce the new and modified constructs. 
-The full formalisation is provided in Appendix \ref{chap:appendix2}.
+The formal definition of $\lambda^g_{\mathsf{amor}}$ builds upon that of $\lambda^g_{\mathsf{worst}}$ presented in Chapter~\ref{chap:4}. Instead of repeating the complete specification, we introduce the new and modified constructs. 
+The full definition is provided in Appendix~\ref{chap:appendix2}.
 
 
 \subsection{Affine Types and Potential}
-Based on $\lambda$-amor, we add the potential modality $[s] \tau$, this type carries $s$ units of potential, which can be used to cancel out the cost of subsequent computations.
+Based on $\lambda$-amor, we add the potential modality $[s] \tau$. This type carries $s$ units of potential, which can be used to cancel out the cost of subsequent computations.
 
 An important requirement is that stored potential cannot be duplicated arbitrarily, 
 since this would allow the same amount of potential to offset multiple costs.
-To enforce this restriction, we follow $\lambda$-amor to adopt affine types.
+To enforce this restriction, we follow $\lambda$-amor and adopt affine types.
 Specifically, variables in an affine type system are used at most once, and hence term contexts cannot be 
 copied either. For example, consider the following two typing rules for function application:
 \begin{mathpar}
   \inferrule*
-    {\hastype{\Gamma}{e_1}{\tau_1 \to \tau_2} \quad \hastype{\Gamma,x:\tau_1}{e_2}{\tau_2}}
+    {\hastype{\Gamma}{e_1}{\tau_1 \to \tau_2} \quad \hastype{\Gamma}{e_2}{\tau_1}}
     { \Gamma \vdash e_1e_2 : \tau_2 }
   \and
   \inferrule*
-    {\hastype{\Gamma_1}{e_1}{\tau_1 \multimap \tau_2} \quad \hastype{\Gamma_2,x:\tau_1}{e_2}{\tau_2}}
+    {\hastype{\Gamma_1}{e_1}{\tau_1 \multimap \tau_2} \quad \hastype{\Gamma_2}{e_2}{\tau_1}}
     { \Gamma_1+\Gamma_2 \vdash e_1e_2 : \tau_2 }
 \end{mathpar}
 The left rule is for a usual structural type system, while the right is for an affine type system, where the arrow type is written $\multimap$. Specifically, 
 + denotes the disjoint union between two contexts in the right rule, and the context must be split 
-into two separate parts $\Gamma_1$ and $\Gamma_2$ to ensure no variables is used more than once.
+into two separate parts to ensure that no variable is used more than once.
 
 To allow unrestricted use of variables when necessary, affine type systems employ the exponential modality $!\tau$, meaning that 
 a term of type $!\tau$ can be used arbitrarily many times. This is commonly achieved by separating the typing context into an affine context and an unrestricted context.
 
-Following this approach, the term typing judgment of $\lambda^g_{\mathsf{amor}}$ takes the form
+Following this approach, the term typing judgment of $\lambda^g_{\mathsf{amor}}$ is formed as:
 \[
 \Theta;\Delta;\Omega;\Gamma\vdash e:\tau
 \]
@@ -50,91 +50,92 @@ $\Omega$ is the typing context that contains variables with unbounded usage.
 Figure~\ref{fig:amor-typing-rules} shows selected typing rules of $\lambda^g_{\mathsf{amor}}$, which gives 
 an overview of its syntactic extensions compared to $\lambda^g_{\mathsf{worst}}$.
 
-$!e$ and $\lete{!x}{e_1}{e_2}$ are introduction and elimination constructs for the exponential type.
-In particular, the introduction rule \textsc{T-ExpI} requires an empty affine context, ensuring that a term promoted to the exponential type does not depend on affine resources.
-The elimination rule T-ExpE then allows the underlying term to be introduced into the unrestricted context, where it can be used multiple times.
+$!e$ and $\lete{!x}{e_1}{e_2}$ are the introduction and elimination constructs for the exponential type.
+In particular, the introduction rule \textsc{T-ExpI} requires an empty affine context, ensuring that a term promoted to the exponential type does not depend on or capture any affine resources.
+The elimination rule \textsc{T-ExpE} then allows the underlying term to be introduced into the unrestricted context, where it can be used multiple times.
  
 The ordinary product type $\times$ is replaced by two types: $\otimes$ and $\&$.
 The tensor pair $\ttuple{e_1}{e_2}$ typed $\tau_1 \otimes \tau_2$ can be introduced by the \textsc{T-TensorI} rule, which requires type-checking both
 $e_1$ and $e_2$ by splitting the affine context. This condition is captured by its elimination form $\lete{\ttuple{x}{y}}{e_1}{e_2}$ and the \textsc{T-TensorE} rule,
 where both $x$ and $y$ can be used inside the continuation $e_2$. Dually, \textsc{T-WithI} checks the ``with'' pair $\tuple{e_1}{e_2}$ typed $\tau_1\, \& \,\tau_2$ with the same affine context 
-on both sides, this means using one of the components may consume all the variables in the context, and
+on both sides. This means that using one of the components may consume all the variables in the context, and
 only one side can be projected by either $\mathsf{fst}$ or $\mathsf{snd}$. The constructs of the sum type are the same except that the symbol
 changes to $\oplus$.
 
 We now turn to the potential type (\([s]\tau\)) and its associated operations. $\store e$ is the atomic operation 
-that introduces potential. Potential cannot be created freely, its typing rule \textsc{E-Store} gives the result type 
+that introduces potential. Potential cannot be created freely: its typing rule \textsc{T-Store} gives the result type 
 $\tmonad{s}{[s]\tau}$, requiring us to first pay for the resources we want to store.
 Finally, $\release{x}{e_1}{e_2}$ releases the potential stored in $e_1$ to offset the cost of the subsequent monadic computation $e_2$.
 Based on its typing rule \textsc{T-Release}, $e_1$ is a pure term typed $[s] \tau$, and the stored $s$ units pay for the same amount of 
-cost in $e_2$. Note that there is no term constructor for the pure type $[s]\tau$, we must first bind the $\store e$ to obtain the inner potential.
+cost in $e_2$. Observe that there is no term constructor for the type $[s]\tau$, so we must first bind the $\store e$ to obtain the inner potential.
 Moreover, the amount of potential stored is not specified syntactically by $\store e$, but is determined by its assigned type $\tmonad{s}{[s]\tau}$ in the typing derivation.
 
 \begin{figure}[H]
-\begin{mathpar}
- \inferrule*[right=T-Lam]
-      {\hastype{\Theta;\Delta;\Omega;\Gamma, x:\tau_1}{e}{\tau_2}}
-      {\hastype{\Theta;\Delta;\Omega;\Gamma}{\tlam{x}{e}}{\tau_1 \multimap \tau_2}}
-
-\inferrule*[right=T-App]
-      {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\tau_1 \multimap \tau_2}
-       \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2}{e_2}{\tau_1}}
-      {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{e_1e_2}{\tau_2}}
-
-\inferrule*[right=T-ExpI]
-  {\hastype{\Theta;\Delta;\Omega;\cdot}{e}{\tau}}
-  {\hastype{\Theta;\Delta;\Omega;\cdot}{!e}{!\tau}}
-
-\inferrule*[right=T-ExpE]
-  {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{!\tau_1}
-    \quad\hastype{\Theta;\Delta;\Omega,x:\tau_1;\Gamma_2}{e_2}{\tau_2}}
-  {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}
-    {\lete{!x}{e_1}{e_2}}{\tau_2}}
-
-\inferrule*[right=T-TensorI]
-      {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\tau_1}
-       \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2}{e_2}{\tau_2}}
-      {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{\ttuple{e_1}{e_2}}{\tau_1\otimes\tau_2}}
-
-\inferrule*[right=T-TensorE]
-  {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\tau_1\otimes\tau_2}
-    \quad\hastype{\Theta;\Delta;\Omega;\Gamma_2,x:\tau_1,y:\tau_2}{e_2}{\tau}}
-  {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}
-    {\lete{\ttuple{x}{y}}{e_1}{e_2}}{\tau}} 
-
-\inferrule*[right=T-WithI]
-      {\hastype{\Theta;\Delta;\Omega;\Gamma}{e_1}{\tau_1}
-       \quad \hastype{\Theta;\Delta;\Omega;\Gamma}{e_2}{\tau_2}}
-      {\hastype{\Theta;\Delta;\Omega;\Gamma}{\tuple{e_1}{e_2}}{\tau_1\;\&\;\tau_2}}
-
-\inferrule*[right=T-Fst]
-      {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau_1\;\&\;\tau_2}}
-      {\hastype{\Theta;\Delta;\Omega;\Gamma}{\mathsf{fst}\,e}{\tau_1}}
-
-\inferrule*[right=T-Snd]
-      {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau_1\;\&\;\tau_2}}
-      {\hastype{\Theta;\Delta;\Omega;\Gamma}{\mathsf{snd}\,e}{\tau_2}}
-
-\inferrule*[right=T-Inl]
-      {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau_1}}
-      {\hastype{\Theta;\Delta;\Omega;\Gamma}{\mathsf{inl}\,e}{\tau_1\oplus\tau_2}}
-
-\inferrule*[right=T-Inr]
-      {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau_2}}
-      {\hastype{\Theta;\Delta;\Omega;\Gamma}{\mathsf{inr}\,e}{\tau_1\oplus\tau_2}}
-
-\inferrule*[right=T-Store]
-  {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau}
-    \quad\Theta;\Delta\vdash s:\mathbb{R}_{\ge0}}
-  {\hastype{\Theta;\Delta;\Omega;\Gamma}{\store e}{\tmonad{s}{([s]\tau)}}}
-
-\inferrule*[right=T-Release]
-  {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{[s]\tau_1}
-    \quad\hastype{\Theta;\Delta;\Omega;\Gamma_2,x:\tau_1}{e_2}
-      {\tmonad{(s+I)}{\tau_2}}}
-  {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}
-    {\release{x}{e_1}{e_2}}{\tmonad{I}{\tau_2}}}
-\end{mathpar} 
+  \small
+  \begin{mathpar}[\rulelayout{0.94}]
+    \inferrule*[right=T-Lam]
+         {\hastype{\Theta;\Delta;\Omega;\Gamma, x:\tau_1}{e}{\tau_2}}
+         {\hastype{\Theta;\Delta;\Omega;\Gamma}{\tlam{x}{e}}{\tau_1 \multimap \tau_2}}
+    \\
+    \inferrule*[right=T-App]
+          {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\tau_1 \multimap \tau_2}
+           \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2}{e_2}{\tau_1}}
+          {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{e_1e_2}{\tau_2}}
+    \\
+    \inferrule*[right=T-ExpI]
+      {\hastype{\Theta;\Delta;\Omega;\cdot}{e}{\tau}}
+      {\hastype{\Theta;\Delta;\Omega;\cdot}{!e}{!\tau}}
+    \and
+    \inferrule*[right=T-ExpE]
+      {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{!\tau_1}
+        \quad\hastype{\Theta;\Delta;\Omega,x:\tau_1;\Gamma_2}{e_2}{\tau_2}}
+      {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}
+        {\lete{!x}{e_1}{e_2}}{\tau_2}}
+    \\
+    \inferrule*[right=T-TensorI]
+          {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\tau_1}
+           \quad \hastype{\Theta;\Delta;\Omega;\Gamma_2}{e_2}{\tau_2}}
+          {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}{\ttuple{e_1}{e_2}}{\tau_1\otimes\tau_2}}
+    \\
+    \inferrule*[right=T-TensorE]
+      {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{\tau_1\otimes\tau_2}
+        \quad\hastype{\Theta;\Delta;\Omega;\Gamma_2,x:\tau_1,y:\tau_2}{e_2}{\tau}}
+      {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}
+        {\lete{\ttuple{x}{y}}{e_1}{e_2}}{\tau}}
+    \\
+    \inferrule*[right=T-WithI]
+          {\hastype{\Theta;\Delta;\Omega;\Gamma}{e_1}{\tau_1}
+           \quad \hastype{\Theta;\Delta;\Omega;\Gamma}{e_2}{\tau_2}}
+          {\hastype{\Theta;\Delta;\Omega;\Gamma}{\tuple{e_1}{e_2}}{\tau_1\;\&\;\tau_2}}
+    \\
+    \inferrule*[right=T-Fst]
+          {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau_1\;\&\;\tau_2}}
+          {\hastype{\Theta;\Delta;\Omega;\Gamma}{\mathsf{fst}\,e}{\tau_1}}
+    \and
+    \inferrule*[right=T-Snd]
+          {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau_1\;\&\;\tau_2}}
+          {\hastype{\Theta;\Delta;\Omega;\Gamma}{\mathsf{snd}\,e}{\tau_2}}
+    \\
+    \inferrule*[right=T-Inl]
+          {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau_1}}
+          {\hastype{\Theta;\Delta;\Omega;\Gamma}{\mathsf{inl}\,e}{\tau_1\oplus\tau_2}}
+    \and
+    \inferrule*[right=T-Inr]
+          {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau_2}}
+          {\hastype{\Theta;\Delta;\Omega;\Gamma}{\mathsf{inr}\,e}{\tau_1\oplus\tau_2}}
+    \\
+    \inferrule*[right=T-Store]
+      {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau}
+        \quad\Theta;\Delta\vdash s:\mathbb{R}_{\ge0}}
+      {\hastype{\Theta;\Delta;\Omega;\Gamma}{\store e}{\tmonad{s}{([s]\tau)}}}
+    \\
+    \inferrule*[right=T-Release]
+      {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{[s]\tau_1}
+        \quad\hastype{\Theta;\Delta;\Omega;\Gamma_2,x:\tau_1}{e_2}
+          {\tmonad{(s+I)}{\tau_2}}}
+      {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}
+        {\release{x}{e_1}{e_2}}{\tmonad{I}{\tau_2}}}
+  \end{mathpar} 
 \caption{Selected typing rules for $\lambda^g_{\mathsf{amor}}$}
 \label{fig:amor-typing-rules}
 \end{figure}
@@ -146,23 +147,24 @@ The notable rules are type formation and subtyping for the potential type, prese
 
 Intuitively, the potential index $s$ is required to be a real number and consistent with the cost grades of monads.
 However, we also restrict it to be time-independent by the familiar constraint $s = \mathsf{S}(s)$.
-The intuition of this is similar to that of affine typing: potential should not be created arbitrarily. 
+The intuition behind this is similar to that of affine typing: potential should not be created arbitrarily. 
 For example, the index $\clk$ that carries $i$ units of potential at time $i$ will be regarded as carrying $i+1$ units one step later, 
-without any additional potential being stored. Specifically, using time-dependent potential will lead to unsoundness of the type system, we will
+without any additional potential being stored. Specifically, using time-dependent potential will lead to unsoundness of the type system. We
 show a corresponding example in Section~\ref{subsec:amor-semantics}.
 \begin{figure}[H]
-\begin{mathpar}
+  \small
+  \begin{mathpar}[\rulelayout{0.62}]
     \inferrule*[right=WF-Pot]
       {\Psi;\Theta;\Delta\vdash\tau \quad 
         \Theta;\Delta\vdash s:\mathbb{R}_{\ge0}
         \quad \Theta;\Delta \models s=\mathsf{S}(s) 
         }
       {\Psi;\Theta;\Delta\vdash[s]\tau}
-
+    \\
     \inferrule*[right=Sub-Pot]
     {\Theta;\Delta\vdash\tau<:\tau'\quad\Theta;\Delta\models s'\leq s}
     {\Theta;\Delta\vdash[s]\tau<:[s']\tau'}
-\end{mathpar}
+  \end{mathpar}
 \caption{Type Well-formedness and Subtyping rules for potential}
 \label{fig:amor-wellform-sub}
 \end{figure}
@@ -201,39 +203,39 @@ In principle, time-dependent potential could be supported by accounting for any 
 However, we leave such an extension for future work and restrict potential now for simplicity.
 
 \begin{figure}[H]
-\small
-\begin{mathpar}
-  \inferrule*[right=E-Store]
-  {e\Downarrow_n v}
-  {\store e\Downarrow_{n,i}^{0}v}
-
-\inferrule*[right=E-Release]
-  { e_1\Downarrow_n v_1 \quad
-    e_2[v_1/x]\Downarrow_n v_2 
-    \quad v_2\Downarrow_{n,i}^{c}v}
-  {\release{x}{e_1}{e_2}\Downarrow_{n,i}^{c}v}
-
-  \inferrule*[right=E-Return]
+  \small
+  \begin{mathpar}[\rulelayout{0.90}]
+    \inferrule*[right=E-Store]
     {e\Downarrow_n v}
-    {\ret e\Downarrow_{n,i}^{0}v}
-
-  \inferrule*[right=E-Tick]
-    { }
-    {\tick{I}\Downarrow_{n,i}^{I(i)}\langle\rangle}
-
-  \inferrule*[right=E-Bind]
-    {
-      e_1\Downarrow_n v_1\quad
-      v_1\Downarrow_{n,i}^{c_1}v_1'\quad
-      e_2[v_1'/x]\Downarrow_n v_2  \quad
-      v_2\Downarrow_{n,i}^{c_2}v_2'}
-    {\bind{x}{e_1}{e_2}\Downarrow_{n,i}^{c_1+c_2}v_2'}
-
-  \inferrule*[right=E-Prepay]
-    {e\Downarrow_{n+1}\delay v\quad
-      v\Downarrow_{n,i+1}^{c}v'}
-    {\pull e\Downarrow_{n+1,i}^{c}\delay v'}
-\end{mathpar}
+    {\store e\Downarrow_{n,i}^{0}v}
+    \and
+    \inferrule*[right=E-Release]
+      { e_1\Downarrow_n v_1 \quad
+        e_2[v_1/x]\Downarrow_n v_2 
+        \quad v_2\Downarrow_{n,i}^{c}v}
+      {\release{x}{e_1}{e_2}\Downarrow_{n,i}^{c}v}
+    \\
+    \inferrule*[right=E-Return]
+      {e\Downarrow_n v}
+      {\ret e\Downarrow_{n,i}^{0}v}
+    \and
+    \inferrule*[right=E-Bind]
+      {
+        e_1\Downarrow_n v_1\quad
+        v_1\Downarrow_{n,i}^{c_1}v_1'\quad
+        e_2[v_1'/x]\Downarrow_n v_2  \quad
+        v_2\Downarrow_{n,i}^{c_2}v_2'}
+      {\bind{x}{e_1}{e_2}\Downarrow_{n,i}^{c_1+c_2}v_2'}
+    \\
+    \inferrule*[right=E-Tick]
+      { }
+      {\tick{I}\Downarrow_{n,i}^{I(i)}\langle\rangle}
+    \and
+    \inferrule*[right=E-Prepay]
+      {e\Downarrow_{n+1}\delay v\quad
+        v\Downarrow_{n,i+1}^{c}v'}
+      {\pull e\Downarrow_{n+1,i}^{c}\delay v'}
+  \end{mathpar}
 \caption{Forcing evaluation rules for $\lambda^g_{\mathsf{amor}}$}
 \label{fig:amor-forcing}
 \end{figure}
@@ -271,34 +273,25 @@ However, we leave such an extension for future work and restrict potential now f
 \section{Example Programs}
 \label{sec:amor-program-examples}
 In this section, we present several programs written in $\lambda^g_{\mathsf{amor}}$ that demonstrate its 
-amortised analysis features. Following the program examples shown in Chapter \ref{chap:4}, we mainly consider 
+amortised analysis features. Following the program examples shown in Chapter~\ref{chap:4}, we mainly consider 
 linear data structures, such as streams and colists.
 
-\subsection{Stream and list processing}
-We first give an equivalent definition of the stream type presented in Section~\ref{sec:worst-case-program-examples}:
+\subsection{Stream and List Processing}
+First, we give an equivalent definition of the stream type presented in Section~\ref{sec:worst-case-program-examples}:
 \[
   \tstr{\tau}
   \triangleq
   \mu\alpha.(\tau\otimes\triangleright\alpha).
 \]
-\begin{align*}
-  (::) &\triangleq \tlam{x}{\tlam{s}{\fold\tuple{x}{s}}}
-  &&: \tau\multimap\triangleright\tstr{\tau}\multimap\tstr{\tau}, \\
-  \head &\triangleq \tlam{s}{\lete{\ttuple{h}{t}}{\unfold s}{h}}
-  &&: \tstr{\tau}\multimap\tau, \\
-  \tail &\triangleq \tlam{s}{\lete{\ttuple{h}{t}}{\unfold s}{t}}
-   &&: \tstr{\tau}\multimap\triangleright\tstr{\tau}.
-\end{align*}
-
-We revisit the stream mapping function $\mathsf{mapC}$. In $\lambda^g_{\mathsf{amor}}$, stream elements may carry potential that can be released\
-~\footnote{The guarded fixed-point combinator introduced in Section~\ref{sec:worst-case-program-examples} requires adaptation to respect affine types. We omit its definition here and provide that in Appendix \ref{chap:appendix2}.}: 
+We revisit the stream mapping function $\mathsf{mapC}$. In $\lambda^g_{\mathsf{amor}}$, stream elements may carry potential that can be released:\footnote{The guarded fixed-point combinator introduced in Section~\ref{sec:worst-case-program-examples} requires adaptation to respect affine types. We omit its definition here and provide it in Section~\ref{sec:appb-programs}.} 
 \begin{flalign*}
 &\quad\mathsf{mapRelease}: \forall s.\,!(\tau \multimap \tmonad{s}{\tau}) \multimap \tstr{\tmonad{s}{[s]\tau}} \multimap \tstr{\tmonad{s}{\tau}} &&\\
 &\quad\mathsf{mapRelease} \triangleq \Lambda.\fix\lambda m.\lambda f.\lambda str.&&\\
 &\qquad \lete{!f_u}{f}{}  &&\\
-&\qquad\quad(\bind{p}{\head str}{}  && \\
-&\qquad\qquad\quad\release{x}{p}{(f_u\,x)}) &&\\
-&\qquad\quad:: (m \circledast \delay !f_u \circledast\tail s) &&
+&\qquad\quad \lete{\ttuple{h}{t}}{\unfold str}{} &&\\
+&\qquad\qquad(\bind{p}{h}{}  && \\
+&\qquad\qquad\qquad\release{x}{p}{(f_u\,x)}) &&\\
+&\qquad\qquad:: (m \circledast \delay !f_u \circledast t) &&
 \end{flalign*}
 
 Each input stream element has a cost of $s$, where $s$ accounts for storing potential. For simplicity, here we ignore additional cost for computing each element.
@@ -314,21 +307,21 @@ For example, we can create a stream of potential easily:
   &\quad\mathsf{potStream} \triangleq \fix\lambda x. \store \langle\rangle:: x &&
 \end{flalign*}
 To collect the values produced by the monadic stream into a pure data structure, we can use the $\mathsf{takeC}$ function introduced in Section~\ref{sec:worst-case-program-examples}. 
-This function extracts a finite prefix of the stream into a colist~\footnote{We reuse the colist type introduced in Section~\ref{sec:worst-case-program-examples}, replacing the $\times$ type inside its definition with $\otimes$ and $+$ with $\oplus$.}, 
+This function extracts a finite prefix of the stream into a colist,\footnote{We reuse the colist type introduced in Section~\ref{sec:worst-case-program-examples}, replacing the $\times$ type inside its definition with $\otimes$ and $+$ with $\oplus$.} 
 which can subsequently be accessed by binding the resulting monad.
 For example, the result type of collecting 10 elements of $\mathsf{potStream}$ by $\mathsf{takeC}$ is 
 $\tmonad{(\textstyle\sum_{\kappa<10}\mathsf{S}^\kappa s)}{\colist{[s]\textbf{1}}}$.
 
 The restriction to finite operations is essential since extracting the entire stream would require accumulating the costs of infinitely many elements, yielding an unbounded total cost.
-Consequently, a pure colist whose elements carry potential can be supplied. We can define a similar map function that returns a pure colist:
+Consequently, a pure colist whose elements carry potential can be supplied. We can define a similar map function that returns a result colist which have no cost for each element:
 \begin{flalign*}
-&\quad\mathsf{colistMapRelease}: \forall s.\,!(\tau \multimap \tmonad{s}{\tau}) \multimap \colist{[s]\tau} \multimap \colist{\tau} &&
+&\quad\mathsf{colistMapRelease}: \forall s.\,!(\tau \multimap \tmonad{s}{\tau}) \multimap \colist{[s]\tau} \multimap \colist{\tmonad{0}{\tau}} &&
 \end{flalign*}
-We omit its implementation here since it follows the $\mathsf{mapRelease}$ function, with just an additional case analysis when the colist is empty, the full program can be found in Appendix \ref{chap:appendix2}.
+We omit its implementation here since it follows the $\mathsf{mapRelease}$ function, with just an additional case analysis when the colist is empty. The full program can be found in Section~\ref{sec:appb-programs}.
 
 \subsection{Binary Counter}
 The preceding examples illustrate how stored potential can offset the cost of individual computations. 
-We now consider a more substantial application: the binary counter introduced in Section~\ref{sec:}. 
+We now consider a more substantial application: the binary counter introduced in Section~\ref{sec:bg-amortised}. 
 
 We represent binary digits using the type:
 \[
@@ -342,7 +335,7 @@ We represent the binary counter as a colist of bits and define the increment fun
 the function inserts a new $\mathsf{One}$ bit, incurring one unit of cost for the update and another for storing potential. Similarly, 
 when the leading bit is $\mathsf{Zero}$, incrementing it to $\mathsf{One}$ and saving potential yields a cost of $2$. When the leading bit is $\mathsf{One}$, 
 its stored potential offsets the cost of changing it to $\mathsf{Zero}$, and the increment continues through a recursive call. 
-The result of incrementing the rest bits is obtained using $\pull$, whose cost is $\mathsf{S}(2)=2$, 
+The result of incrementing the remaining bits is obtained using $\pull$, whose cost is $\mathsf{S}(2)=2$, 
 since the recursive call has a constant cost of $2$. Consequently, every branch has the same cost, as reflected by the type signature of $\mathsf{inc}$.
 \begin{figure}[H]
 \begin{flalign*}
@@ -367,21 +360,22 @@ since the recursive call has a constant cost of $2$. Consequently, every branch 
 \section{Meta-Theory of $\lambda^g_{\mathsf{amor}}$}
 \label{sec:amor-model}
 In this section, we discuss the meta-theory of $\lambda^g_{\mathsf{amor}}$, and establish its soundness
-by extending the model of $\lambda^g_{\mathsf{worst}}$ developed in Chapter \ref{chap:5}.
-The overall construction remains largely unchanged, we therefore focus on the modifications required for amortised cost analysis.
+by extending the model of $\lambda^g_{\mathsf{worst}}$ developed in Chapter~\ref{chap:5}.
+The overall construction remains largely unchanged, so we focus on the modifications required for amortised cost analysis.
 
 \subsection{Model}
-Based on the model of $\lambda$-amor, we extend the logical relation from Section~\ref{sec:worst-case-model} by introducing an additional Kripke World $p$, representing 
+Based on the model of $\lambda$-amor, we extend the logical relation from Section~\ref{sec:worst-case-model} by introducing an additional Kripke world $p$, representing 
 an upper bound of potential carried by terms. Accordingly, the value and term relations are now indexed by $(p,n, i)$, where $n$ and $i$ retain their previous meanings.
 Following the restriction of potential grades in the type system, $p$ is a time-independent nonnegative real number, and we use its value directly 
 instead of writing $p(i)$ for convenience.
 
-The full definition of the logical relation is presented in Figure~\ref{fig:amor-model}. The value relation for
+The complete definition of the logical relation is presented in Figure~\ref{fig:amor-model}. The value relation for
 most types follows the same structure as that of $\lambda^g_{\mathsf{worst}}$. One significant difference is the additional treatment 
 of potential. Specifically, the value interpretations of the list type and the tensor type ($\otimes$) require splitting 
-their potential $p$ into $p_1$ and $p_2$ for their components, respectively. This follows the intuition that resources cannot be duplicated.
+their potential $p$ into $p_1$ and $p_2$ for their components. This follows the intuition that resources cannot be duplicated.
 
 \begin{figure}[H]
+\small
 \[
 \begin{alignedat}{2}
 &\vrel{\textbf{1}}
@@ -392,13 +386,13 @@ their potential $p$ into $p_1$ and $p_2$ for their components, respectively. Thi
   &\quad\triangleq\quad&\{(p,n,i,nil)\}\\[0.5ex]
 &\vrel{L^{s+1}\tau}
   &\quad\triangleq\quad&
-    \{(p,n,i,v::l)\mid\exists p_1,p_2.\;p_1+p_2\leq p \land
-        (p_1,n,i,v)\in\vrel{\tau} \land
+    \{(p,n,i,v::l)\mid\exists p_1,p_2.\;p_1+p_2\leq p \land\\
+&&&\qquad(p_1,n,i,v)\in\vrel{\tau} \land
         (p_2,n,i,l)\in\vrel{L^s\tau}\}\\[0.5ex]
 &\vrel{\tau_1\otimes\tau_2}
   &\quad\triangleq\quad&
-    \{(p,n,i,\ttuple{v_1}{v_2})\mid\exists p_1,p_2.\;p_1+p_2\leq p \land
-        (p_1,n,i,v_1)\in\vrel{\tau_1} \land
+    \{(p,n,i,\ttuple{v_1}{v_2})\mid\exists p_1,p_2.\;p_1+p_2\leq p \land\\
+&&&\qquad(p_1,n,i,v_1)\in\vrel{\tau_1} \land
         (p_2,n,i,v_2)\in\vrel{\tau_2}\}\\[0.5ex]
 &\vrel{\tau_1\;\&\;\tau_2}
   &\quad\triangleq\quad&
@@ -455,24 +449,24 @@ their potential $p$ into $p_1$ and $p_2$ for their components, respectively. Thi
         (0,n,i,\delta(x))\in\vrel{\Omega(x)}\}
 \end{alignedat}
 \]
-\caption{Model of $\lambda^g_{\mathsf{amor}}$}
+\caption{Model of $\lambda^g_{\mathsf{amor}}$: the value relation $\vrel{\cdot}$ and the term relations $\erel{\cdot}$}
 \label{fig:amor-model}
 \end{figure}
 
 The value relation for the potential type ($[s]\tau$) requires the available potential $p$ to cover both the $s$ units of potential stored and the potential $p'$ required to interpret the underlying value $v$ of type $\tau$. 
-In particular, the same value $v$ belongs to the relation of both $[s]\tau$ and $\tau$, the attached potential $s$ is just used for additional 
+In particular, the same value $v$ belongs to the relation of both $[s]\tau$ and $\tau$; the attached potential $s$ is only used for additional 
 static requirements, reflecting its ghost nature.
 
 The value relation for the graded monad is extended to express amortised costs. 
 Specifically, the actual cost $c$ of forcing the monadic computation, 
 together with the potential $p'$ required to interpret its result, must not exceed the initially available potential $p$ 
 plus the typed cost bound $I$. This is expressed by the inequality $c+p'\leq p+I(j)$ at a logical time $j$.
-Moreover, this corresponds directly to that of potential-based amortised analysis introduced in Section X: $c + \Phi_{after} \leq a + \Phi_{before}$, 
-where $I$ is the amortised bound $a$, $p$ is the amount of potential before an operation, and $p'$ is the potential left.
+Moreover, this inequality corresponds directly to that of potential-based amortised analysis presented in Section~\ref{sec:bg-amortised}: $c + \Phi(s_{n+1}) \leq a + \Phi(s_{n})$, 
+where $I$ is the amortised bound $a$, $p$ is the potential of the state before an operation, and $p'$ is the potential left.
 
-A notable case is the value relation of the exponential type ($!\tau$), it holds if the inner value 
+A notable case is the value relation of the exponential type ($!\tau$), which holds if the inner value 
 of $!v$ satisfies the value relation of $\tau$ with 0 potential. This is required since the value can be used 
-for arbitrarily many times, and hence it cannot carry any resources.
+arbitrarily many times, and hence it cannot carry any resources.
 
 The term substitution relations now cover two contexts, the affine relation $\erel{\Gamma}$ and the unrestricted relation
 $\erel{\Omega}$. Since terms in $\Gamma$ may carry potential, we need a function $f$ that maps each variable to its 
@@ -482,11 +476,11 @@ Since unrestricted terms cannot carry any potential, all variables in $\Omega$ h
 
 \subsection{Soundness}
 We now demonstrate the soundness of $\lambda^g_{\mathsf{amor}}$.
-As in Chapter~\ref{chap:5}, the central result is the Fundamental Property of logical relation. 
+As in Chapter~\ref{chap:5}, the central result is the Fundamental Property of the logical relation. 
 Establishing this property requires adapting the auxiliary lemmas presented in Section~\ref{sec:axu-lemma} to the extended logical relation.
-Since the proof structure and strategies follow, we omit most of them here. Details of the lemmas and proofs can be found in Appendix \ref{chap:appendix2}.
+Since the proof structure and strategies are similar, we omit most of the proofs here. Details of the lemmas and proofs can be found in Appendix~\ref{chap:appendix2}.
 
-One notable extension is that the monotonicity now also accounts for the potential:
+One notable extension is that monotonicity now also accounts for the potential:
 \begin{lem}[Monotonicity of logical relations]
 \label{lem:amor-mono}
 $\\$ If $p \leq q$, $m\leq n$, and $j\geq i$, then 
@@ -500,7 +494,7 @@ $\\$ If $p \leq q$, $m\leq n$, and $j\geq i$, then
 Intuitively, additional available potential cannot invalidate the relation, since extra potential can always be thrown away.
 
 The Fundamental Property is extended to account for the affine and unrestricted typing contexts through their respective substitutions. 
-We state the theorem as below:
+We state the theorem as follows:
 
 \begin{thm}[Fundamental property]
 \label{thm:amortized-fundamental}
@@ -510,79 +504,79 @@ and $\cdot\models\Delta\iota$, then
 \[(p,n,i,e\gamma\delta)\in\erel{\tau\iota}.\]
 \end{thm}
 \begin{proof}
-  Induction on the typing derivation. Here we present the \textsc{T-Store} and \textsc{T-Release} cases,
-  the full proof can be found in Theorem \ref{appbthm:amortized-fundamental}.
+  Induction on the typing derivation. Here we present the \textsc{T-Store} and \textsc{T-Release} cases.
+  The full proof can be found in Theorem~\ref{appbthm:amortized-fundamental}.
 \begin{itemize}
 \item Case
-\[
+\begin{mathpar}
   \inferrule*[right=T-Store]
   {\hastype{\Theta;\Delta;\Omega;\Gamma}{e}{\tau}
     \quad\Theta;\Delta\vdash s:\mathbb{R}_{\ge0}}
   {\hastype{\Theta;\Delta;\Omega;\Gamma}{\store e}{\tmonad{s}{([s]\tau)}}}
-\]
-Unfold the definition of the goal, assume $m\leq n$ and $\store e\gamma\delta \Downarrow_m v$, it suffices to prove
+\end{mathpar}
+Unfolding the definition of the goal, we assume $m\leq n$ and $\store e\gamma\delta \Downarrow_m v$, and it suffices to prove
 \[(p, m, i, v) \in \vrel{\tmonad{s\iota}{[s\iota]\tau\iota}}\]
 From \text{V-Constant}, we know $\isval{\store e\gamma\delta}{m}$.
-Therefore, we know $v= \store e\gamma\delta$ from \textsc{E-Val}, then we need to prove 
+Therefore, we know $v= \store e\gamma\delta$ from \textsc{E-Val}, so we need to prove 
 \[(p, m, i, \store e\gamma\delta) \in \vrel{\tmonad{s\iota}{[s\iota]\tau\iota}}\]
 Since $s\iota$ is a constant, unfold the definition of this relation, assume $r \leq m$, $j \ge i$ and $\store e\gamma\delta \Downarrow^c_{r, j} v'$, it suffices to prove 
 \[\exists p'.\;c+p'\leq p+s\iota \land
        (p',r,j,v')\in\vrel{[s\iota]\tau\iota} \]
 From \textsc{E-Store}, there exist $v'',c$ such that 
 \[ e\gamma\delta \Downarrow_r v'', \quad c = 0,\quad v' = v''\]
-Therefore, we choose $p$ + $s\iota$ to be $p'$, then we need to prove 
+Therefore, we choose $p'$ to be $p + s\iota$, and we need to prove 
 \[(p+s\iota,r,j,v'')\in\vrel{[s\iota]\tau\iota}\]
-Unfold the definition of this relation, it suffices to prove 
+Unfolding the definition of this relation, it suffices to prove 
 \[\exists p''.\;p''+s\iota \leq p+s\iota \land
       (p'',r,j,v'')\in\vrel{\tau\iota}\]
-Choose $p$ to be $p''$, it remains to show 
+Choosing $p$ to be $p''$, it remains to show 
 \[(p,r,j,v')\in\vrel{\tau\iota}\]
 By IH, we have 
 \[ (p, n, i, e\gamma\delta) \in \erel{\tau\iota} \]
-Unfold the definition of this relation and instantiate it with $e\gamma\delta \Downarrow_r v''$, we have 
+Unfolding the definition of this relation and instantiating it with $e\gamma\delta \Downarrow_r v''$, we have 
 \[(p,r,i,v'') \in \vrel{\tau\iota}\]
-Since $j \ge i$, applying Lemma \ref{lem:amor-mono} gives the desired.
+Since $j \ge i$, applying Lemma~\ref{lem:amor-mono} gives the desired.
 
 \item Case
-\[
+\begin{mathpar}
   \inferrule*[right=T-Release]
   {\hastype{\Theta;\Delta;\Omega;\Gamma_1}{e_1}{[s]\tau_1}
     \quad\hastype{\Theta;\Delta;\Omega;\Gamma_2,x:\tau_1}{e_2}
       {\tmonad{(s+I)}{\tau_2}}}
   {\hastype{\Theta;\Delta;\Omega;\Gamma_1+\Gamma_2}
     {\release{x}{e_1}{e_2}}{\tmonad{I}{\tau_2}}}
-\]
+\end{mathpar}
 
-Unfold the definition of the goal, assume $m\leq n$ and $(\release{x}{e_1\gamma\delta}{e_2\gamma\delta}) \Downarrow_m v$, it suffices to prove
+Unfolding the definition of the goal, we assume $m\leq n$ and $(\release{x}{e_1\gamma\delta}{e_2\gamma\delta}) \Downarrow_m v$, and it suffices to prove
 \[(p, m, i, v) \in \vrel{\tmonad{I\iota}{\tau_2 \iota}} \]
 From \text{V-Constant}, we know $\isval{(\release{x}{e_1\gamma\delta}{e_2\gamma\delta})}{m}$.
-Therefore, we know $v= (\release{x}{e_1\gamma\delta}{e_2\gamma\delta})$ from \textsc{E-Val}, then we need to prove 
+Therefore, we know $v= (\release{x}{e_1\gamma\delta}{e_2\gamma\delta})$ from \textsc{E-Val}, so we need to prove 
 \[
 (p, m, i, \release{x}{e_1\gamma\delta}{e_2\gamma\delta}) \in \vrel{\tmonad{I\iota}{\tau_2\iota}}
 \]
-Unfold the definition of this relation, assume $r \leq m$, $j\ge i$ and $\release{x}{e_1\gamma\delta}{e_2\gamma\delta} \Downarrow^{c}_{r, j} v'$, it suffices to prove
+Unfolding the definition of this relation, we assume $r \leq m$, $j\ge i$ and $\release{x}{e_1\gamma\delta}{e_2\gamma\delta} \Downarrow^{c}_{r, j} v'$, and it suffices to prove
 \[\exists p'. c+p' \leq p+I\iota(j) \land (p', r, j, v') \in \vrel{{\tau_2\iota}} \quad (\text{R0})\]
 From \textsc{E-Release}, there exist $v_1, v_2, v_2'$ such that 
 \[e_1\gamma\delta \Downarrow_r v_1, \quad e_2\gamma\delta[v_1/x] \Downarrow_r v_2, \quad v_2 \Downarrow^c_{r,j} v_2',
 \quad v' = v_2'\]
 Since we are given $(p,n,i, \gamma) \in \erel{\Gamma_1\iota + \Gamma_2\iota}$, from the definition of the affine substitution relation, we know 
 \[ \exists p_1.\, p_2. p_1+p_2 = p \land (p_1,n,i, \gamma) \in \erel{\Gamma_1\iota} \land (p_2,n,i, \gamma) \in \erel{\Gamma_2\iota}\]
-From IH1, we have $(p_1, n, i, e_1\gamma\delta) \in \erel{[s\iota]\tau_1\iota}$. Instantiate this relation with $e_1\gamma\delta \Downarrow_r v_1$, we obtain $(p_1,r,i,v_1) \in \vrel{[s\iota]\tau_1\iota}$.
-Unfold the definition of this relation, we have 
+From IH1, we have $(p_1, n, i, e_1\gamma\delta) \in \erel{[s\iota]\tau_1\iota}$. Instantiating this relation with $e_1\gamma\delta \Downarrow_r v_1$, we obtain $(p_1,r,i,v_1) \in \vrel{[s\iota]\tau_1\iota}$.
+Unfolding the definition of this relation, we have 
 \[\exists p_1'. s\iota + p_1' \leq p_1 \land (p_1', r, i, v_1) \in \vrel{\tau_1\iota} \quad (\text{R1})\]
-Let $\gamma' = \gamma[x\mapsto v_1]$, then we know $e_2\gamma'\delta \Downarrow_r v_2$ from $e_2\gamma\delta[v_1/x] \Downarrow_r v_2$.
-Since $r \leq m \leq n$, Lemma \ref{lem:amor-mono} gives
+Let $\gamma' = \gamma[x\mapsto v_1]$. Then we know $e_2\gamma'\delta \Downarrow_r v_2$ from $e_2\gamma\delta[v_1/x] \Downarrow_r v_2$.
+Since $r \leq m \leq n$, Lemma~\ref{lem:amor-mono} gives
 \[(p_2, r, i, \gamma)\in\erel{\Gamma_2\iota}, \quad (0, r, i, \delta)\in\erel{\Omega\iota}.\]
 From the definition of the affine substitution relation and (\text{R1}), we have 
 \[(p_2+p_1', r, i, \gamma') \in \erel{\Gamma_2\iota, x:\tau_1\iota}\]
 Instantiating IH2 with this gives
 \[(p_2+p_1', r, i, e_2\gamma'\delta) \in \erel{\tmonad{s\iota+I\iota}{\tau_2\iota}}\]
-Instantiate this relation with $e_2\gamma'\delta \Downarrow_r v_2$, we get 
+Instantiating this relation with $e_2\gamma'\delta \Downarrow_r v_2$, we get 
 \[(p_2+p_1', r, i, v_2) \in \vrel{\tmonad{s\iota+I\iota}{\tau_2\iota}}\]
-Instantiate this relation with $v_2 \Downarrow^c_{r,j} v_2'$, we have 
+Instantiating this relation with $v_2 \Downarrow^c_{r,j} v_2'$, we have 
 \[\exists p_2'.\,c+p_2' \leq p_2+p_1'+ s\iota + I\iota(j) \land (p_2', r, j, v_2') \in \vrel{\tau_2\iota} \quad (\text{R2})\]
 
-To prove (R0), we choose $p_2'$ to be $p'$, then it suffices to show 
+To prove (R0), we choose $p_2'$ to be $p'$, and then it suffices to prove 
 \begin{itemize}
   \item (1) $c+p_2' \leq p+I\iota(j)$.
   From (R1), we know $s\iota + p_1' \leq p_1$. 
@@ -595,16 +589,16 @@ To prove (R0), we choose $p_2'$ to be $p'$, then it suffices to show
 \end{itemize}
 \end{proof}
 
-Analogously to Section~\ref{sec:worst-case:soundness}, the soundness theorem follows directly from the Fundamental Property:
+Similar to Section~\ref{sec:worst-case:soundness}, the same soundness theorem follows directly from the Fundamental Property:
 
-\begin{thm}[Soundness of $\lambda^g_{\mathsf{amor}}$]
+\begin{restatable}[Soundness of $\lambda^g_{\mathsf{amor}}$]{thm}{amorsoundness}
 \label{thm:amortized-soundness1}
 $\\$ For all $n, i \in \mathbb{N},c$, if $\hastype{}{e}{\tmonad{ I}{\tau}}$, $e \Downarrow_n v$ 
 and $v \Downarrow^c_{n, i} v'$, then $c \leq  I(i).$
-\end{thm}
+\end{restatable}
 \begin{proof}
-  Apply Theorem \ref{thm:amortized-fundamental} to $\hastype{}{e}{\tmonad{I}{\tau}}$, we have $(0, n, i, e) \in \erel{\tmonad{ I}{\tau}}$
-  Unfold the definition of this term relation and instantiate it with $e \Downarrow_n v$, we obtain 
+  Applying Theorem~\ref{thm:amortized-fundamental} to $\hastype{}{e}{\tmonad{I}{\tau}}$, we have $(0, n, i, e) \in \erel{\tmonad{ I}{\tau}}$.
+  Unfolding the definition of this term relation and instantiating it with $e \Downarrow_n v$, we obtain 
   \[(0, n, i, v) \in \vrel{\tmonad{ I}{\tau}}\]
   Instantiating this value relation with $v \Downarrow^c_{n, i} v'$ gives
   \[\exists p'.c +p'\leq I(i)\] 

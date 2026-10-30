@@ -1,4 +1,4 @@
-\chapter{Meta-Theory of $\lambda^g_{\mathsf{worst}}$}
+\chapter{Meta-Theory of the Worst-Case Calculus}
 \label{chap:5}
 
 \raggedbottom
@@ -18,31 +18,31 @@
 \makeatother
 
 This chapter develops the meta-theory of $\lambda^g_{\mathsf{worst}}$.
-Its central tool is a semantic model of the type system based on a technique of logical relations \citep{tait67}.
+Its central tool is a semantic model of the type system based on the technique called logical relations \citep{tait67}.
 In particular, the model gives interpretations to the types and can be used to prove the soundness of the type system. 
 
 We begin by presenting the model in Section~\ref{sec:worst-case-model}, 
-followed by auxiliary lemmas derived from it in Section~\ref{sec:axu-lemma}.
+followed by derived auxiliary lemmas in Section~\ref{sec:axu-lemma}.
 Finally, Section~\ref{sec:worst-case-fund} demonstrates the Fundamental Property of the underlying logical relation, from which the soundness theorem follows.
 
 
 \section{Model}
 \label{sec:worst-case-model}
 The model of $\lambda^g_{\mathsf{worst}}$ is constructed using a step-indexed Kripke logical relation \citep{ahmed2004semantics}.
-Figure~\ref{fig:worst-case-logical-relation} gives the formalisation of our model, which consists of two
-mutually recursive relations indexed by well-formed types:\ the value relation $\vrel{}$ and the term/expression relation $\erel{}$.
-Essentially, such relations are a family of sets of the triple $(n, i, e)$, where $e$ is a usual term in the calculus,
-the index $i$ serves as the Kripke world that represents the logical time, and $n$ is the step-index that controls evaluation ``depth'' mentioned in the last chapter.
+Figure~\ref{fig:worst-case-logical-relation} shows the formal definition of our model, which consists of two
+mutually recursive relations indexed by well-formed types:\ the value relation $\vrel{\cdot}$ and the term relation $\erel{\cdot}$.
+Essentially, such relations are families of sets of triples $(n, i, e)$, where $e$ is a syntactically well-formed term in the calculus,
+the index $i$ serves as the Kripke world that represents the logical time, and $n$ is the step index that represents the evaluation fuel, as mentioned in the last chapter.
 
-Specifically, our logical relation is closely related to that of $\lambda$-amor, but we omit its potential Kripke world $p$, used for amortised analysis, and introduce an additional world $i$. 
+Specifically, our logical relation is closely related to that of $\lambda$-amor, but we drop its potential Kripke world $p$, used for amortised analysis, and introduce an additional world $i$. 
 Furthermore, $\lambda$-amor uses a step index as fuel for beta reduction, 
-which differs from our use of $n$. In contrast, previous work on guarded recursion \citep{cloustonGuardedLambdaCalculusProgramming2017a,guattoGeneralizedModalityRecursion2018c} 
+which differs from our use of $n$. In contrast, previous work on guarded recursion~\citep{cloustonGuardedLambdaCalculusProgramming2017a,guattoGeneralizedModalityRecursion2018d} 
 presents logical relations that use step indices in a manner similar to ours.
 
-The logical relations are well-founded by the lexicographic order $(n, |\tau|, \text{value} < \text{term})$.
-The order of $n$ is the standard one for natural numbers, and $\text{value} < \text{term}$ means that
-value relations are considered smaller than term relations. The order $|\tau|$ is more involved, it represents the size of types, defined
-as follows:
+The logical relations are well-founded by the lexicographic order on $(n, |\tau|, k)$. The order of $n$ is the standard one for natural numbers,
+and $k$ is $0$ for value relations and $1$ for term relations.
+The component $k$ is needed since $\erel{\tau}$ refers to $\vrel{\tau}$ at the same $n$ and $\tau$.
+The order $|\tau|$ is more involved: it is the size of types, defined as follows:
 
 \begin{defn}{Type size}
 \label{def:worst-case-ty-size}
@@ -57,6 +57,7 @@ as follows:
 \end{defn}
 
 \begin{figure}[H]
+\small
 \setlength{\jot}{1.5pt}
 \[
 \begin{alignedat}{2}
@@ -103,19 +104,19 @@ as follows:
         (n,i,\gamma(x))\in\vrel{\Gamma(x)}\}.
 \end{alignedat}
 \]
-\caption{Model of $\lambda^g_{\mathsf{worst}}$}
+\caption{Model of $\lambda^g_{\mathsf{worst}}$: the value relation $\vrel{\cdot}$ and the term relations $\erel{\cdot}$}
 \label{fig:worst-case-logical-relation}
 \end{figure}
 
 Most type sizes are defined by adding those of their components. Note that we define $|\triangleright \tau|$ to be 1, which can help us 
-to justify the well-foundedness of recursive types, i.e. $|\tau[\mu\alpha.\tau/\alpha]| < |\mu\alpha.\tau|$.
+to justify the well-foundedness of recursive types, i.e., $|\tau[\mu\alpha.\tau/\alpha]| < |\mu\alpha.\tau|$.
 To this end, we first need the following lemma:
 \begin{lem}[Guarded size]
 \label{lem:worst-case-ty-size}
 $\\$ If $\alpha$ is guarded in $\tau$, then $|\tau[\tau'/\alpha]| \leq |\tau|$.
 \end{lem}
 \begin{proof}
-  See Lemma \ref{appa:worst-case-ty-size}.
+  See Lemma~\ref{appa:worst-case-ty-size}.
 \end{proof}
 
 After this, we can prove the desired property:
@@ -125,13 +126,19 @@ After this, we can prove the desired property:
 $\\$ Given any recursive type $\mu\alpha.\tau$, $|\tau[\mu\alpha.\tau/\alpha]| < |\mu\alpha.\tau|$.
 \end{lem}
 \begin{proof}
-  Since $\alpha$ is guarded in $\mu\alpha.\tau$, we know $|\tau[\mu\alpha.\tau/\alpha]| \leq |\tau|$ from Lemma \ref{lem:worst-case-ty-size}.
-  By Definition \ref{def:worst-case-ty-size}, we have $|\tau| < (|\mu\alpha.\tau| = 1+|\tau|)$. Thus by transitivity of $<$, we get 
+  Since $\alpha$ is guarded in $\tau$, we know $|\tau[\mu\alpha.\tau/\alpha]| \leq |\tau|$ from Lemma~\ref{lem:worst-case-ty-size}.
+  By Definition~\ref{def:worst-case-ty-size}, we have $|\tau| < (|\mu\alpha.\tau| = 1+|\tau|)$. Thus by transitivity of $<$, we get 
   $|\tau[\mu\alpha.\tau/\alpha]| < |\mu\alpha.\tau|$.
 \end{proof}
 
+Every relation in Figure~\ref{fig:worst-case-logical-relation} only refers to relations that are smaller in the order.
+Most relations refer to relations at component types, which have smaller sizes. The interesting cases are the later type,
+where $\vrel{\triangleright\tau}$ at step $n+1$ refers to $\vrel{\tau}$ at step $n$, so the step index decreases even if $|\tau| > |\triangleright\tau|$.
+For the recursive type, its unfolding has a smaller size by Lemma~\ref{lem:rec-well-founded}.
+For the list type, $\vrel{L^{s+1}\tau}$ refers to $\vrel{L^{s}\tau}$ of the same type size, so we need to use a nested induction on the natural number $s$.
+
 \subsection{Value Relation}
-We now explain the value relations in our model, which define properties that hold for the triple $(n, i, v)$. Similar to the evaluation judgment, we write $v$ 
+We now explain the value relations in our model, which define properties that hold for triples $(n, i, v)$. Similar to the evaluation judgment, we write $v$ 
 as a value that depends on $n$ based on the value judgment.
 
 The value relation of the unit type ($\textbf{1}$) has only one inhabitant $\langle\rangle$, together with any $n$ and $i$.
@@ -139,33 +146,31 @@ For the base type $(\textbf{b})$, the relation just includes the value $b$ that 
 The value relations for $\tau_1 \times \tau_2$ and $\tau_1 + \tau_2$ are standard, where both components of the product type need to satisfy the relation,
 and only one relation of the components needs to hold for the sum type.
 
-The value relation of the list type ($L^s$) is defined by a nested induction on its size $s$ since $s$ is a natural number constant.
-If the size is 0, the relation contains the $nil$ value. For size $s+1$, the list is in the form of $v::l$,
+For the list type ($L^s$), if the size is 0, the relation contains the $nil$ value. For size $s+1$, the list is in the form of $v::l$,
 where both the head $v$ and the tail $l$ should satisfy their corresponding relations.
 
-The relation of the arrow type $(\tau_1 \to \tau_2)$ holds for the lambda abstraction $\lambda.e$
-if it receives an argument $v'$ that satisfies the value relation of $\tau_1$, and the result of their function application $e[v/x]$ 
-belongs to the term relation of $\tau$. Moreover, the relations of $v'$ and $e[v/x]$ can hold at any possibly smaller depth $m$ and any later time $j$.
+The relation of the arrow type $(\tau_1 \to \tau_2)$ holds for the lambda abstraction $\tlam{x}{e}$
+if, for any argument $v'$ that satisfies the value relation of $\tau_1$, the result of the function application $e[v'/x]$ 
+belongs to the term relation of $\tau_2$. Moreover, the relations of $v'$ and $e[v'/x]$ can hold with any fuel $m \leq n$ and at any later time $j \geq i$.
 The value relation of the polymorphic type ($\forall\kappa.\tau$) is similar, while the function application happens on the type: the $e$ inside 
-the index abstraction $\Lambda e$ needs to satisfy the term relation of the type $\tau[I/\kappa]$, which is instantiated by any well-formed index $I$.
+the index abstraction $\Lambda.e$ needs to satisfy the term relation of the type $\tau[I/\kappa]$, which is instantiated by any well-formed index $I$.
 
-Next is the later type $(\triangleright \tau)$, defined inductively by $n$. If $n$ reaches 0, then 
+Next is the later type $(\triangleright \tau)$, defined by induction on $n$. If $n$ reaches 0, then 
 the relation holds trivially for $\delay e$. Otherwise, the term $e$ inside should belong to the value relation of $\tau$ at one step later, from $n+1$ to $n$ and $i$ to $i+1$. Notably, the value relation corresponds directly to the inductive value judgment of $\delay e$.
 
 The value relation for graded monads is of particular importance. If a monadic value $v$ of $\tmonad{I}{\tau}$ can be further forced 
 to a pure result $v'$ with time-interpreted cost $c$, then $c$ should be bounded by the time interpretation of $I$, and the value relation should hold
-for $v'$. Note that the forcing evaluation can take place at any later time $j$, the semantic cost is always bounded by $I(j)$.
+for $v'$. Note that the forcing evaluation can take place at any later time $j$, and the semantic cost is always bounded by $I(j)$.
 
 Lastly, recursive types are interpreted by unfolding: $\fold v$ satisfies the value relation if the unfolded value $v$ belongs to the value relation of the unfolded type.
-In addition, the relation is well-founded by Lemma \ref{lem:rec-well-founded}.
 
 \subsection{Term Relation}
 The term relations have two forms. The $\erel{\tau}$ relation extends the value relation to terms by characterising their evaluation results. 
-Particularly, if a term $e$ evaluates to a value $v$ at any possibly smaller depth $m$, then $v$ should satisfy the value relation $\vrel{\tau}$.
+In particular, if a term $e$ evaluates to a value $v$ with any fuel $m \leq n$, then $v$ should satisfy the value relation $\vrel{\tau}$.
 
 The term substitution relation $\erel{\Gamma}$ characterises substitutions that satisfy the typing context $\Gamma$.
-Specifically, a substitution $\gamma$~\footnote{We assume that \(\gamma\) is a standard capture-avoiding substitution.}
-maps a set of term variables $x$ contained in $\Gamma$ to their corresponding values.
+Specifically, a substitution $\gamma$
+maps a set of term variables $x$ contained in $\Gamma$ to their corresponding values.\footnote{We assume that $\gamma$ is a standard capture-avoiding substitution.}
 The relation holds for $\gamma$ if each substituted value $\gamma(x)$ belongs to the value relation of its corresponding type $\Gamma(x)$.
 
 \section{Auxiliary Lemmas}
@@ -173,7 +178,7 @@ The relation holds for $\gamma$ if each substituted value $\gamma(x)$ belongs to
 In this section, we establish several lemmas related to the model of $\lambda^g_{\mathsf{worst}}$, which will be used in the proof of the Fundamental Property.
 
 First, we show that the logical relations are monotone with respect to the step index and the Kripke world.
-In particular, decreasing the depth $n$ or advancing the time $i$ preserves the value and term relations.
+In particular, decreasing the fuel $n$ or advancing the time $i$ preserves the value and term relations.
 
 \begin{lem}[Monotonicity of logical relations]
 \label{lem:worst-case-mono}
@@ -185,11 +190,11 @@ $\\$ If $m\leq n$ and $j\geq i$, then
 \end{itemize}
 \end{lem}
 \begin{proof}
-  See Lemma \ref{appa:worst-case-val-mono}, \ref{appa:worst-case-term-mono} and \ref{appa:worst-case-context-mono}.
+  See Lemmas~\ref{appa:worst-case-val-mono}, \ref{appa:worst-case-term-mono} and \ref{appa:worst-case-context-mono}.
 \end{proof}
 
-These monotonicity properties allow us to reason about terms at a smaller depth and a later time, which 
-are quite useful for proving the Fundamental Property.
+These monotonicity properties allow us to reason about terms with less fuel and at a later time, which 
+can be quite useful for proving the Fundamental Property.
 
 
 Next, we demonstrate that the syntactic subtyping relations of $\lambda^g_{\mathsf{worst}}$ are sound with respect to the logical relations. 
@@ -201,10 +206,10 @@ $\\$ If $\Theta;\Delta\vdash\tau<:\tau'$, then
 $\Theta;\Delta\vdash\tau[\tau_0/\alpha]<:\tau'[\tau_0/\alpha]$. 
 \end{lem}
 \begin{proof}
-  See Lemma \ref{appa:substitute-subtyping}.
+  See Lemma~\ref{appa:substitute-subtyping}.
 \end{proof}
 
-\begin{lem}[Subtyping variance of Substitution]
+\begin{lem}[Subtyping Variance of Substitution]
 \label{lem:subtyping-polarity}
 $\\$ If
 $\Theta;\Delta\vdash\tau_0<:\tau_1$, then
@@ -218,12 +223,12 @@ $\Theta;\Delta\vdash\tau_0<:\tau_1$, then
 \end{align*}
 \end{lem}
 \begin{proof}
-  See Lemma \ref{appa:subtyping-polarity}.
+  See Lemma~\ref{appa:subtyping-polarity}.
 \end{proof}
 
-Lemma \ref{lem:substitute-subtyping} is relatively simple, it specifies that substituting the same type should be compatible to the subtyping relation.
-Lemma \ref{lem:subtyping-polarity} is more interesting, substituing a subtyping relation to the same type does not preserve the original relation.
-Particularly, the relation will be reversed if the variable being substituted occurs negatively in the type.
+Lemma~\ref{lem:substitute-subtyping} is relatively simple: it specifies that substituting the same type is compatible with the subtyping relation.
+Lemma~\ref{lem:subtyping-polarity} is more interesting: substituting the two sides of a subtyping relation into the same type does not always preserve the relation.
+In particular, the relation is reversed if the variable being substituted occurs negatively in the type.
 
 Since both typing and subtyping judgments may contain free index variables, and rely on index constraints,
 we need to consider index substitutions. Let $\iota$ denote a capture-avoiding index substitution, mapping index variables to well-formed indices. 
@@ -241,25 +246,25 @@ $\\$ If $\Theta;\Delta\vdash\tau<:\tau'$ and $\cdot\models\Delta\iota$,
   \end{itemize}
 \end{lem}
 \begin{proof}
-Induction on the lexicographic order $(|\tau|+|\tau'|,h)$, where $h$ is the height of the subtyping derivation.
-Here we present the \textsc{Sub-Rec} case for value relations, full proofs can be found in Lemma \ref{appa:val-subtyping} and Lemma \ref{appa:exp-subtyping}.
+Induction on the lexicographic order $(|\tau|+|\tau'|,l)$, where $l$ is the length of the subtyping derivation.
+Here we present the \textsc{Sub-Rec} case for value relations. The full proofs can be found in Lemmas~\ref{appa:val-subtyping} and \ref{appa:exp-subtyping}.
 \begin{itemize}
 \item Case
-\[
+\begin{mathpar}
   \inferrule*[right=Sub-Rec]
     {\Theta;\Delta\vdash \tau <: \tau'
      \quad \alpha\text{ positive in }\tau,\tau'}
     {\Theta;\Delta\vdash \mu\alpha.\tau <: \mu\alpha.\tau'}
-\]
+\end{mathpar}
 Given $(n,i,\fold v) \in \vrel{\mu\alpha.\tau\iota}$, it suffices to prove 
 \[(n,i,\fold v) \in \vrel{\mu\alpha.\tau'\iota}\]
-Unfold the definition of this relation, it remains to prove 
+Unfolding the definition of this relation, it remains to prove 
 \[(n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]}\]
-Instantiate Lemma \ref{lem:substitute-subtyping} with $\Theta;\Delta\vdash\tau <: \tau'$ and $\mu\alpha.\tau$, we have
+Instantiating Lemma~\ref{lem:substitute-subtyping} with $\Theta;\Delta\vdash\tau <: \tau'$ and $\mu\alpha.\tau$, we have
 \[
   \Theta;\Delta\vdash\tau[\mu\alpha.\tau/\alpha]<:\tau'[\mu\alpha.\tau/\alpha]
 \]
-Since $\alpha$ is positive in $\tau'$, applying Lemma \ref{lem:subtyping-polarity} to 
+Since $\alpha$ is positive in $\tau'$, applying Lemma~\ref{lem:subtyping-polarity} to 
 $\Theta;\Delta\vdash \mu\alpha.\tau <:\mu\alpha.\tau'$ and $\tau'$ gives
 \[
   \Theta;\Delta\vdash\tau'[\mu\alpha.\tau/\alpha]<:\tau'[\mu\alpha.\tau'/\alpha]
@@ -270,7 +275,7 @@ By \textsc{Sub-Trans}, we obtain
   \tau[\mu\alpha.\tau/\alpha]
   <: \tau'[\mu\alpha.\tau'/\alpha] \quad (\text{S0})
 \]
-By Lemma \ref{lem:rec-well-founded}, we have
+By Lemma~\ref{lem:rec-well-founded}, we have
 \[
   |\tau[\mu\alpha.\tau/\alpha]|
     <|\mu\alpha.\tau|, \quad
@@ -280,12 +285,12 @@ Since $(\tau[\mu\alpha.\tau/\alpha])\iota = \tau\iota[\mu\alpha.\tau\iota/\alpha
 $(\tau'[\mu\alpha.\tau'/\alpha])\iota = \tau'\iota[\mu\alpha.\tau'\iota/\alpha]$,
 instantiating the IH of $|\tau + \tau'|$ with (S0), $\iota$ and $(n,i,v)$, we have
 \[(n,i,v) \in \vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]} \implies (n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]} \] 
-Unfold the given $(n,i,\fold v) \in \vrel{\mu\alpha.\tau\iota}$, we get $(n,i,v) \in \vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]}$, hence we know 
+Unfolding the given $(n,i,\fold v) \in \vrel{\mu\alpha.\tau\iota}$, we get $(n,i,v) \in \vrel{\tau\iota[\mu\alpha.\tau\iota/\alpha]}$, hence we know 
 $(n,i,v) \in \vrel{\tau'\iota[\mu\alpha.\tau'\iota/\alpha]}$.
 \qedhere
 \end{itemize}
 \end{proof}
-In particular, the Sub-Rec case of the proof demonstrates the role of the positivity restriction on recursive types, 
+In particular, the \textsc{Sub-Rec} case of the proof demonstrates the role of the positivity restriction on recursive types, 
 which ensures that the required subtyping relation is preserved under unfolding.
 
 Similarly, subtyping for the term context $\Gamma$ holds for the term substitution relation:
@@ -295,10 +300,10 @@ Similarly, subtyping for the term context $\Gamma$ holds for the term substituti
 $\\$ If $\Theta;\Delta\vdash\Gamma<:\Gamma', \cdot\models\Delta\iota$, and $(n,i,\gamma) \in \erel{\Gamma\iota}$, then $(n,i,\gamma) \in \erel{\Gamma'\iota}$
 \end{lem}
 \begin{proof}
-  See Lemma \ref{appa:worst-case-ctx-subtyping}.
+  See Lemma~\ref{appa:worst-case-ctx-subtyping}.
 \end{proof}
 
-Overall, Lemma \ref{lem:worst-semantic-subtyping} and Lemma \ref{lem:worst-case-ctx-subtyping} gives the compatibility of syntactic subtyping with the logical relations.
+Overall, Lemma~\ref{lem:worst-semantic-subtyping} and Lemma~\ref{lem:worst-case-ctx-subtyping} give the compatibility of syntactic subtyping with the logical relations.
 They will be utilised to prove cases related to subtyping for the Fundamental Property.
 
 \section{Fundamental Property}
@@ -314,22 +319,22 @@ then $(n,i,e\gamma)\in\erel{\tau\iota}$.
 \end{thm}
 \begin{proof}
   Induction on the typing derivation, pushing $\gamma$ and $\iota$ inside for each case.
-  Here we present several important cases, full proof can be found in Theorem \ref{appa:fundamental}.
+  Here we present several important cases. The full proof can be found in Theorem~\ref{appa:fundamental}.
 \begin{itemize}
 \item Case
-\[
+\begin{mathpar}
   \inferrule*[right=T-Next]
     {\hastype{\Theta;\Delta;\Gamma}{e}{\tau}}
     {\hastype{\Theta;\Delta;\Gamma}{\delay e}{\triangleright\tau}}.
-\]
-Unfold the definition of the goal's term relation, assume $m\leq n$ and
-$\delay(e\gamma)\Downarrow_m v'$, it suffices to show
+\end{mathpar}
+Unfolding the definition of the goal's term relation, we assume $m\leq n$ and
+$\delay(e\gamma)\Downarrow_m v'$, and it suffices to prove
 \[(m,i,v')\in\vrel{\triangleright(\tau\iota)}\] 
 We proceed by cases on $m$.
 
 \begin{itemize}
 \item {Subcase $m=0$.}
-It suffices to show
+It suffices to prove
 \[(0,i,v')\in\vrel{\triangleright(\tau\iota)}\]
 From \textsc{E-NextBase}, we know that $v' = \delay(e\gamma)$.
 Now we need to show 
@@ -337,7 +342,7 @@ Now we need to show
 This holds directly by the definition of $\vrel{\triangleright(\tau\iota)}$.
 
 \item {Subcase $m=k+1$.}
-It suffices to show 
+It suffices to prove 
 \[(k+1,i,v')\in\vrel{\triangleright(\tau\iota)}\]
 From \textsc{E-NextInd}, there is some $v$ such that
 \[
@@ -347,37 +352,37 @@ From \textsc{E-NextInd}, there is some $v$ such that
 \]
 Thus, we need to show 
 \[(k+1,i,\delay v)\in\vrel{\triangleright(\tau\iota)}\]
-Unfold the definition of this relation, it suffices to show
+Unfolding the definition of this relation, it suffices to prove
 \[ (k, i+1, v) \in \vrel{\tau\iota}\]
 By IH, $(n, i, e\gamma) \in \erel{\tau\iota}$.
-Since $k < m \leq n$ and $i+1 > i$, applying Lemma \ref{lem:worst-case-mono} gives 
+Since $k < m \leq n$ and $i+1 > i$, applying Lemma~\ref{lem:worst-case-mono} gives 
 \[(k,i+1,e\gamma)\in\erel{\tau\iota}\] 
-Unfold this term relation and instantiate it with $e\gamma\Downarrow_k v$, we have 
-$(k, i+1, v) \in \vrel{\tau\iota}$, and we are done.
+Unfolding this term relation and instantiating it with $e\gamma\Downarrow_k v$, we have 
+$(k, i+1, v) \in \vrel{\tau\iota}$, which is the desired.
 \end{itemize}
 
 \item Case
-\[
+\begin{mathpar}
   \inferrule*[right=T-Bind]
     {\hastype{\Theta;\Delta;\Gamma}{e_1}{\tmonad{ I_1}{\tau_1}}
      \quad
      \hastype{\Theta;\Delta;\Gamma,x:\tau_1}{e_2}{\tmonad{ I_2}{\tau_2}}}
     {\hastype{\Theta;\Delta;\Gamma}{\bind{x}{e_1}{e_2}}
       {\tmonad{ I_1+ I_2}{\tau_2}}}.
-\]
-Unfold the definition of the goal's term relation, assume $m\leq n$ and
-$\bind{x}{e_1\gamma}{e_2\gamma}\Downarrow_m v'$. It suffices to show
+\end{mathpar}
+Unfolding the definition of the goal's term relation, we assume $m\leq n$ and
+$\bind{x}{e_1\gamma}{e_2\gamma}\Downarrow_m v'$. It suffices to prove
 \[
   (m,i,v')\in\vrel{\tmonad{ (I_1\iota+ I_2\iota)}{\tau_2\iota}}
 \]
 From \textsc{E-Val}, we have
 $\bind{x}{e_1\gamma}{e_2\gamma} \Downarrow_m \bind{x}{e_1\gamma}{e_2\gamma}$, hence $v' = \bind{x}{e_1\gamma}{e_2\gamma}$. 
-Unfold the definition of the goal's value relation, assume $r\leq m$, $j\geq i$ and
+Unfolding the definition of the goal's value relation, we assume $r\leq m$, $j\geq i$ and
 $
   \bind{x}{e_1\gamma}{e_2\gamma}
   \Downarrow^c_{r,j}v''
-$,
-it suffices to show
+$, and
+it suffices to prove
 \[
   c\leq(I_1\iota +I_2 \iota)(j),
   \quad
@@ -399,9 +404,9 @@ Therefore, we need to show
 \[ c_1+c_2 \leq(I_1\iota +I_2 \iota)(j),
   \quad
   (r,j,v_2')\in\vrel{\tau_2\iota} \]
-Since $r \leq m$ and $j \ge i$,  apply IH1 and Lemma \ref{lem:worst-case-mono}, we have
+Since $r \leq m$ and $j \ge i$, applying IH1 and Lemma~\ref{lem:worst-case-mono} gives
 \[(r,j,e_1\gamma)\in\erel{\tmonad{ I_1}{\tau_1}\iota}\]
-Unfold this term relation and instantiate it with $e_1\gamma \Downarrow_r v_1$, we have 
+Unfolding this term relation and instantiating it with $e_1\gamma \Downarrow_r v_1$, we have 
 \[(r, j, v_1) \in \vrel{\tmonad{ I_1}{\tau_1}\iota}\]
 Instantiating this value relation with $v_1 \Downarrow^{c_1}_{r,j}v_1'$ gives
 \[
@@ -409,8 +414,8 @@ Instantiating this value relation with $v_1 \Downarrow^{c_1}_{r,j}v_1'$ gives
   \quad
   (r,j,v_1')\in\vrel{\tau_1\iota}.
 \]
-Lemma \ref{lem:worst-case-mono} also gives
-$(r,j,\gamma)\in\erel{\Gamma\iota}$. From the definition of the substitution relation, we konw
+Lemma~\ref{lem:worst-case-mono} also gives
+$(r,j,\gamma)\in\erel{\Gamma\iota}$. From the definition of the substitution relation, we know
 \[
   (r,j,\gamma[x\mapsto v_1'])
   \in\erel{(\Gamma,x:\tau_1)\iota}.
@@ -425,7 +430,7 @@ Since $e_2\gamma[x\mapsto v_1'] = e_2\gamma[v_1'/x]$, we have
   (r,j,e_2\gamma[v_1'/x])
   \in\erel{\tmonad{I_2}{\tau_2}\iota}
 \]
-Instantiate this term relation with $(e_2\gamma)[v_1'/x] \Downarrow_r v_2$, we get one of the goal:
+Instantiating this term relation with $(e_2\gamma)[v_1'/x] \Downarrow_r v_2$ gives
 \[(r, j, v_2) \in \vrel{\tmonad{I_2}{\tau_2\iota}}\]
 Instantiating this value relation with $v_2 \Downarrow^{c_2}_{r,j}v_2'$ gives
 \[
@@ -433,33 +438,33 @@ Instantiating this value relation with $v_2 \Downarrow^{c_2}_{r,j}v_2'$ gives
   \quad
   (r,j,v_2')\in\vrel{\tau_2\iota}.
 \]
-By Definition \ref{def:time-indices}, we know $(I_1\iota)(j)+ (I_2\iota)(j) =(I_1\iota +I_2 \iota)(j)$.
+By Definition~\ref{def:time-indices}, we know $(I_1\iota)(j)+ (I_2\iota)(j) =(I_1\iota +I_2 \iota)(j)$.
 Since $c_1 \leq (I_1\iota)(j)$ and $c_2\leq (I_2\iota)(j)$, we have the desired:
 \[
   c_1+c_2 \leq ((I_1+I_2)\iota)(j)
 \]
 
 \item Case
-\[
+\begin{mathpar}
   \inferrule*[right=T-Prepay]
     {\hastype{\Theta;\Delta;\Gamma}{e}{\triangleright\tmonad{ I}{\tau}}}
     {\hastype{\Theta;\Delta;\Gamma}{\pull e}
       {\tmonad{\mathsf{S}( I)}{\triangleright\tau}}}.
-\]
-Unfold the definition of the goal's term relation, assume $m\leq n$ and
-$\pull(e\gamma) \Downarrow_m v'$.  It suffices to show
+\end{mathpar}
+Unfolding the definition of the goal's term relation, we assume $m\leq n$ and
+$\pull(e\gamma) \Downarrow_m v'$.  It suffices to prove
 \[(m,i,v')\in\vrel{\tmonad{\mathsf{S}(I\iota)}{(\triangleright\tau\iota)}}\]
 From \textsc{E-Val}, we have $\pull(e\gamma) \Downarrow \pull(e\gamma)$, hence $v' = \pull(e\gamma)$.
 
-Unfold the goal, assume $r\leq m$, $j\geq i$, and
-$\pull(e\gamma)\Downarrow^c_{r,j}v''$, it suffices to show
+Unfolding the goal, we assume $r\leq m$, $j\geq i$, and
+$\pull(e\gamma)\Downarrow^c_{r,j}v''$, and it suffices to prove
 \[
   c \leq \mathsf{S}(I\iota)(j),
   \quad
   (r,j,v'')\in\vrel{\triangleright\tau\iota}
 \]
 From
-\textsc{E-Prepay}, we have $p+1,v_0$ and $v_0'$ such that
+\textsc{E-Prepay}, there exist $p$, $v_0$ and $v_0'$ such that
 \[
   r = p+1, \quad
   \quad 
@@ -469,16 +474,16 @@ From
   \quad 
   v'' = \delay v_0'
 \]
-Since $p+1 \leq m\leq n$ and $j\geq i$, applying IH and Lemma \ref{lem:worst-case-mono} gives
+Since $p+1 \leq m\leq n$ and $j\geq i$, applying IH and Lemma~\ref{lem:worst-case-mono} gives
 \[(p+1,j,e\gamma) \in \erel{\triangleright(\tmonad{ I\iota}{\tau\iota})}\]
 Unfolding this term relation and instantiating it with $e\gamma\Downarrow_{p+1}\delay v_0$ gives
 \[
   (p+1,j,\delay v_0)
   \in\vrel{\triangleright(\tmonad{I\iota}{\tau\iota})}
 \]
-Unfold the definition of this relation, we have
+Unfolding the definition of this relation, we have
 \[(p,j+1,v_0)\in\vrel{\tmonad{I\iota}{\tau\iota}}\]
-Instantiate this value relation with
+Instantiating this value relation with
 $v_0 \Downarrow^c_{p,j+1}v_0'$, we have
 \[
   c\leq (I\iota)(j+1)=\mathsf{S}(I\iota)(j),
@@ -490,27 +495,27 @@ By the definition of $\vrel{\triangleright \tau\iota}$,
 Since $r=p+1$ and $v''=\delay v_0'$, we have shown the desired.
 
 \item Case
-\[
+\begin{mathpar}
   \inferrule*[right=T-Sub]
     {\hastype{\Theta;\Delta;\Gamma}{e}{\tau} \quad \Theta;\Delta\vdash\tau<:\tau'}
     {\hastype{\Theta;\Delta;\Gamma}{e}{\tau'}}.
-\]
-It suffices to show 
+\end{mathpar}
+It suffices to prove 
 \[(n,i,e\gamma)\in\erel{\tau'\iota}\]
 From the IH, we have 
 \[(n,i,e\gamma)\in\erel{\tau\iota}\] 
-Applying Lemma \ref{lem:worst-semantic-subtyping} to this, we get the desired.
+Applying Lemma~\ref{lem:worst-semantic-subtyping} to this, we get the desired.
 
 \item Case
-\[
+\begin{mathpar}
 \inferrule*[right=T-Weaken]
     {\hastype{\Theta;\Delta;\Gamma}{e}{\tau}
      \quad\Theta;\Delta\vdash\Gamma'<:\Gamma}
     {\hastype{\Theta;\Delta;\Gamma'}{e}{\tau}}.
-\]
+\end{mathpar}
 Given $(n, i, \gamma) \in \erel{\Gamma'\iota}$, it suffices to prove
 \[(n, i, e\gamma) \in \erel{\tau\iota}\] 
-Since $\Theta;\Delta\vdash\Gamma'<:\Gamma$, applying Lemma \ref{lem:worst-case-ctx-subtyping} to $(n, i, \gamma) \in \erel{\Gamma'\iota}$, we have 
+Since $\Theta;\Delta\vdash\Gamma'<:\Gamma$, applying Lemma~\ref{lem:worst-case-ctx-subtyping} to $(n, i, \gamma) \in \erel{\Gamma'\iota}$, we have 
 \[(n, i, \gamma) \in \erel{\Gamma\iota}\]
 Therefore, we can apply the IH with $\gamma$, which gives the desired.
 \qedhere
@@ -519,19 +524,15 @@ Therefore, we can apply the IH with $\gamma$, which gives the desired.
 
 \section{Soundness}
 \label{sec:worst-case:soundness}
-Lastly, the soundness theorem follows from the Fundamental Property:
+Lastly, we prove the soundness theorem of $\lambda^g_{\mathsf{worst}}$ presented as Theorem~\ref{thm:worst-case-soundness} in Chapter~\ref{chap:4}, which follows from the Fundamental Property:
 
-\begin{thm}[Soudness of $\lambda^g_{\mathsf{worst}}$]
-\label{thm:worst-case-soundness1}
-$\\$ For any $n, i \in \mathbb{N}$, if $\,\hastype{}{e}{\tmonad{ I}{\tau}}$, $e \Downarrow_n v$ 
-and $v \Downarrow^c_{n, i} v'$, then $c \leq  I(i).$ 
-\end{thm}
+\worstsoundness*
 \begin{proof}
-  Apply Theorem \ref{thm:worst-case-fund} to $\hastype{}{e}{\tmonad{I}{\tau}}$, we have 
+  Applying Theorem~\ref{thm:worst-case-fund} to $\hastype{}{e}{\tmonad{I}{\tau}}$, we have 
   \[(n, i, e) \in \erel{\tmonad{ I}{\tau}}\]
-  Unfold the definition of this term relation and instantiate it with $e \Downarrow_n v$, we obtain 
+  Unfolding the definition of this term relation and instantiating it with $e \Downarrow_n v$, we obtain 
   \[(n, i, v) \in \vrel{\tmonad{ I}{\tau}}\]
-  Instantiating this value relation to $v \Downarrow^c_{n, i} v'$ gives the desired: $c \leq  I(i)$.
+  Instantiating this value relation with $v \Downarrow^c_{n, i} v'$ gives the desired: $c \leq  I(i)$.
   \qedhere
 \end{proof}
 \clearpage

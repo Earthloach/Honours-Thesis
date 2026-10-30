@@ -3,12 +3,12 @@
 \section{Guarded Recursion and the Later Modality}
 \label{sec:bg-guarded}
 
-As discussed in Chapter~\ref{chap:Introduction}, the appropriate property for a non-terminating program is 
+As discussed in Chapter~\ref{chap:Introduction}, the appropriate property for non-terminating programs is 
 \emph{productivity}. This section reviews two ways of ensuring productivity, first by a syntactic
 check and then through type systems.
 
-\subsection{Syntactic Productivity Checks}
-The traditional approach of ensuring productivity is \emph{syntactic check} \citep{coquand93}, where it requires every recursive call
+\subsection{Syntactic Productivity Check}
+The traditional approach to guaranteeing productivity is a \emph{syntactic check} \citep{coquand93}, which requires every recursive call to
 appear directly beneath a data constructor. Consider the following
 stream programs, where \texttt{::} is the
 stream constructor:
@@ -23,26 +23,26 @@ bad  = bad
 The check accepts \texttt{ones} and rejects \texttt{bad}, which is never
 able to produce a single element. However, it also rejects \texttt{nats}, which is indeed productive, and it generates
 $0, 1, 2, \ldots$. Since its recursive call is guarded by a function \texttt{map}
-rather than directly by a constructor, the checker cannot see that \texttt{map}
+rather than directly by a constructor, the syntactic checker cannot see that \texttt{map}
 produces one output element for each input. A more flexible approach is guarded recursion, which 
-offers productivity guarantee through types \cite{nakanoModalityRecursion2000}.
+ensures productivity using types \citep{nakanoModalityRecursion2000}.
 
 \subsection{The Later Modality}
 
 Guarded recursion introduces a type modality called ``later'', written
-$\triangleright$. The later modality employs a notion of \emph{logical time}, 
+$\triangleright$. The later modality employs a notion of \emph{discrete logical time}: 
 data of type $\tau$ is considered available now, while data of type $\triangleright \tau$ becomes accessible one step later. 
 Productivity is then enforced by a single rule: every self-reference must
 be guarded by a $\triangleright$. For data types, this means a recursive
-occurrence of the type must appear beneath the later modality. Let $\tau$ denote any type, a guarded stream type is 
-therefore defined as the follow:
+occurrence of the type must appear beneath the later modality. For any type $\tau$, a guarded stream type is 
+therefore defined as follows:
 \[ \tstr{\tau} \triangleq \tau \times \triangleright \tstr{\tau}\]
 
-The head of a stream is accessible now while the tail is only available later.
+The head of a stream is accessible now while the tail is delayed by the modality.
 For programs, this means that within its own definition, a recursive
-reference is only available later: it has type $\triangleright\tau$ rather
+reference is guarded: it has type $\triangleright\tau$ rather
 than $\tau$. For instance, the stream programs from the previous section
-are typed as follows:\footnote{For readability, we leave constructs of the later modality implicit in the example program. In practice, calculi often provide explicit syntax and operations
+are typed as follows:\footnote{For readability, we leave constructs of the later modality implicit in the example programs. In practice, calculi often provide explicit syntax and operations
 for the later type.}
 
 \begin{lstlisting}[style=hs]
@@ -61,21 +61,20 @@ nats = 0 :: map (+1) nats
 \end{lstlisting}
 
 \noindent
-In \texttt{ones}, the recursive reference has type
-$\triangleright\tstr{\mathsf{Int}}$, which is exactly the type required for
-the tail. This is also reflected by the tail function, which gives a ``Later'' stream.
+In \texttt{ones}, the inner self-reference has type
+$\triangleright\tstr{\mathsf{Int}}$, which is exactly the type required to construct a guarded stream.
+This is also reflected by the tail function, which gives a ``Later'' stream.
 In \texttt{map}, both the tail \texttt{xs} and the recursive call
 are guarded, so the recursive call yields a value that is typed $\triangleright\tstr{a}$. Crucially,
-\texttt{nats} is now accepted: applying \texttt{map (+1)} to the delayed
-recursive reference produces a delayed stream, which fits the type. In contrast,
+\texttt{nats} is now accepted: applying \texttt{map (+1)} to the guarded
+recursive reference produces a guarded stream, which fits the type. In contrast,
 \texttt{bad} will still be rejected: its definition requires a stream now, but its
-recursive reference is delayed.
+recursive reference is guarded.
 
 Guarded recursion has since been developed in a range of calculi and type
-theories to reason about infinite data \citep{atkeyProductiveCoprogrammingGuarded2013a, mogelberg14,bahrClocksAreTicking2017}.
-In this thesis, we follow the guarded $\lambda$-calculus~\citep{cloustonGuardedLambdaCalculusProgramming2017a},
-which extends the simply typed $\lambda$-calculus with the later modality
-and guarded recursion.
+theories to reason about infinite computations \citep{atkeyProductiveCoprogrammingGuarded2013a, mogelberg14,bahrClocksAreTicking2017}.
+In this thesis, we follow the guarded $\lambda$-calculus~\citep{cloustonGuardedLambdaCalculusProgramming2017a}, 
+which is an extension of the simply typed $\lambda$-calculus with the later modality, and supports productive definitions of infinite data structures.
 
 \section{Type-Based Cost Analysis}
 \label{sec:bg-cost}
@@ -89,15 +88,14 @@ A natural way to account for cost in types is to treat it as a
 such as printing the output and producing costs. In particular, \citet{moggi91} showed that a wide
 range of effects can be modelled uniformly using monads: the monad
 type $\tmonad{}{\tau}$ describes computations that may perform effects and eventually
-produce a value of type $\tau$.
+output a value of type $\tau$.
 
 Our work specifically builds on
 $\lambda$-amor~\citep{rajaniUnifyingTypetheoryHigherorder2021a}, a type
 system for cost analysis that follows this monadic discipline. To record how
 much cost a computation incurs, $\lambda$-amor uses a \emph{graded}
 monad~\citep{katsumata14}, a monad whose type carries an additional
-annotation. A type $\tmonad{I}{\tau}$ describes a computation that
-produces a value of type $\tau$ with a cost of at most $I$, where $I$ is a \emph{nonnegative} real number. 
+annotation. A type $\tmonad{I}{\tau}$ describes a monadic computation, but with an extra grade $I$ representing an upper bound on the cost of executing it, where $I$ is a \emph{nonnegative} real number. 
 Following the standard treatment of monads, the graded cost monad has the following basic operations:
 \[
   \ret e : \tau \to \tmonad{0}{\tau}
@@ -105,9 +103,9 @@ Following the standard treatment of monads, the graded cost monad has the follow
   \bind{x}{e_1}{e_2} : \tmonad{I}{\tau_1} \to \tmonad{J}{\tau_2} \to \tmonad{I + J}{\tau_2}
 \]
 The operation $\mathsf{ret}$ lifts an ordinary program $e$ into an effectful computation that returns
-its value without incurring any cost. This gives the flexibility to transform normal programs to monads, allowing them to interact with other monadic computations.
-By the $\mathsf{bind}$ operation, a computation $e_1$ of type $\tmonad{I}{\tau}$ can be sequenced into a continuation $e_2$ of type $\tmonad{J}{\tau}$ which may use the result of $e_1$ as $x$, and their 
-costs will be summed as $I+J$.
+its value without incurring any cost. This gives the flexibility to transform normal programs into monads, allowing them to interact with other monadic computations.
+By the $\mathsf{bind}$ operation, a computation $e_1$ of type $\tmonad{I}{\tau}$ can be sequenced into a continuation $e_2$ of type $\tmonad{J}{\tau}$, where $e_2$ may use the result of $e_1$ as $x$, and their 
+costs will be summed as $I+J$ to account for the work done by both.
 For example, consider the program defined below:
 \begin{lstlisting}[style=hs]
 doWork1 : M 10 a
@@ -116,27 +114,28 @@ doWork2 : M 20 b
 doBoth : M 30 b 
 doBoth = bind x = doWork1 in doWork2
 \end{lstlisting}
-he program \texttt{doBoth} first runs \texttt{doWork1} and then \texttt{doWork2}, so its cost is the sum $10 + 20 = 30$ of the two.
+The program \texttt{doBoth} first runs \texttt{doWork1} and then \texttt{doWork2}, so its cost is the sum $10 + 20 = 30$ of the two.
 
 The cost bounds discussed so far are \emph{worst-case} bounds: each operation is
 charged for its most expensive possible execution. For operations whose cost can
-vary largely, this can be overly pessimistic. Beyond
+vary greatly, this can be overly pessimistic. Beyond
 worst-case bounds, $\lambda$-amor can also analyse amortised costs, 
 which we introduce in the next section.
 
 \section{Amortised Analysis}
-Many type-based cost analysis frameworks like support
-\emph{amortised} analysis \citep{hofmannJ03, JostHLH10, Danielsson08}.
+\label{sec:bg-amortised}
+Many type-based cost analysis frameworks support
+amortised cost bounds \citep{hofmannJ03, JostHLH10, Danielsson08}.
 In this section, we give a brief introduction to amortised analysis, as it is part of our development in this thesis.
 
 \emph{Amortised analysis}~\citep{tarjan85} bounds the total cost of a
-\emph{sequence} of operations rather than the cost of each individual operation. 
+\emph{sequence} of operations rather than the cost of each operation. 
 The cost of rare expensive operations is thereby spread over the
 cheap ones, which often yields much tighter bounds than worst-case analysis.
 
 A standard technique for amortised analysis is the \emph{potential
 method}. The method associates data structures with a \emph{potential function} $\Phi$, which assigns a
-non-negative number to each state of the data structure The \emph{amortised cost}
+nonnegative number to states of the data structure. The \emph{amortised cost}
 $a$ of an operation that takes the state from $s_n$ to $s_{n+1}$ with actual cost
 $c$ is required to satisfy:
 \[
@@ -151,9 +150,9 @@ potentials in between cancel, and we get
   \;\le\; \sum_{i=1}^{m} a_i + \Phi(s_0).
 \]
 Thus, if the data structure starts with zero potential, the total actual cost is
-bounded by the total amortised cost.  In practice, we usually choose potential functions such that a expensive operation
-result in a substantial decrease in the potential between two states. For example, choose a potential function that $\Phi(s_n)$ is very large while 
-$\Phi(s_{n+1})$ is very small, and hence $a$ become relatively small compared to $c$.
+bounded by the total amortised cost. In particular, we usually choose potential functions to achieve the effect that an expensive operation
+results in a substantial decrease in the potential between two states. For example, if we choose a potential function such that $\Phi(s_n)$ is very large while 
+$\Phi(s_{n+1})$ is small, then $a$ becomes relatively small compared to $c$.
 
 A classic example of amortised analysis is a binary counter, represented as a list of bits with
 the least significant bit at the front. Incrementing the counter flips trailing
@@ -161,22 +160,23 @@ ones to zeros until it reaches a zero, and updates it to one:
 
 \begin{lstlisting}[style=hs]
 inc :: List Bit -> List Bit
-inc []          = [1]
-inc (0 : bs) = 1 : bs
-inc (1 : bs)  = 0 : inc bs
+inc []          = [One]
+inc (Zero : bs) = One : bs
+inc (One : bs)  = Zero : inc bs
 \end{lstlisting}
 
 \noindent
+A bit is either \texttt{One} or \texttt{Zero}.
 Suppose incrementing one bit costs one unit. In the worst case, where the elements inside are all ones, a single
 increment of the counter with $k$ bits flips all of them, which costs $k + 1$.
-For instance, incrementing \texttt{[1, 1, 1]} yields
-\texttt{[0, 0, 0, 1]} with a cost of $4$. However, such expensive
+For instance, incrementing \texttt{[One, One, One]} yields
+\texttt{[Zero, Zero, Zero, One]} with a cost of $4$. However, such expensive
 increments are rare: after this increment occurs, the low bits are all zeros, and many
 cheap increments must follow before an expensive one can happen again.
 
 The conventional approach is to let $\Phi$ be the number of
-``1'' bits in the counter. Consider an increment that flips $k$
-trailing ones to zeros and the ending zero to a
+\texttt{One} bits in the counter. Consider an increment that flips $k$
+trailing ones to zeros and the first zero to a
 one. Its actual cost is $k + 1$. Its potential decreases by $k$ and
 increases by $1$, and we get
 \[
@@ -188,6 +188,8 @@ $2m$ in total, while worst-case analysis only gives a bound that grows
 with the size of the counter.
 
 Another point of view is that 
-each ``1'' bit stores one unit of potential locally to pay for the cost of flipping it back to
-the ``0'' bit. This is the approach adopted by existing systems such as $\lambda$-amor~\citep{rajaniUnifyingTypetheoryHigherorder2021a}, where types carry potential to offset costs.
+each \texttt{One} bit stores one unit of potential locally to pay for the cost of flipping it back to
+the \texttt{Zero} bit. This is the approach adopted by existing systems such as $\lambda$-amor~\citep{rajaniUnifyingTypetheoryHigherorder2021a}, where types carry potential to offset costs.
+
+
 

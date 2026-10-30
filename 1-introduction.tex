@@ -1,8 +1,7 @@
 \chapter{Introduction}\label{chap:Introduction}
-
 Computation costs money, and writing programs that do more work than intended can be a major problem. For example, cloud providers are
 notorious for sending surprisingly large bills to clients who underestimated the computational needs of their programs.
-Type systems can provide static guarantees about the behaviour of all possible programs written in a language.
+One approach to address this problem is through type systems, which can provide static guarantees about the computational behaviour of programs.
 In particular, graded modalities \citep{katsumata14, orchardQuantitativeProgramReasoning2019a} are type formers that give
 programmers control over the cost of their programs, as well-typed programs can never do more work than the programmer is willing to allow.
 
@@ -11,18 +10,18 @@ applications that are intended to run continually, producing outputs as they go,
 Instead of guarantees about a final output, we would like guarantees about \emph{productivity} \citep{atkeyProductiveCoprogrammingGuarded2013a},
 which means that for as long as the program runs, it will continue to produce correct output.
 Guarded modalities \citep{nakanoModalityRecursion2000, cloustonGuardedLambdaCalculusProgramming2017a} are type formers that allow programmers
-to write non-terminating programs, but disallow such programs that are not productive.
+to write non-terminating programs, but disallow non-productive ones.
 
-These two kinds of modality address different concerns. The cost analyses mentioned above mostly target finite computations.
-Guarded modalities ensure that each output eventually arrives, but they do not tell how much
+These two kinds of modality address different concerns. Cost analysis using graded modalities mostly targets finite computations.
+Guarded modalities ensure that each output eventually arrives, but they do not tell us how much
 work is needed to produce it, so a program can be productive and still expensive. Moreover, a program that never stops usually does an
-unbounded amount of work in total, and hence bounding on its whole execution is meaningless. Instead, a suitable notion is to describe the cost of producing
+unbounded amount of work in total. Instead, a suitable notion is to describe the cost of producing
 the next output. Specifically, this thesis seeks answers to the question:
 \begin{quote}
   \emph{Can types be used to specify the cost of productive non-terminating programs?}
 \end{quote}
 
-To see why this matters, consider the following two stream programs, written in Haskell-like syntax, 
+To see what this involves, consider the following two stream programs, written in Haskell-like syntax, 
 where \texttt{input} is a stream of numbers:
 
 \begin{lstlisting}[style=hs]
@@ -31,30 +30,30 @@ totals k = sum (take k input) :: totals (k + 1)
 \end{lstlisting}
 
 \noindent
-The stream \texttt{doubled} applies \texttt{double} to each input element. The $k$-th element of \texttt{totals~0} is the sum of
-the first $k$ input elements, recomputed from scratch each time. Both programs are productive, but their costs per step behave differently. Every element of \texttt{doubled} takes one call to \texttt{double},
-so the same constant bounds every step. In contrast, the $k$-th element of \texttt{totals~0} needs $k$ additions, so no single
-constant is enough, and its cost bound must grow as the stream continues. Thus, a cost specification should be able
-to express both kinds of bound.
+The stream \texttt{doubled} simply applies \texttt{double} to each input element. The $n$-th element of \texttt{totals~0} is the sum of
+the first $n$ input elements, recomputed from scratch each time. Both programs are productive, but their costs per step behave differently. Every element of \texttt{doubled} takes one call to \texttt{double},
+so the cost remains constant at every step. In contrast, the $n$-th element of \texttt{totals~0} needs $n$ additions, so a single
+constant cost bound is not enough, and the bound should grow as the stream continues. Thus, a specification such as a type should be able
+to express both kinds of cost.
 
 To this end, we design an idealised programming language, based on the $\lambda$-calculus, with both graded and guarded
 modalities, in which the programmer may specify how much cost may be incurred for each additional step of the program.
 Specifically, we employ the later modality of the guarded $\lambda$-calculus \citep{cloustonGuardedLambdaCalculusProgramming2017a}
 with the graded cost monad of $\lambda$-amor \citep{rajaniUnifyingTypetheoryHigherorder2021a}.
-We then extend this approach from worst-case to amortised analysis \citep{tarjan85} to give more precise upper bounds for cost.
+We then extend this approach from specifying worst-case cost to amortised cost \citep{tarjan85} to give a more precise upper bound.
 
 Overall, this thesis makes the following contributions:
 \begin{itemize}
   \item 
-  We present $\lambda^g_{\mathsf{worst}}$, which combine the later modality with a graded monad. It introduces a new form of
+  We present $\lambda^g_{\mathsf{worst}}$, a calculus for worst-case analysis that combines the later modality with a graded monad. It introduces a new form of
   cost that can vary from one step to the next, and a distributivity operation between the two modalities,
   which allows the cost of producing future outputs to be charged in advance.
   We give the calculus a fuel-based, call-by-value operational semantics, and demonstrate cost analysis examples, such as bounding the costs of ordinary stream functions.
   \item 
-  Following the approach of $\lambda$-amor, we give a semantic interpretation to $\lambda^g_{\mathsf{worst}}$ and prove it is sound with respect to its type system, using a step-indexed Kripke logical relation
+  Following the approach of $\lambda$-amor, we give a semantic interpretation to $\lambda^g_{\mathsf{worst}}$ and prove the soundness of our type system using a step-indexed Kripke logical relation
   \citep{ahmed2004semantics}.
   \item 
-  We develop $\lambda^g_{\mathsf{amor}}$, a extension of $\lambda^g_{\mathsf{worst}}$ for amortised analysis, which employs affine types and a graded
+  We develop $\lambda^g_{\mathsf{amor}}$, an extension of $\lambda^g_{\mathsf{worst}}$ for amortised analysis, which employs affine types and a graded
   potential modal type, based on $\lambda$-amor. We illustrate its amortisation features through example programs,
   and establish its soundness by extending the logical relation of $\lambda^g_{\mathsf{worst}}$. 
 \end{itemize}
